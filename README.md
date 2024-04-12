@@ -168,7 +168,7 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
 
 ### 1. 文本插值
 
-最基本的數據綁定是文本插值，使用 Mustache 語法(雙大括號)，會將數據解釋為**純文本**。
+最基本的數據綁定是文本插值，使用 Mustache 語法(雙大括號)，會將數據解析為**純文本**。
 
 支持使用表達式( 可以合法地寫在 return 後面的即為表達式 )或引用 `<script>` 中聲明的變數、函數。
 
@@ -224,11 +224,11 @@ HTML attributes 中不能使用雙大括號，因此想要響應式的綁定一�
 
 語法：`v-bind:attribute-name="值"`
 
-可以簡寫為 `:attribute-name="值"`
-
 ```vue
 <div v-bind:id="dynamicId">layout</div>
 ```
+
+可以簡寫為 `:attribute-name="值"`
 
 ```vue
 <div :id="dynamicId">layout</div>
