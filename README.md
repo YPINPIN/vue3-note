@@ -12,6 +12,8 @@
 - [創建一個 Vue 應用](#創建一個-vue-應用)
 - [模板語法](#模版語法)
 - [響應式狀態 ref & reactive](#響應式狀態-ref--reactive)
+- [淺層響應式狀態 shallowRef & shallowReactive](#淺層響應式狀態-shallowref--shallowreactive)
+- [readonly](#readonly)
 - [DOM 更新時機](#dom-更新時機)
 - [toRefs & toRef](#torefs--toref)
 - [計算屬性 computed](#計算屬性-computed)
@@ -350,6 +352,115 @@ function addPrice() {
       fruit:
       {{ fruit }}
       <button @click="addPrice">add fruit price</button>
+    </div>
+  </div>
+</template>
+```
+
+## 淺層響應式狀態 shallowRef & shallowReactive
+
+與前面的 ref & reactive 不同，只針對淺層數據具有響應式，對深層的數據不做處理，**可以避免大型數據的響應性造成的性能開銷**。
+
+shallowRef：只會對 `.value` 的變化進行響應式處理
+
+```vue
+<script setup>
+import { shallowRef } from 'vue'
+const obj = shallowRef({ count: 1 })
+
+function changeObjCount() {
+  // 不會觸發響應
+  obj.value.count++
+  console.log('obj', obj.value)
+}
+function changeObj() {
+  // 會觸發響應
+  let count = obj.value.count + 1
+  obj.value = { count: count }
+  console.log('obj', obj.value)
+}
+</script>
+
+<template>
+  <div>
+    <div>
+      obj (shallowRef):
+      {{ obj }}
+      <button @click="changeObjCount">changeObjCount</button>
+      <button @click="changeObj">changeObj</button>
+    </div>
+  </div>
+</template>
+```
+
+shallowReactive：只會使物件的**最頂層屬性**為響應式狀態，內部的嵌套屬性則不會為響應式
+
+```vue
+<script setup>
+import { shallowReactive } from 'vue'
+const state = shallowReactive({
+  foo: 1,
+  nested: {
+    bar: 2,
+  },
+})
+
+function changeFoo() {
+  // 更改頂層的屬性是響應式的
+  state.foo++
+  console.log('state', state)
+}
+function changeNestedBar() {
+  // 下層嵌套的屬性不會是響應式
+  state.nested.bar++
+  console.log('state', state)
+}
+</script>
+
+<template>
+  <div>
+    <div>
+      state (shallowReactive):
+      {{ state }}
+      <button @click="changeFoo">changeFoo</button>
+      <button @click="changeNestedBar">changeNestedBar</button>
+    </div>
+  </div>
+</template>
+```
+
+## readonly
+
+`readonly()` 接收一個物件(不論是普通的或響應式)或是一個 ref，返回一個原值的只讀代理(深層的，淺層的可以使用 [shallowReadonly](https://cn.vuejs.org/api/reactivity-advanced.html#shallowreadonly) )。
+
+```vue
+<script setup>
+import { reactive, readonly } from 'vue'
+const original = reactive({ count: 0 })
+
+const copy = readonly(original)
+
+function changeOriginal() {
+  // 可以正常修改響應
+  original.count++
+}
+
+function changeCopy() {
+  // 不能修改且會得到警告
+  copy.count++
+}
+</script>
+
+<template>
+  <div>
+    <div>
+      original:
+      {{ original }}
+      <button @click="changeOriginal">changeOriginal</button>
+      <br />
+      copy (readonly):
+      {{ copy }}
+      <button @click="changeCopy">changeCopy</button>
     </div>
   </div>
 </template>

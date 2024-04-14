@@ -1,33 +1,51 @@
 <script setup>
-import { ref, computed } from 'vue'
-let firstName = ref('張')
-let lastName = ref('三')
+import { shallowRef, shallowReactive } from 'vue'
+const obj = shallowRef({ count: 1 })
 
-// 只讀取不修改
-// let fullName = computed(() => {
-//   return firstName.value + '-' + lastName.value
-// })
+function changeObjCount() {
+  // 不會觸發響應
+  obj.value.count++
+  console.log('obj', obj.value)
+}
+function changeObj() {
+  // 會觸發響應
+  let count = obj.value.count + 1
+  obj.value = { count: count }
+  console.log('obj', obj.value)
+}
 
-// 讀取又修改
-let fullName = computed({
-  get() {
-    return firstName.value + '-' + lastName.value
-  },
-  set(val) {
-    firstName.value = val.split('-')[0]
-    lastName.value = val.split('-')[1]
+const state = shallowReactive({
+  foo: 1,
+  nested: {
+    bar: 2,
   },
 })
-function changeFullName() {
-  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三'
+
+function changeFoo() {
+  // 更改頂層的屬性是響應式的
+  state.foo++
+  console.log('state', state)
+}
+function changeNestedBar() {
+  // 下層嵌套的屬性不會是響應式
+  state.nested.bar++
+  console.log('state', state)
 }
 </script>
 
 <template>
-  <div class="person">
-    姓：<input type="text" v-model="firstName" /> <br />
-    名：<input type="text" v-model="lastName" /> <br />
-    全名：<span>{{ fullName }}</span> <br />
-    <button @click="changeFullName">修改名字</button>
+  <div>
+    <div>
+      obj (shallowRef):
+      {{ obj }}
+      <button @click="changeObjCount">changeObjCount</button>
+      <button @click="changeObj">changeObj</button>
+    </div>
+    <div>
+      state (shallowReactive):
+      {{ state }}
+      <button @click="changeFoo">changeFoo</button>
+      <button @click="changeNestedBar">changeNestedBar</button>
+    </div>
   </div>
 </template>
