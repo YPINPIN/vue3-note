@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
-let name = ref('小明')
-let obj = ref({ count: 0 })
-let fruit = reactive({
+const name = ref('小明')
+const obj = ref({ count: 0 })
+const fruit = reactive({
   name: 'apple',
   price: 20,
 })
@@ -21,14 +21,14 @@ function addPrice() {
 
 import { toRefs, toRef } from 'vue'
 
-let person = reactive({
+const person = reactive({
   personName: '小明',
   age: 18,
   gender: '男',
 })
 
-let { personName, age } = toRefs(person)
-let gender = toRef(person, 'gender')
+const { personName, age } = toRefs(person)
+const gender = toRef(person, 'gender')
 
 function changePersonName() {
   personName.value = personName.value === '小明' ? '小白' : '小明'

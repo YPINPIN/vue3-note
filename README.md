@@ -16,7 +16,7 @@
 - [readonly](#readonly)
 - [DOM 更新時機](#dom-更新時機)
 - [toRefs & toRef](#torefs--toref)
-- [計算屬性 computed](#計算屬性-computed)
+- [computed 計算屬性](#computed-計算屬性)
 
 ## 初始化專案
 
@@ -316,9 +316,9 @@ const objectOfAttrs = {
 ```vue
 <script setup>
 import { ref, reactive } from 'vue'
-let name = ref('小明')
-let obj = ref({ count: 0 })
-let fruit = reactive({
+const name = ref('小明')
+const obj = ref({ count: 0 })
+const fruit = reactive({
   name: 'apple',
   price: 20,
 })
@@ -493,14 +493,14 @@ async function increment() {
 <script setup>
 import { reactive, toRefs, toRef } from 'vue'
 
-let person = reactive({
+const person = reactive({
   personName: '小明',
   age: 18,
   gender: '男',
 })
 
-let { personName, age } = toRefs(person)
-let gender = toRef(person, 'gender')
+const { personName, age } = toRefs(person)
+const gender = toRef(person, 'gender')
 
 function changePersonName() {
   personName.value = personName.value === '小明' ? '小白' : '小明'
@@ -535,13 +535,15 @@ function changePersonGender() {
 </template>
 ```
 
-## 計算屬性 computed
+## computed 計算屬性
+
+語法：`computed(有返回值的函數)`
 
 根據已有的數據計算出新數據並返回一個`計算屬性ref`，模板內無需添加 `.value`。
 
-計算屬性會**自動追蹤響應式依賴**，所以當內部綁定的屬性變動時皆會更新。
+`computed` 會**自動追蹤響應式依賴**，所以當內部綁定的響應式數據變動時皆會更新。
 
-與直接使用 function 定義返回結果會相同，但是**使用計算屬性會對響應式資料進行緩存**，只有在內部屬性變動時才會重新計算，function 則每次皆會進行計算。
+與直接使用 function 定義返回的結果會相同，但是**使用計算屬性會對響應式資料進行緩存**，只有在內部響應式數據變動時才會重新計算，function 則每次皆會進行計算。
 
 > 注意：const now = computed(() => Date.now())，會讀取緩存，永遠不會更新，因為 `Date.now()` 不是一個響應式依賴
 
@@ -550,16 +552,20 @@ function changePersonGender() {
 ```vue
 <script setup>
 import { ref, computed } from 'vue'
-let firstName = ref('張')
-let lastName = ref('三')
+const count = ref(0)
+const firstName = ref('張')
+const lastName = ref('三')
 
 // 只讀取不修改
-// let fullName = computed(() => {
-//   return firstName.value + '-' + lastName.value
-// })
+const doubleCount = computed(() => {
+  return count.value * 2
+})
+function addCount() {
+  count.value++
+}
 
 // 讀取又修改
-let fullName = computed({
+const fullName = computed({
   get() {
     return firstName.value + '-' + lastName.value
   },
@@ -574,7 +580,12 @@ function changeFullName() {
 </script>
 
 <template>
-  <div class="person">
+  <div>
+    count : {{ count }}
+    <br />
+    doubleCount : {{ doubleCount }}
+    <button @click="addCount">addCount</button>
+    <hr />
     姓：<input type="text" v-model="firstName" /> <br />
     名：<input type="text" v-model="lastName" /> <br />
     全名：<span>{{ fullName }}</span> <br />

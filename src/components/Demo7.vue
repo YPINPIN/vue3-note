@@ -1,15 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue'
-let firstName = ref('張')
-let lastName = ref('三')
+const count = ref(0)
+const firstName = ref('張')
+const lastName = ref('三')
 
 // 只讀取不修改
-// let fullName = computed(() => {
-//   return firstName.value + '-' + lastName.value
-// })
+const doubleCount = computed(() => {
+  return count.value * 2
+})
+function addCount() {
+  count.value++
+}
 
 // 讀取又修改
-let fullName = computed({
+const fullName = computed({
   get() {
     return firstName.value + '-' + lastName.value
   },
@@ -24,7 +28,12 @@ function changeFullName() {
 </script>
 
 <template>
-  <div class="person">
+  <div>
+    count : {{ count }}
+    <br />
+    doubleCount : {{ doubleCount }}
+    <button @click="addCount">addCount</button>
+    <hr />
     姓：<input type="text" v-model="firstName" /> <br />
     名：<input type="text" v-model="lastName" /> <br />
     全名：<span>{{ fullName }}</span> <br />
