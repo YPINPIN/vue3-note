@@ -297,11 +297,13 @@ const objectOfAttrs = {
 
 ## 響應式狀態 ref & reactive
 
-- ref：基本類型數據、物件類型數據
+當響應式狀態發生變化時，`<template>` 中使用到的會自動重新渲染。
 
-  - ref 的變數在 js 內必須使用 `.value`
+- ref：基本類型數據、物件類型數據 (物件、陣列)
 
-- reactive：物件類型數據
+  - ref 的變數在 js 內必須使用 `.value` 取得值
+
+- reactive：物件類型數據 (物件、陣列)
   - 屬性為基本數據類型被解構為本地變數或是傳遞給函數時會丟失響應性，可以使用 `toRefs` 及 `toRef` 解決。[原因說明](https://blog.csdn.net/qq_41370833/article/details/132565060)
   - 重新指定新的物件會失去響應式 (可以使用 `Object.assign` 去整體替換)
 - 使用原則：
@@ -312,14 +314,45 @@ const objectOfAttrs = {
 ```vue
 <script setup>
 import { ref, reactive } from 'vue'
-
 let name = ref('小明')
-
+let obj = ref({ count: 0 })
 let fruit = reactive({
   name: 'apple',
   price: 20,
 })
+
+function changeName() {
+  name.value = name.value === '小明' ? '小白' : '小明'
+}
+
+function addCount() {
+  obj.value.count++
+}
+
+function addPrice() {
+  fruit.price += 10
+}
 </script>
+
+<template>
+  <div>
+    <div>
+      name:
+      {{ name }}
+      <button @click="changeName">changeName</button>
+    </div>
+    <div>
+      obj:
+      {{ obj }}
+      <button @click="addCount">add obj count</button>
+    </div>
+    <div>
+      fruit:
+      {{ fruit }}
+      <button @click="addPrice">add fruit price</button>
+    </div>
+  </div>
+</template>
 ```
 
 ## DOM 更新時機
@@ -350,14 +383,45 @@ async function increment() {
 import { reactive, toRefs, toRef } from 'vue'
 
 let person = reactive({
-  name: '小明',
+  personName: '小明',
   age: 18,
   gender: '男',
 })
 
-let { name, age } = toRefs(person)
+let { personName, age } = toRefs(person)
 let gender = toRef(person, 'gender')
+
+function changePersonName() {
+  personName.value = personName.value === '小明' ? '小白' : '小明'
+}
+
+function changePersonAge() {
+  age.value++
+}
+
+function changePersonGender() {
+  gender.value = gender.value === '男' ? '女' : '男'
+}
 </script>
+
+<template>
+  <div>
+    person:
+    {{ person }}
+    <br />
+    personName:
+    {{ personName }}
+    <button @click="changePersonName">changePersonName</button>
+    <br />
+    age:
+    {{ age }}
+    <button @click="changePersonAge">changePersonAge</button>
+    <br />
+    gender:
+    {{ gender }}
+    <button @click="changePersonGender">changePersonGender</button>
+  </div>
+</template>
 ```
 
 ## 計算屬性 computed
@@ -394,7 +458,7 @@ let fullName = computed({
   },
 })
 function changeFullName() {
-  fullName.value = '李-四'
+  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三'
 }
 </script>
 
@@ -403,7 +467,7 @@ function changeFullName() {
     姓：<input type="text" v-model="firstName" /> <br />
     名：<input type="text" v-model="lastName" /> <br />
     全名：<span>{{ fullName }}</span> <br />
-    <button @click="changeFullName">全名改為：李-四</button>
+    <button @click="changeFullName">修改名字</button>
   </div>
 </template>
 ```

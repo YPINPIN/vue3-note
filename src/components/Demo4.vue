@@ -1,33 +1,81 @@
 <script setup>
-import { ref, computed } from 'vue'
-let firstName = ref('張')
-let lastName = ref('三')
-
-// 只讀取不修改
-// let fullName = computed(() => {
-//   return firstName.value + '-' + lastName.value
-// })
-
-// 讀取又修改
-let fullName = computed({
-  get() {
-    return firstName.value + '-' + lastName.value
-  },
-  set(val) {
-    firstName.value = val.split('-')[0]
-    lastName.value = val.split('-')[1]
-  },
+import { ref, reactive } from 'vue'
+let name = ref('小明')
+let obj = ref({ count: 0 })
+let fruit = reactive({
+  name: 'apple',
+  price: 20,
 })
-function changeFullName() {
-  fullName.value = '李-四'
+
+function changeName() {
+  name.value = name.value === '小明' ? '小白' : '小明'
+}
+
+function addCount() {
+  obj.value.count++
+}
+
+function addPrice() {
+  fruit.price += 10
+}
+
+import { toRefs, toRef } from 'vue'
+
+let person = reactive({
+  personName: '小明',
+  age: 18,
+  gender: '男',
+})
+
+let { personName, age } = toRefs(person)
+let gender = toRef(person, 'gender')
+
+function changePersonName() {
+  personName.value = personName.value === '小明' ? '小白' : '小明'
+}
+
+function changePersonAge() {
+  age.value++
+}
+
+function changePersonGender() {
+  gender.value = gender.value === '男' ? '女' : '男'
 }
 </script>
 
 <template>
-  <div class="person">
-    姓：<input type="text" v-model="firstName" /> <br />
-    名：<input type="text" v-model="lastName" /> <br />
-    全名：<span>{{ fullName }}</span> <br />
-    <button @click="changeFullName">全名改為：李-四</button>
+  <div>
+    <div>
+      name:
+      {{ name }}
+      <button @click="changeName">changeName</button>
+    </div>
+    <div>
+      obj:
+      {{ obj }}
+      <button @click="addCount">add obj count</button>
+    </div>
+    <div>
+      fruit:
+      {{ fruit }}
+      <button @click="addPrice">add fruit price</button>
+    </div>
+    <hr />
+    <div>
+      person:
+      {{ person }}
+      <br />
+      personName:
+      {{ personName }}
+      <button @click="changePersonName">changePersonName</button>
+      <br />
+      age:
+      {{ age }}
+      <button @click="changePersonAge">changePersonAge</button>
+      <br />
+      gender:
+      {{ gender }}
+      <button @click="changePersonGender">changePersonGender</button>
+    </div>
   </div>
 </template>

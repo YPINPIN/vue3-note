@@ -4,6 +4,7 @@ import Demo1 from './components/Demo1.vue'
 import Demo2 from './components/Demo2.vue'
 import Demo3 from './components/Demo3.vue'
 import Demo4 from './components/Demo4.vue'
+import Demo5 from './components/Demo5.vue'
 const currentTab = ref('Demo1')
 
 const tabs = {
@@ -11,6 +12,7 @@ const tabs = {
   Demo2,
   Demo3,
   Demo4,
+  Demo5,
 }
 </script>
 
