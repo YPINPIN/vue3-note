@@ -17,6 +17,7 @@
 - [DOM 更新時機](#dom-更新時機)
 - [toRefs & toRef](#torefs--toref)
 - [computed 計算屬性](#computed-計算屬性)
+- [響應式數據監聽 watch & watchEffect](#響應式數據監聽-watch--watcheffect)
 
 ## 初始化專案
 
@@ -590,6 +591,340 @@ function changeFullName() {
     名：<input type="text" v-model="lastName" /> <br />
     全名：<span>{{ fullName }}</span> <br />
     <button @click="changeFullName">修改名字</button>
+  </div>
+</template>
+```
+
+## 響應式數據監聽 watch & watchEffect
+
+當響應式數據發生改變時，可以執行指定的邏輯操作。
+
+### watch
+
+預設為**懶執行**，即有變化才執行指定的回調函數，若想馬上執行一次可以加上 `{immediate: true}`。
+
+回調函數提供新值與舊值作為參數。
+
+要手動停止監聽，可以調用 `watch` 返回的函數。
+
+`watch` 可以監視以下四種數據：
+
+1. ref (包含計算屬性)
+2. reactive 物件
+3. `getter` 函數
+4. 以上多個數據組成的陣列
+
+#### § ref (包含計算屬性)
+
+監視 ref 的**基本類型**數據，**直接寫變數名**即可，監視 **value 值**的改變。
+
+```vue
+<script setup>
+import { ref, watch } from 'vue'
+// ref 的基本類型數據
+const count = ref(0)
+// 方法
+function addCount() {
+  count.value += 1
+}
+// 監聽 ref 數據，並保存返回函數
+const stopWatch = watch(count, (newVal, oldVal) => {
+  console.log('count改變了', newVal, oldVal)
+  if (newVal >= 10) {
+    // 手動停止監聽
+    stopWatch()
+    console.log('停止監聽!!')
+  }
+})
+</script>
+
+<template>
+  <div>
+    <span>監視ref的基本類型數據：count: {{ count }}</span>
+    <button @click="addCount">count+1</button>
+  </div>
+</template>
+```
+
+監視 ref 的**物件類型**數據，直接寫變數名監視的為物件的地址值變化(**只會監視 `.value` 的直接變化**)。
+
+若要監視物件內部屬性的數據變化，必須**手動開啟深度監視 `{deep:true}`**。
+
+> 注意：只有當物件地址值 (`.value`) 改變，才能夠取得不同的 newVal 和 oldVal。若修改的是物件中的屬性，newVal 與 oldVal 抓到的物件內容是相同的，因此皆會顯示為修改後的數據。
+
+```vue
+<script setup>
+import { ref, watch } from 'vue'
+// ref 的物件類型數據
+const data = ref([1, 2, 3])
+// 方法 - 修改物件中的屬性
+function addData() {
+  let count = data.value.length + 1
+  data.value.push(count)
+}
+// // 方法 - 修改物件本身
+function changeData() {
+  data.value = [1]
+}
+// 監聽 ref 物件數據，要手動設定 deep
+watch(
+  data,
+  (newVal, oldVal) => {
+    console.log('data改變了', newVal, oldVal)
+  },
+  { deep: true }
+)
+</script>
+
+<template>
+  <div>
+    <span>監視ref的物件類型數據：data: {{ data }}</span>
+    <button @click="addData">addData</button>
+    <button @click="changeData">changeData</button>
+  </div>
+</template>
+```
+
+#### § reactive 物件
+
+監視 reactive 的物件類型數據，直接寫變數名監視，**會自動開啟深度監視**，且 `deep` 配置無效。
+
+reactive 無法替換物件，但是可以使用 `Object.assign` 來**替換掉物件內的屬性**，需要注意實質上地址值是沒有改變的(同一個物件)。
+
+> 注意：物件中的任意屬性修改後，獲取的 oldVal 與 newVal 仍然會是相同的物件，因此皆會顯示為修改後的數據。 <br />
+> 想要正確監聽指定屬性的 oldVal 則可以使用 `getter` 函數的方式。
+
+```vue
+<script setup>
+import { reactive, watch } from 'vue'
+// reactive 的物件類型數據
+const person = reactive({
+  name: 'Peter',
+  age: 18,
+  books: {
+    book1: 'book111',
+    book2: 'book222',
+    c: {
+      d: '123',
+    },
+  },
+})
+// 更改屬性
+function changeName() {
+  person.name += '!'
+}
+function changeAge() {
+  person.age += 2
+}
+// 更改深層屬性
+function changeBook1() {
+  person.books.book1 += '~'
+}
+function changeBookD() {
+  person.books.c.d += '-'
+}
+// 使用Object.assign替換reactive物件屬性(還是同一個物件，地址值無更改)
+function changePerson() {
+  Object.assign(person, {
+    name: 'Joy',
+    age: 40,
+    books: {
+      book1: 'book1',
+      book2: 'book2',
+      book3: 'book3',
+      c: {
+        d: '567',
+      },
+    },
+  })
+}
+// 監視reactive定義的物件數據，默認深度監視
+// newVal, oldVal 皆會為新值
+watch(person, (newVal, oldVal) => {
+  console.log('person改變了', newVal, oldVal)
+})
+</script>
+
+<template>
+  <div>
+    <span>監視reactive的物件類型數據：person: {{ person }}</span>
+    <br />
+    <button @click="changeName">changeName</button>
+    <button @click="changeAge">changeAge</button>
+    <button @click="changeBook1">changeBook1</button>
+    <button @click="changeBookD">changeBookD</button>
+    <button @click="changePerson">changePerson</button>
+  </div>
+</template>
+```
+
+#### § getter 函數
+
+可以使用 `getter` 函數形式來監聽 ref 或 reactive 定義的物件類型中的某個屬性變化。
+
+當屬性值為**基本類型**時，可以正確獲取 oldVal 與 newVal。
+
+當屬性值為**物件類型**時，此時監視的一樣是物件的**地址值變化**，監視內部屬性變化**需要手動開啟深度監視**，且 oldVal 與 newVal 只會在物件本身更改時正確獲取，直接修改物件內部屬性獲取的 oldVal 與 newVal 仍然會是相同的物件，因此皆會顯示為修改後的數據。
+
+```vue
+<script setup>
+import { reactive, watch } from 'vue'
+// 使用 getter 函數監聽屬性變化
+const person2 = reactive({
+  name: 'Peter',
+  age: 18,
+  books: {
+    book1: 'book111',
+    book2: 'book222',
+  },
+})
+// 更改屬性
+function changeP2Name() {
+  person2.name += '!'
+}
+// 更改深層屬性
+function changeP2Book1() {
+  person2.books.book1 += '~'
+}
+// 更改物件屬性
+function changeP2Book() {
+  person2.books = {
+    book1: 'book1',
+    book2: 'book2',
+    book3: 'book3',
+  }
+}
+// 監視 reactive 定義的物件的屬性值為基本類型
+watch(
+  () => person2.name,
+  (newVal, oldVal) => {
+    console.log('person2 的 name 改變了', newVal, oldVal)
+  }
+)
+// 監視 reactive 定義的物件的屬性值為物件類型
+// 要手動開啟深度監視，沒開啟則只有 person2.books 本身被更改才會觸發
+watch(
+  () => person2.books,
+  (newVal, oldVal) => {
+    console.log('person2 的 books 改變了', newVal, oldVal)
+  }
+)
+// 開啟深度監視後，此時的 newVal, oldVal 一樣只有 person2.books 本身被更改才會不同
+watch(
+  () => person2.books,
+  (newVal, oldVal) => {
+    console.log('深度監視 person2 的 books 改變了', newVal, oldVal)
+  },
+  { deep: true }
+)
+// 要正確獲取 book1 的 oldVal，則需要直接監聽 book1 屬性
+watch(
+  () => person2.books.book1,
+  (newVal, oldVal) => {
+    console.log('person2 的 books 的 book1 改變了', newVal, oldVal)
+  }
+)
+</script>
+
+<template>
+  <div>
+    <span>使用 getter 函數監聽屬性變化：person2: {{ person2 }}</span>
+    <br />
+    <button @click="changeP2Name">changeP2Name</button>
+    <button @click="changeP2Book1">changeP2Book1</button>
+    <button @click="changeP2Book">changeP2Book</button>
+  </div>
+</template>
+```
+
+#### § 監聽以上的多種數據
+
+可以使用**陣列**將想要同時監聽的多個數據包起來，其中一個數據變動都會觸發同一個回調函數。
+
+獲取的 newVal 和 oldVal 會是相同順序的一整個陣列 (是否能成功獲取不同的新舊值，參考前面的情況)
+
+```vue
+<script setup>
+import { ref, reactive, watch } from 'vue'
+// 監聽多個數據 ---------------------------------------------
+const sum = ref(0)
+const fruit = reactive({
+  name: 'Apple',
+  price: 20,
+})
+
+function addSum() {
+  sum.value++
+}
+function addFruitPrice() {
+  fruit.price += 10
+}
+
+watch([sum, () => fruit.price], (newVal, oldVal) => {
+  console.log('sum 或 fruit 改變了', newVal, oldVal)
+})
+</script>
+
+<template>
+  <div>
+    <span>監聽多個數據：sum: {{ sum }} | fruit: {{ fruit }}</span>
+    <br />
+    <button @click="addSum">addSum</button>
+    <button @click="addFruitPrice">addFruitPrice</button>
+  </div>
+</template>
+```
+
+#### 總結
+
+![圖片10](./images/10.PNG)
+
+### watchEffect
+
+與 `watch` 相同都可以監聽數據的變化，差別為 `watchEffect` 不用明確指出監視的數據(**自動追蹤響應式依賴**)，且會**立即執行一次回調**。
+[官方文檔](https://cn.vuejs.org/guide/essentials/watchers.html#watcheffect)。
+
+![watchEffect.gif](./images/gif/watchEffect.gif)
+
+```vue
+<script setup>
+import { ref, watchEffect } from 'vue'
+const min = 1
+const max = 50
+const photoId = ref(min)
+let data = ref(null)
+
+function changeId(num) {
+  photoId.value += num
+  if (photoId.value < min) {
+    photoId.value = min
+  } else if (photoId.value > max) {
+    photoId.value = max
+  }
+}
+
+function fetchPhoto(id) {
+  fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
+    .then((res) => res.json())
+    .then((json) => {
+      data.value = json
+      console.log(data.value)
+    })
+}
+// photoId 變動時自動獲取新資料
+watchEffect(() => {
+  fetchPhoto(photoId.value)
+})
+</script>
+
+<template>
+  <div>
+    {{ data }}
+    <br />
+    photoId: {{ photoId }}
+    <br />
+    <button @click="changeId(-1)" :disabled="photoId === min">prev</button>
+    <button @click="changeId(1)" :disabled="photoId === max">next</button>
   </div>
 </template>
 ```
