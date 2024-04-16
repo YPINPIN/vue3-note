@@ -19,6 +19,7 @@
 - [computed 計算屬性](#computed-計算屬性)
 - [響應式數據監聽 watch & watchEffect](#響應式數據監聽-watch--watcheffect)
 - [Class 與 Style 綁定](#class-與-style-綁定)
+- [條件渲染 v-if & v-show](#條件渲染-v-if--v-show)
 
 ## 初始化專案
 
@@ -180,7 +181,7 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
 
 語法：`{{ 表達式 }}`
 
-也可以使用 `v-text` 指令，它設置元素的 `textContent` 屬性。會覆蓋元素中現有的所有內容。
+也可以使用 `v-text` 指令，它設置元素的 `textContent` 屬性。元素內不允許有內容。
 
 語法：`v-text="值"`
 
@@ -210,7 +211,7 @@ const html = '<span>元素會轉為純字串</span>'
 
 想插入 HTML，需要使用 `v-html` 指令
 
-> 注意：小心使用，容易造成 XSS 漏洞，永遠不要使用使用者提供的 HTML 內容。
+> 注意：小心使用，容易造成 [XSS 漏洞](https://zh.wikipedia.org/zh-tw/%E8%B7%A8%E7%B6%B2%E7%AB%99%E6%8C%87%E4%BB%A4%E7%A2%BC)，永遠不要使用使用者提供的 HTML 內容。
 
 語法：`v-html="值"`
 
@@ -1259,3 +1260,82 @@ const overridingStyles = reactive({
 ```
 
 ![圖片21](./images/21.PNG)
+
+## 條件渲染 v-if & v-show
+
+### v-if 指令
+
+可以根據條件切換元素，切換時**會被銷毀及重建**。搭配 `v-else-if` 、 `v-else` 指令則可以設置多個條件切換。
+
+需要同時切換多個元素時可以使用 `<template>` 包裝元素，將指令設置在 `<template>` 上。 `<template>` 是一個不可見的包裝器元素，最後渲染的結果不會包含 `<template>`。
+
+語法：`v-if="條件1"` `v-else-if="條件2"` `v-else`
+
+```vue
+<script setup>
+import { ref } from 'vue'
+const awesome = ref(true)
+const show = ref(1)
+
+function changeShow() {
+  show.value++
+}
+function resetShow() {
+  show.value = 1
+}
+</script>
+
+<template>
+  <div>
+    <!-- 切換單一元素 -->
+    <button @click="awesome = !awesome">Toggle</button>
+    <p v-if="awesome">Vue is awesome!</p>
+    <br />
+    <!-- 同時切換多個元素 -->
+    <button @click="changeShow">Show : {{ show }}</button>
+    <button @click="resetShow">resetShow</button>
+    <template v-if="show === 1">
+      <h1>Show 1</h1>
+      <p>Paragraph 1</p>
+      <p>Paragraph 2</p>
+    </template>
+    <template v-else-if="show === 2">
+      <h1>Show 2</h1>
+      <p>Paragraph 2222</p>
+    </template>
+    <template v-else>
+      <h1>No More...</h1>
+    </template>
+  </div>
+</template>
+```
+
+![v-if.gif](./images/gif/v-if.gif)
+
+### v-show 指令
+
+與 `v-if` 的差別為 `v-show` 會在 DOM 中保留元素(始終會渲染)，僅**切換 `display` 的 css 屬性**，且不支持在 `<template>` 上使用。
+
+需要頻繁切換時推薦使用 `v-show`。
+
+語法：`v-show="條件"`
+
+```vue
+<script setup>
+import { ref } from 'vue'
+const isDisplay = ref(true)
+
+function changeDisplay() {
+  isDisplay.value = !isDisplay.value
+}
+</script>
+
+<template>
+  <div>
+    <button @click="changeDisplay">changeDisplay</button>
+    <h1 v-show="isDisplay">v-show 只是控制 display 屬性</h1>
+  </div>
+</template>
+```
+
+![v-show.gif](./images/gif/v-show.gif)
