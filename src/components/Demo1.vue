@@ -8,8 +8,9 @@ const html = '<span>元素會轉為純字串</span>'
   <div>
     <h1>{{ 'Vue 文本插值' }}</h1>
     <h1>{{ 8 > 5 ? 'true' : 'false' }}</h1>
-    <h1>username</h1>
+    <h1>{{ username }}</h1>
     <h1>Username: {{ username }}</h1>
+    <h1 v-text="username"></h1>
     <h1>{{ message() }}</h1>
     <h1>{{ html }}</h1>
   </div>
