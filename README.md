@@ -18,6 +18,7 @@
 - [toRefs & toRef](#torefs--toref)
 - [computed 計算屬性](#computed-計算屬性)
 - [響應式數據監聽 watch & watchEffect](#響應式數據監聽-watch--watcheffect)
+- [Class 與 Style 綁定](#class-與-style-綁定)
 
 ## 初始化專案
 
@@ -935,3 +936,326 @@ watchEffect(() => {
   </div>
 </template>
 ```
+
+## Class 與 Style 綁定
+
+### 綁定 class
+
+透過 `:class` 指令可以綁定指定的 class 值。也可以和一般的 `class` 共存。
+
+#### § 綁定物件
+
+可以在物件中設定屬性來操作多個 class。屬性名即為 class 名稱(字串)，根據屬性值的真假值判斷 class 是否存在。
+
+- 內聯形式
+
+  語法： `:class="{ 'class名稱2': class是否存在, 'class名稱2': class是否存在 }"`
+
+  以下範例中，'active' 及 'text-danger' 是否存在取決於 isActive 及 hasError 的真假值。
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  // 控制 class 的開關
+  const isActive = ref(true)
+  const hasError = ref(false)
+  </script>
+
+  <template>
+    <div>
+      <h1 class="static" :class="{ active: isActive, 'text-danger': hasError }">
+        內聯形式
+      </h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片11](./images/11.PNG)
+
+- 直接綁定一個物件
+
+  語法： `:class="classObject"`
+
+  ```vue
+  <script setup>
+  import { ref, reactive } from 'vue'
+  // 控制 class 的物件
+  const classObject = reactive({ active: true, 'text-danger': false })
+  </script>
+
+  <template>
+    <div>
+      <h1 :class="classObject">直接綁定一個物件</h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片12](./images/12.PNG)
+
+- 綁定一個返回物件的 `computed`
+
+  語法： `:class="computed 返回的物件"`
+
+  ```vue
+  <script setup>
+  import { ref, computed } from 'vue'
+  // 控制 class 的物件
+  const isShow = ref(true)
+  const error = ref('fatal')
+  // computed 返回一個物件
+  const classObject2 = computed(() => ({
+    show: isShow.value && !error.value,
+    'text-danger': error.value && error.value === 'fatal',
+  }))
+  </script>
+
+  <template>
+    <div>
+      <h1 :class="classObject2">綁定一個返回物件的 computed</h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片13](./images/13.PNG)
+
+#### § 綁定陣列
+
+可以在陣列中直接設定要顯示的 class 名稱。class 名稱可以為變數或直接設定字串。
+
+- 一般陣列形式
+
+  語法： `:class="[class名稱1, class名稱2]"`
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  // class 的名稱
+  const activeClass = ref('active')
+  const errorClass = ref('test-danger')
+  </script>
+
+  <template>
+    <div>
+      <h1 :class="[activeClass, errorClass, 'text-ted']">一般陣列形式</h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片14](./images/14.PNG)
+
+- 條件渲染
+
+  語法： `:class="[條件判斷 ? class名稱1 : '', class名稱2]"`
+
+  `errorClass`、`text-ted` 會一直存在，但 `activeClass` 只會在 `isActive` 為真時存在
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  // class 的名稱
+  const activeClass = ref('active')
+  const errorClass = ref('test-danger')
+  // 條件開關
+  const isActive = ref(true)
+  </script>
+
+  <template>
+    <div>
+      <h1 :class="[isActive ? activeClass : '', errorClass, 'text-ted']">
+        條件渲染
+      </h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片15](./images/15.PNG)
+
+- 也可以在陣列中嵌套物件
+
+  語法： `:class="[{ 'class名稱1': class是否存在 }, class名稱2]"`
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  // class 的名稱
+  const activeClass = ref('active')
+  const errorClass = ref('test-danger')
+  // 條件開關
+  const isActive = ref(true)
+  </script>
+
+  <template>
+    <div>
+      <h1 :class="[{ active: isActive, 'text-ted': false }, errorClass]">
+        陣列中嵌套物件
+      </h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片16](./images/16.PNG)
+
+#### § 組件上綁定 class
+
+只有一個根元素的組件，class 會**自動被添加到根元素上並與該元素已有的 class 合併**。
+
+若組件有**多個根元素**，則必須指定由哪個根元素來接收 class，**可以通過 `$attrs` 屬性來指定**
+
+- 父組件：
+
+  組件上可以直接設定 `class`，也可以使用上方的方法進行 class 綁定 。
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  import Demo11Child1 from './Demo11Child1.vue'
+  import Demo11Child2 from './Demo11Child2.vue'
+
+  // class 開關
+  const isActive = ref(true)
+  </script>
+
+  <template>
+    <div>
+      <Demo11Child1 class="baz boo" />
+      <Demo11Child1 :class="{ active: isActive }" />
+      <Demo11Child2 class="baz boo" />
+    </div>
+  </template>
+  ```
+
+- 子組件 1 (單個根元素)：
+
+  ```vue
+  <template>
+    <h1 class="foo bar">hi! 我是子組件 1</h1>
+  </template>
+  ```
+
+- 子組件 2 (多個根元素)：
+
+  在模板中的元素上使用 `$attrs` 屬性獲取 class
+
+  語法：`:class="$attrs.class"`
+
+  ```vue
+  <template>
+    <h1 class="foo bar" :class="$attrs.class">hi! 我是子組件 2</h1>
+    <p>我是子組件 2 的其他根元素</p>
+  </template>
+  ```
+
+  ![圖片17](./images/17.PNG)
+
+### 綁定 style (內聯樣式)
+
+透過 `:style` 指令支持綁定物件類型，物件內屬性對應的是 HTML 的 `style` 屬性。
+
+#### § 綁定物件
+
+推薦使用 `camelCase`，也支持 `kebab-cased` (對應 css 中的實際名稱)。
+
+- 直接綁定樣式
+
+  語法： `:style="{ style屬性: 屬性值 }"`
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue'
+  // 控制 style 的樣式值
+  const activeColor = ref('red')
+  const fontSize = ref(30)
+  </script>
+
+  <template>
+    <div>
+      <h1 :style="{ color: activeColor, fontSize: fontSize + 'px' }">
+        直接綁定樣式(使用 camelCase)
+      </h1>
+      <h1 :style="{ 'font-size': fontSize + 'px' }">
+        直接綁定樣式(使用 kebab-cased)
+      </h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片18](./images/18.PNG)
+
+- 綁定一個樣式物件
+
+  語法： `:style="styleObject"`
+
+  ```vue
+  <script setup>
+  import { reactive } from 'vue'
+  // 樣式物件
+  const styleObject = reactive({
+    color: 'red',
+    fontSize: '13px',
+  })
+  </script>
+
+  <template>
+    <div>
+      <h1 :style="styleObject">綁定一個樣式物件</h1>
+    </div>
+  </template>
+  ```
+
+  ![圖片19](./images/19.PNG)
+
+- 更複雜的邏輯也一樣可以使用返回樣式物件的 `computed`
+
+#### § 綁定陣列
+
+可以綁定一個**包含多個樣式物件的陣列**，這些物件會被**合併渲染**。
+
+語法： `:style="[styleObject1, styleObject2]"`
+
+```vue
+<script setup>
+import { reactive } from 'vue'
+// 樣式物件
+const baseStyles = reactive({
+  color: 'red',
+  letterSpacing: '5px',
+})
+const overridingStyles = reactive({
+  color: 'blue',
+  fontSize: '30px',
+})
+</script>
+
+<template>
+  <div>
+    <h1 :style="[baseStyles, overridingStyles]">
+      綁定一個包含多個樣式物件的陣列
+    </h1>
+  </div>
+</template>
+```
+
+![圖片20](./images/20.PNG)
+
+#### § 自動前綴
+
+當在 `:style` 中使用了需要瀏覽器特殊前綴的 css 屬性時，Vue 會在運行時檢查該屬性是否支持在當前瀏覽器中使用，若不支持會嘗試自動加上相應的特殊前綴。
+
+#### § 樣式多值
+
+可以使用陣列對一個樣式屬性提供多個不同前綴的值。僅會渲染瀏覽器**支持的最後一個值**。
+
+以下範例中，支持不需要特別前綴的瀏覽器中都會渲染為 `display: flex`。
+
+```vue
+<template>
+  <div>
+    <div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }">
+      <div>item1</div>
+      <div>item2</div>
+    </div>
+  </div>
+</template>
+```
+
+![圖片21](./images/21.PNG)
