@@ -11,6 +11,7 @@
 - [初始化專案](#初始化專案)
 - [創建一個 Vue 應用](#創建一個-vue-應用)
 - [模板語法](#模版語法)
+- [v-bind 屬性(Attribute)綁定](#v-bind-屬性attribute綁定)
 - [響應式狀態 ref & reactive](#響應式狀態-ref--reactive)
 - [淺層響應式狀態 shallowRef & shallowReactive](#淺層響應式狀態-shallowref--shallowreactive)
 - [readonly](#readonly)
@@ -228,22 +229,26 @@ const rawHtml = '<i>html元素</i>'
 
 ![圖片06](./images/06.PNG)
 
-### 3. Attribute 綁定
+## v-bind 屬性(Attribute)綁定
 
-HTML attributes 中不能使用雙大括號，因此想要響應式的綁定一個 attribute 應該使用 `v-bind` 指令。
+HTML 屬性中不能使用雙大括號，因此想要響應式的綁定一個 HTML 屬性或自定義屬性應該使用 `v-bind` 指令。
 
-若綁定的值是 `null` 或是 `undefined` 該 attribute 會從渲染的元素上**移除**。
+若綁定的變數值是 `null` 或是 `undefined` 該屬性會從渲染的元素上**移除**。
 
-語法：`v-bind:attribute-name="值"`
+語法：`v-bind:屬性名="變數"`
 
-```vue
-<div v-bind:id="dynamicId">layout</div>
-```
-
-可以簡寫為 `:attribute-name="值"`
+可以簡寫為 `:屬性名="變數"`
 
 ```vue
-<div :id="dynamicId">layout</div>
+<script setup>
+const vue_url = 'https://vuejs.org/'
+const google_url = 'https://www.google.com/'
+</script>
+
+<template>
+  <h1><a v-bind:href="vue_url">Vue</a></h1>
+  <h1><a :href="google_url">Google</a></h1>
+</template>
 ```
 
 ![圖片07](./images/07.PNG)
@@ -268,13 +273,11 @@ HTML attributes 中不能使用雙大括號，因此想要響應式的綁定一�
 <div v-bind:id>layout</div>
 ```
 
-### 4. Boolean 型 attribute
+### Boolean 型屬性
 
-會根據 `true` / `false` 值來決定 attribute 是否存在於該元素上，例如 disabled。
+會根據 `true` / `false` 值來決定屬性是否存在於該元素上，例如 disabled。
 
-當 isButtonDisabled 為真值或一個空字串
-( `<button disabled="">` )時，
-元素會包含這個 disabled attribute，而當其為其他假值時 attribute 將被忽略。
+當 isButtonDisabled 為**真值或一個空字串**( `<button disabled="">` )時，元素會包含這個 disabled 屬性，而當其為其他假值時 disabled 屬性 將被忽略。
 
 ```vue
 <script setup>
@@ -288,9 +291,9 @@ const isButtonDisabled = true
 
 ![圖片08](./images/08.PNG)
 
-### 5. 動態綁定多個值
+### 動態綁定多個屬性
 
-通過使用不帶參數的 `v-bind` 設定，一次綁定多個值。
+通過使用**不帶參數的 `v-bind` 設定**，一次綁定多個屬性。
 
 ```vue
 <script setup>
