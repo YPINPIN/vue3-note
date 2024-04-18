@@ -1,17 +1,17 @@
 <script setup>
-import { reactive, readonly } from 'vue'
-const original = reactive({ count: 0 })
+import { reactive, readonly } from 'vue';
+const original = reactive({ count: 0 });
 
-const copy = readonly(original)
+const copy = readonly(original);
 
 function changeOriginal() {
   // 可以正常修改響應
-  original.count++
+  original.count++;
 }
 
 function changeCopy() {
   // 不能修改且會得到警告
-  copy.count++
+  copy.count++;
 }
 </script>
 

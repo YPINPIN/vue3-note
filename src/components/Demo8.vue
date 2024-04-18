@@ -1,41 +1,41 @@
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch } from 'vue';
 
 // ref的基本類型數據 ---------------------------------------------
-const count = ref(0)
+const count = ref(0);
 // 方法
 function addCount() {
-  count.value += 1
+  count.value += 1;
 }
 // 監聽 ref 數據，並保存返回函數
 const stopWatch = watch(count, (newVal, oldVal) => {
-  console.log('count改變了', newVal, oldVal)
+  console.log('count改變了', newVal, oldVal);
   if (newVal >= 10) {
     // 手動停止監聽
-    stopWatch()
-    console.log('停止監聽!!')
+    stopWatch();
+    console.log('停止監聽!!');
   }
-})
+});
 
 // ref 的物件類型數據 ---------------------------------------------
-const data = ref([1, 2, 3])
+const data = ref([1, 2, 3]);
 // 方法 - 修改物件中的屬性
 function addData() {
-  let count = data.value.length + 1
-  data.value.push(count)
+  let count = data.value.length + 1;
+  data.value.push(count);
 }
 // // 方法 - 修改物件本身
 function changeData() {
-  data.value = [1]
+  data.value = [1];
 }
 // 監聽 ref 的物件數據，要手動設定 deep
 watch(
   data,
   (newVal, oldVal) => {
-    console.log('data改變了', newVal, oldVal)
+    console.log('data改變了', newVal, oldVal);
   },
   { deep: true }
-)
+);
 
 // reactive 的物件類型數據 ---------------------------------------------
 const person = reactive({
@@ -48,20 +48,20 @@ const person = reactive({
       d: '123',
     },
   },
-})
+});
 // 更改屬性
 function changeName() {
-  person.name += '!'
+  person.name += '!';
 }
 function changeAge() {
-  person.age += 2
+  person.age += 2;
 }
 // 更改深層屬性
 function changeBook1() {
-  person.books.book1 += '~'
+  person.books.book1 += '~';
 }
 function changeBookD() {
-  person.books.c.d += '-'
+  person.books.c.d += '-';
 }
 // 使用Object.assign替換reactive物件屬性(還是同一個物件，地址值無更改)
 function changePerson() {
@@ -76,13 +76,13 @@ function changePerson() {
         d: '567',
       },
     },
-  })
+  });
 }
 // 監視reactive定義的物件數據，默認深度監視
 // newVal, oldVal 皆會為新值
 watch(person, (newVal, oldVal) => {
-  console.log('person改變了', newVal, oldVal)
-})
+  console.log('person改變了', newVal, oldVal);
+});
 
 // 使用 getter 函數監聽屬性變化 ---------------------------------------------
 const person2 = reactive({
@@ -92,14 +92,14 @@ const person2 = reactive({
     book1: 'book111',
     book2: 'book222',
   },
-})
+});
 // 更改屬性
 function changeP2Name() {
-  person2.name += '!'
+  person2.name += '!';
 }
 // 更改深層屬性
 function changeP2Book1() {
-  person2.books.book1 += '~'
+  person2.books.book1 += '~';
 }
 // 更改物件屬性
 function changeP2Book() {
@@ -107,56 +107,56 @@ function changeP2Book() {
     book1: 'book1',
     book2: 'book2',
     book3: 'book3',
-  }
+  };
 }
 // 監視 reactive 定義的物件的屬性值為基本類型
 watch(
   () => person2.name,
   (newVal, oldVal) => {
-    console.log('person2 的 name 改變了', newVal, oldVal)
+    console.log('person2 的 name 改變了', newVal, oldVal);
   }
-)
+);
 // 監視 reactive 定義的物件的屬性值為物件類型
 // 要手動開啟深度監視，沒開啟則只有 person2.books 本身被更改才會觸發
 watch(
   () => person2.books,
   (newVal, oldVal) => {
-    console.log('person2 的 books 改變了', newVal, oldVal)
+    console.log('person2 的 books 改變了', newVal, oldVal);
   }
-)
+);
 // 開啟深度監視後，此時的 newVal, oldVal 一樣只有 person2.books 本身被更改才會不同
 watch(
   () => person2.books,
   (newVal, oldVal) => {
-    console.log('深度監視 person2 的 books 改變了', newVal, oldVal)
+    console.log('深度監視 person2 的 books 改變了', newVal, oldVal);
   },
   { deep: true }
-)
+);
 // 要正確獲取 book1 的 oldVal，則需要直接監聽 book1 屬性
 watch(
   () => person2.books.book1,
   (newVal, oldVal) => {
-    console.log('person2 的 books 的 book1 改變了', newVal, oldVal)
+    console.log('person2 的 books 的 book1 改變了', newVal, oldVal);
   }
-)
+);
 
 // 監聽多個數據 ---------------------------------------------
-const sum = ref(0)
+const sum = ref(0);
 const fruit = reactive({
   name: 'Apple',
   price: 20,
-})
+});
 
 function addSum() {
-  sum.value++
+  sum.value++;
 }
 function addFruitPrice() {
-  fruit.price += 10
+  fruit.price += 10;
 }
 
 watch([sum, () => fruit.price], (newVal, oldVal) => {
-  console.log('sum 或 fruit 改變了', newVal, oldVal)
-})
+  console.log('sum 或 fruit 改變了', newVal, oldVal);
+});
 </script>
 
 <template>

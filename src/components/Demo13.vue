@@ -1,19 +1,19 @@
 <script setup>
-import { ref } from 'vue'
-const awesome = ref(true)
-const show = ref(1)
+import { ref } from 'vue';
+const awesome = ref(true);
+const show = ref(1);
 
 function changeShow() {
-  show.value++
+  show.value++;
 }
 function resetShow() {
-  show.value = 1
+  show.value = 1;
 }
 
-const isDisplay = ref(true)
+const isDisplay = ref(true);
 
 function changeDisplay() {
-  isDisplay.value = !isDisplay.value
+  isDisplay.value = !isDisplay.value;
 }
 </script>
 

@@ -1,23 +1,23 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed } from 'vue';
 // 內聯形式 -------------------------------------------------
 // 控制 class 的開關
-const isActive = ref(true)
-const hasError = ref(false)
+const isActive = ref(true);
+const hasError = ref(false);
 
 // 直接綁定一個物件 -------------------------------------------------
 // 控制 class 的物件
-const classObject = reactive({ active: true, 'text-danger': false })
+const classObject = reactive({ active: true, 'text-danger': false });
 
 // 綁定一個返回物件的 computed -------------------------------------------------
 // 控制 class 的物件
-const isShow = ref(true)
-const error = ref('fatal')
+const isShow = ref(true);
+const error = ref('fatal');
 // computed 返回一個物件
 const classObject2 = computed(() => ({
   show: isShow.value && !error.value,
   'text-danger': error.value && error.value === 'fatal',
-}))
+}));
 </script>
 
 <template>

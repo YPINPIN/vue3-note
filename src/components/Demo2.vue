@@ -1,5 +1,5 @@
 <script setup>
-const rawHtml = '<i>html元素</i>'
+const rawHtml = '<i>html元素</i>';
 </script>
 
 <template>

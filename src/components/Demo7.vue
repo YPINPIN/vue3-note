@@ -1,29 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue'
-const count = ref(0)
-const firstName = ref('張')
-const lastName = ref('三')
+import { ref, computed } from 'vue';
+const count = ref(0);
+const firstName = ref('張');
+const lastName = ref('三');
 
 // 只讀取不修改
 const doubleCount = computed(() => {
-  return count.value * 2
-})
+  return count.value * 2;
+});
 function addCount() {
-  count.value++
+  count.value++;
 }
 
 // 讀取又修改
 const fullName = computed({
   get() {
-    return firstName.value + '-' + lastName.value
+    return firstName.value + '-' + lastName.value;
   },
   set(val) {
-    firstName.value = val.split('-')[0]
-    lastName.value = val.split('-')[1]
+    firstName.value = val.split('-')[0];
+    lastName.value = val.split('-')[1];
   },
-})
+});
 function changeFullName() {
-  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三'
+  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三';
 }
 </script>
 

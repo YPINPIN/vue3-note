@@ -1,27 +1,27 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive } from 'vue';
 // 直接綁定樣式 ---------------------------------------------
 // 控制 style 的樣式值
-const activeColor = ref('red')
-const fontSize = ref(30)
+const activeColor = ref('red');
+const fontSize = ref(30);
 
 // 綁定一個樣式物件 ---------------------------------------------
 // 樣式物件
 const styleObject = reactive({
   color: 'red',
   fontSize: '13px',
-})
+});
 
 // 綁定陣列 ---------------------------------------------
 // 樣式物件
 const baseStyles = reactive({
   color: 'red',
   letterSpacing: '5px',
-})
+});
 const overridingStyles = reactive({
   color: 'blue',
   fontSize: '30px',
-})
+});
 </script>
 
 <template>

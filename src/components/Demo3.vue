@@ -1,11 +1,11 @@
 <script setup>
-const vue_url = 'https://vuejs.org/'
-const google_url = 'https://www.google.com/'
-const isButtonDisabled = true
+const vue_url = 'https://vuejs.org/';
+const google_url = 'https://www.google.com/';
+const isButtonDisabled = true;
 const objectOfAttrs = {
   id: 'container',
   class: 'wrapper',
-}
+};
 </script>
 
 <template>

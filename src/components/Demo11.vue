@@ -1,13 +1,13 @@
 <script setup>
-import { ref } from 'vue'
-import Demo11Child1 from './Demo11Child1.vue'
-import Demo11Child2 from './Demo11Child2.vue'
+import { ref } from 'vue';
+import Demo11Child1 from './Demo11Child1.vue';
+import Demo11Child2 from './Demo11Child2.vue';
 
 // class 的名稱
-const activeClass = ref('active')
-const errorClass = ref('test-danger')
+const activeClass = ref('active');
+const errorClass = ref('test-danger');
 // 條件開關
-const isActive = ref(true)
+const isActive = ref(true);
 </script>
 
 <template>

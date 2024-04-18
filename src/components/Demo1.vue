@@ -1,7 +1,7 @@
 <script setup>
-const username = 'User1'
-const message = () => '這是一個函數'
-const html = '<span>元素會轉為純字串</span>'
+const username = 'User1';
+const message = () => '這是一個函數';
+const html = '<span>元素會轉為純字串</span>';
 </script>
 
 <template>
