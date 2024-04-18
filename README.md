@@ -21,6 +21,7 @@
 - [響應式數據監聽 watch & watchEffect](#響應式數據監聽-watch--watcheffect)
 - [Class 與 Style 綁定](#class-與-style-綁定)
 - [條件渲染 v-if & v-show](#條件渲染-v-if--v-show)
+- [列表渲染 v-for](#列表渲染-v-for)
 
 ## 初始化專案
 
@@ -57,11 +58,11 @@ npm run dev
 4.修改 main.js - 刪除 import main.css
 
 ```javascript
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 
-const app = createApp(App)
-app.mount('#app')
+const app = createApp(App);
+app.mount('#app');
 ```
 
 5.修改 App.vue
@@ -85,10 +86,10 @@ app.mount('#app')
 ### 1. main.js 通過 `createApp()` 函數創建一個新的應用實例
 
 ```javascript
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 const app = createApp({
   // 根組件選項設定
-})
+});
 ```
 
 ### 2. 根組件
@@ -98,10 +99,10 @@ const app = createApp({
 如果使用的是單文件組件(SFC)，則可以直接從另一個文件中導入根組件。
 
 ```javascript
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 // 從一個單文件組件中導入根組件
-import App from './App.vue'
-const app = createApp(App)
+import App from './App.vue';
+const app = createApp(App);
 ```
 
 ### 3. 掛載應用
@@ -118,13 +119,13 @@ const app = createApp(App)
 
 ```javascript
 // main.js
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 // 從一個單文件組件中導入根組件
-import App from './App.vue'
+import App from './App.vue';
 
-const app = createApp(App)
+const app = createApp(App);
 // 掛載在 id 為 app 的元素上
-app.mount('#app')
+app.mount('#app');
 ```
 
 > 注意：
@@ -153,20 +154,20 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
   import {
     createApp,
     ref,
-  } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+  } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 
   const app = createApp({
     // 當根組件沒有設定 template 選項時
     // Vue 將自動使用容器的 innerHTML 作為模板
     setup() {
-      const count = ref(0)
+      const count = ref(0);
       return {
         count,
-      }
+      };
     },
-  })
+  });
   // 掛載
-  app.mount('#app')
+  app.mount('#app');
 </script>
 ```
 
@@ -188,9 +189,9 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
 
 ```vue
 <script setup>
-const username = 'User1'
-const message = () => '這是一個函數'
-const html = '<span>元素會轉為純字串</span>'
+const username = 'User1';
+const message = () => '這是一個函數';
+const html = '<span>元素會轉為純字串</span>';
 </script>
 
 <template>
@@ -218,7 +219,7 @@ const html = '<span>元素會轉為純字串</span>'
 
 ```vue
 <script setup>
-const rawHtml = '<i>html元素</i>'
+const rawHtml = '<i>html元素</i>';
 </script>
 
 <template>
@@ -241,8 +242,8 @@ HTML 屬性中不能使用雙大括號，因此想要響應式的綁定一個 HT
 
 ```vue
 <script setup>
-const vue_url = 'https://vuejs.org/'
-const google_url = 'https://www.google.com/'
+const vue_url = 'https://vuejs.org/';
+const google_url = 'https://www.google.com/';
 </script>
 
 <template>
@@ -281,7 +282,7 @@ const google_url = 'https://www.google.com/'
 
 ```vue
 <script setup>
-const isButtonDisabled = true
+const isButtonDisabled = true;
 </script>
 
 <template>
@@ -300,7 +301,7 @@ const isButtonDisabled = true
 const objectOfAttrs = {
   id: 'container',
   class: 'wrapper',
-}
+};
 </script>
 
 <template>
@@ -328,24 +329,24 @@ const objectOfAttrs = {
 
 ```vue
 <script setup>
-import { ref, reactive } from 'vue'
-const name = ref('小明')
-const obj = ref({ count: 0 })
+import { ref, reactive } from 'vue';
+const name = ref('小明');
+const obj = ref({ count: 0 });
 const fruit = reactive({
   name: 'apple',
   price: 20,
-})
+});
 
 function changeName() {
-  name.value = name.value === '小明' ? '小白' : '小明'
+  name.value = name.value === '小明' ? '小白' : '小明';
 }
 
 function addCount() {
-  obj.value.count++
+  obj.value.count++;
 }
 
 function addPrice() {
-  fruit.price += 10
+  fruit.price += 10;
 }
 </script>
 
@@ -378,19 +379,19 @@ shallowRef：只會對 `.value` 的變化進行響應式處理
 
 ```vue
 <script setup>
-import { shallowRef } from 'vue'
-const obj = shallowRef({ count: 1 })
+import { shallowRef } from 'vue';
+const obj = shallowRef({ count: 1 });
 
 function changeObjCount() {
   // 不會觸發響應
-  obj.value.count++
-  console.log('obj', obj.value)
+  obj.value.count++;
+  console.log('obj', obj.value);
 }
 function changeObj() {
   // 會觸發響應
-  let count = obj.value.count + 1
-  obj.value = { count: count }
-  console.log('obj', obj.value)
+  let count = obj.value.count + 1;
+  obj.value = { count: count };
+  console.log('obj', obj.value);
 }
 </script>
 
@@ -410,23 +411,23 @@ shallowReactive：只會使物件的**最頂層屬性**為響應式狀態，內�
 
 ```vue
 <script setup>
-import { shallowReactive } from 'vue'
+import { shallowReactive } from 'vue';
 const state = shallowReactive({
   foo: 1,
   nested: {
     bar: 2,
   },
-})
+});
 
 function changeFoo() {
   // 更改頂層的屬性是響應式的
-  state.foo++
-  console.log('state', state)
+  state.foo++;
+  console.log('state', state);
 }
 function changeNestedBar() {
   // 下層嵌套的屬性不會是響應式
-  state.nested.bar++
-  console.log('state', state)
+  state.nested.bar++;
+  console.log('state', state);
 }
 </script>
 
@@ -448,19 +449,19 @@ function changeNestedBar() {
 
 ```vue
 <script setup>
-import { reactive, readonly } from 'vue'
-const original = reactive({ count: 0 })
+import { reactive, readonly } from 'vue';
+const original = reactive({ count: 0 });
 
-const copy = readonly(original)
+const copy = readonly(original);
 
 function changeOriginal() {
   // 可以正常修改響應
-  original.count++
+  original.count++;
 }
 
 function changeCopy() {
   // 不能修改且會得到警告
-  copy.count++
+  copy.count++;
 }
 </script>
 
@@ -487,10 +488,10 @@ function changeCopy() {
 
 ```vue
 <script setup>
-import { nextTick } from 'vue'
+import { nextTick } from 'vue';
 async function increment() {
-  count.value++
-  await nextTick()
+  count.value++;
+  await nextTick();
   //現在DOM已經更新了
 }
 </script>
@@ -504,27 +505,27 @@ async function increment() {
 
 ```vue
 <script setup>
-import { reactive, toRefs, toRef } from 'vue'
+import { reactive, toRefs, toRef } from 'vue';
 
 const person = reactive({
   personName: '小明',
   age: 18,
   gender: '男',
-})
+});
 
-const { personName, age } = toRefs(person)
-const gender = toRef(person, 'gender')
+const { personName, age } = toRefs(person);
+const gender = toRef(person, 'gender');
 
 function changePersonName() {
-  personName.value = personName.value === '小明' ? '小白' : '小明'
+  personName.value = personName.value === '小明' ? '小白' : '小明';
 }
 
 function changePersonAge() {
-  age.value++
+  age.value++;
 }
 
 function changePersonGender() {
-  gender.value = gender.value === '男' ? '女' : '男'
+  gender.value = gender.value === '男' ? '女' : '男';
 }
 </script>
 
@@ -564,31 +565,31 @@ function changePersonGender() {
 
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
-const count = ref(0)
-const firstName = ref('張')
-const lastName = ref('三')
+import { ref, computed } from 'vue';
+const count = ref(0);
+const firstName = ref('張');
+const lastName = ref('三');
 
 // 只讀取不修改
 const doubleCount = computed(() => {
-  return count.value * 2
-})
+  return count.value * 2;
+});
 function addCount() {
-  count.value++
+  count.value++;
 }
 
 // 讀取又修改
 const fullName = computed({
   get() {
-    return firstName.value + '-' + lastName.value
+    return firstName.value + '-' + lastName.value;
   },
   set(val) {
-    firstName.value = val.split('-')[0]
-    lastName.value = val.split('-')[1]
+    firstName.value = val.split('-')[0];
+    lastName.value = val.split('-')[1];
   },
-})
+});
 function changeFullName() {
-  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三'
+  fullName.value = fullName.value === '張-三' ? '李-四' : '張-三';
 }
 </script>
 
@@ -632,22 +633,22 @@ function changeFullName() {
 
 ```vue
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue';
 // ref 的基本類型數據
-const count = ref(0)
+const count = ref(0);
 // 方法
 function addCount() {
-  count.value += 1
+  count.value += 1;
 }
 // 監聽 ref 數據，並保存返回函數
 const stopWatch = watch(count, (newVal, oldVal) => {
-  console.log('count改變了', newVal, oldVal)
+  console.log('count改變了', newVal, oldVal);
   if (newVal >= 10) {
     // 手動停止監聽
-    stopWatch()
-    console.log('停止監聽!!')
+    stopWatch();
+    console.log('停止監聽!!');
   }
-})
+});
 </script>
 
 <template>
@@ -666,26 +667,26 @@ const stopWatch = watch(count, (newVal, oldVal) => {
 
 ```vue
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue';
 // ref 的物件類型數據
-const data = ref([1, 2, 3])
+const data = ref([1, 2, 3]);
 // 方法 - 修改物件中的屬性
 function addData() {
-  let count = data.value.length + 1
-  data.value.push(count)
+  let count = data.value.length + 1;
+  data.value.push(count);
 }
 // // 方法 - 修改物件本身
 function changeData() {
-  data.value = [1]
+  data.value = [1];
 }
 // 監聽 ref 物件數據，要手動設定 deep
 watch(
   data,
   (newVal, oldVal) => {
-    console.log('data改變了', newVal, oldVal)
+    console.log('data改變了', newVal, oldVal);
   },
   { deep: true }
-)
+);
 </script>
 
 <template>
@@ -708,7 +709,7 @@ reactive 無法替換物件，但是可以使用 `Object.assign` 來**替換掉�
 
 ```vue
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch } from 'vue';
 // reactive 的物件類型數據
 const person = reactive({
   name: 'Peter',
@@ -720,20 +721,20 @@ const person = reactive({
       d: '123',
     },
   },
-})
+});
 // 更改屬性
 function changeName() {
-  person.name += '!'
+  person.name += '!';
 }
 function changeAge() {
-  person.age += 2
+  person.age += 2;
 }
 // 更改深層屬性
 function changeBook1() {
-  person.books.book1 += '~'
+  person.books.book1 += '~';
 }
 function changeBookD() {
-  person.books.c.d += '-'
+  person.books.c.d += '-';
 }
 // 使用Object.assign替換reactive物件屬性(還是同一個物件，地址值無更改)
 function changePerson() {
@@ -748,13 +749,13 @@ function changePerson() {
         d: '567',
       },
     },
-  })
+  });
 }
 // 監視reactive定義的物件數據，默認深度監視
 // newVal, oldVal 皆會為新值
 watch(person, (newVal, oldVal) => {
-  console.log('person改變了', newVal, oldVal)
-})
+  console.log('person改變了', newVal, oldVal);
+});
 </script>
 
 <template>
@@ -780,7 +781,7 @@ watch(person, (newVal, oldVal) => {
 
 ```vue
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch } from 'vue';
 // 使用 getter 函數監聽屬性變化
 const person2 = reactive({
   name: 'Peter',
@@ -789,14 +790,14 @@ const person2 = reactive({
     book1: 'book111',
     book2: 'book222',
   },
-})
+});
 // 更改屬性
 function changeP2Name() {
-  person2.name += '!'
+  person2.name += '!';
 }
 // 更改深層屬性
 function changeP2Book1() {
-  person2.books.book1 += '~'
+  person2.books.book1 += '~';
 }
 // 更改物件屬性
 function changeP2Book() {
@@ -804,38 +805,38 @@ function changeP2Book() {
     book1: 'book1',
     book2: 'book2',
     book3: 'book3',
-  }
+  };
 }
 // 監視 reactive 定義的物件的屬性值為基本類型
 watch(
   () => person2.name,
   (newVal, oldVal) => {
-    console.log('person2 的 name 改變了', newVal, oldVal)
+    console.log('person2 的 name 改變了', newVal, oldVal);
   }
-)
+);
 // 監視 reactive 定義的物件的屬性值為物件類型
 // 要手動開啟深度監視，沒開啟則只有 person2.books 本身被更改才會觸發
 watch(
   () => person2.books,
   (newVal, oldVal) => {
-    console.log('person2 的 books 改變了', newVal, oldVal)
+    console.log('person2 的 books 改變了', newVal, oldVal);
   }
-)
+);
 // 開啟深度監視後，此時的 newVal, oldVal 一樣只有 person2.books 本身被更改才會不同
 watch(
   () => person2.books,
   (newVal, oldVal) => {
-    console.log('深度監視 person2 的 books 改變了', newVal, oldVal)
+    console.log('深度監視 person2 的 books 改變了', newVal, oldVal);
   },
   { deep: true }
-)
+);
 // 要正確獲取 book1 的 oldVal，則需要直接監聽 book1 屬性
 watch(
   () => person2.books.book1,
   (newVal, oldVal) => {
-    console.log('person2 的 books 的 book1 改變了', newVal, oldVal)
+    console.log('person2 的 books 的 book1 改變了', newVal, oldVal);
   }
-)
+);
 </script>
 
 <template>
@@ -857,24 +858,24 @@ watch(
 
 ```vue
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch } from 'vue';
 // 監聽多個數據 ---------------------------------------------
-const sum = ref(0)
+const sum = ref(0);
 const fruit = reactive({
   name: 'Apple',
   price: 20,
-})
+});
 
 function addSum() {
-  sum.value++
+  sum.value++;
 }
 function addFruitPrice() {
-  fruit.price += 10
+  fruit.price += 10;
 }
 
 watch([sum, () => fruit.price], (newVal, oldVal) => {
-  console.log('sum 或 fruit 改變了', newVal, oldVal)
-})
+  console.log('sum 或 fruit 改變了', newVal, oldVal);
+});
 </script>
 
 <template>
@@ -900,18 +901,18 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 
 ```vue
 <script setup>
-import { ref, watchEffect } from 'vue'
-const min = 1
-const max = 50
-const photoId = ref(min)
-let data = ref(null)
+import { ref, watchEffect } from 'vue';
+const min = 1;
+const max = 50;
+const photoId = ref(min);
+let data = ref(null);
 
 function changeId(num) {
-  photoId.value += num
+  photoId.value += num;
   if (photoId.value < min) {
-    photoId.value = min
+    photoId.value = min;
   } else if (photoId.value > max) {
-    photoId.value = max
+    photoId.value = max;
   }
 }
 
@@ -919,14 +920,14 @@ function fetchPhoto(id) {
   fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
     .then((res) => res.json())
     .then((json) => {
-      data.value = json
-      console.log(data.value)
-    })
+      data.value = json;
+      console.log(data.value);
+    });
 }
 // photoId 變動時自動獲取新資料
 watchEffect(() => {
-  fetchPhoto(photoId.value)
-})
+  fetchPhoto(photoId.value);
+});
 </script>
 
 <template>
@@ -959,10 +960,10 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   // 控制 class 的開關
-  const isActive = ref(true)
-  const hasError = ref(false)
+  const isActive = ref(true);
+  const hasError = ref(false);
   </script>
 
   <template>
@@ -982,9 +983,9 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive } from 'vue';
   // 控制 class 的物件
-  const classObject = reactive({ active: true, 'text-danger': false })
+  const classObject = reactive({ active: true, 'text-danger': false });
   </script>
 
   <template>
@@ -1002,15 +1003,15 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed } from 'vue';
   // 控制 class 的物件
-  const isShow = ref(true)
-  const error = ref('fatal')
+  const isShow = ref(true);
+  const error = ref('fatal');
   // computed 返回一個物件
   const classObject2 = computed(() => ({
     show: isShow.value && !error.value,
     'text-danger': error.value && error.value === 'fatal',
-  }))
+  }));
   </script>
 
   <template>
@@ -1032,10 +1033,10 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   // class 的名稱
-  const activeClass = ref('active')
-  const errorClass = ref('test-danger')
+  const activeClass = ref('active');
+  const errorClass = ref('test-danger');
   </script>
 
   <template>
@@ -1055,12 +1056,12 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   // class 的名稱
-  const activeClass = ref('active')
-  const errorClass = ref('test-danger')
+  const activeClass = ref('active');
+  const errorClass = ref('test-danger');
   // 條件開關
-  const isActive = ref(true)
+  const isActive = ref(true);
   </script>
 
   <template>
@@ -1080,12 +1081,12 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   // class 的名稱
-  const activeClass = ref('active')
-  const errorClass = ref('test-danger')
+  const activeClass = ref('active');
+  const errorClass = ref('test-danger');
   // 條件開關
-  const isActive = ref(true)
+  const isActive = ref(true);
   </script>
 
   <template>
@@ -1111,12 +1112,12 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
-  import Demo11Child1 from './Demo11Child1.vue'
-  import Demo11Child2 from './Demo11Child2.vue'
+  import { ref } from 'vue';
+  import Demo11Child1 from './Demo11Child1.vue';
+  import Demo11Child2 from './Demo11Child2.vue';
 
   // class 開關
-  const isActive = ref(true)
+  const isActive = ref(true);
   </script>
 
   <template>
@@ -1165,10 +1166,10 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { ref } from 'vue'
+  import { ref } from 'vue';
   // 控制 style 的樣式值
-  const activeColor = ref('red')
-  const fontSize = ref(30)
+  const activeColor = ref('red');
+  const fontSize = ref(30);
   </script>
 
   <template>
@@ -1191,12 +1192,12 @@ watchEffect(() => {
 
   ```vue
   <script setup>
-  import { reactive } from 'vue'
+  import { reactive } from 'vue';
   // 樣式物件
   const styleObject = reactive({
     color: 'red',
     fontSize: '13px',
-  })
+  });
   </script>
 
   <template>
@@ -1218,16 +1219,16 @@ watchEffect(() => {
 
 ```vue
 <script setup>
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 // 樣式物件
 const baseStyles = reactive({
   color: 'red',
   letterSpacing: '5px',
-})
+});
 const overridingStyles = reactive({
   color: 'blue',
   fontSize: '30px',
-})
+});
 </script>
 
 <template>
@@ -1276,15 +1277,15 @@ const overridingStyles = reactive({
 
 ```vue
 <script setup>
-import { ref } from 'vue'
-const awesome = ref(true)
-const show = ref(1)
+import { ref } from 'vue';
+const awesome = ref(true);
+const show = ref(1);
 
 function changeShow() {
-  show.value++
+  show.value++;
 }
 function resetShow() {
-  show.value = 1
+  show.value = 1;
 }
 </script>
 
@@ -1325,11 +1326,11 @@ function resetShow() {
 
 ```vue
 <script setup>
-import { ref } from 'vue'
-const isDisplay = ref(true)
+import { ref } from 'vue';
+const isDisplay = ref(true);
 
 function changeDisplay() {
-  isDisplay.value = !isDisplay.value
+  isDisplay.value = !isDisplay.value;
 }
 </script>
 
@@ -1342,3 +1343,267 @@ function changeDisplay() {
 ```
 
 ![v-show.gif](./images/gif/v-show.gif)
+
+## 列表渲染 v-for
+
+`v-for` 指令可以遍歷生成 HTML 結構，將 `v-for` 設置在需要重複生成的主元素上。
+
+語法：`v-for="(數據項, 索引) in 數據陣列"`
+
+=> `v-for="(item, index) in items"`
+
+> 也可以使用 `of` 代替 `in`，更接近 js 語法。
+
+**建議同時綁定 `key` 屬性**，作用為讓 Vue 針對 `key` 辨識元素是否相同，正確的渲染更新。`key` 只能為字串或是數字，且必須為**唯一值**。
+
+**注意：不要使用 `index`作為 `key`，因為 `index` 會隨數據增刪而變化，會導致狀態錯誤。**
+
+> Vue 默認會依照**就地更新**的方式來更新使用 `v-for` 渲染的元素列表，當數據的順序改變時，並不會移動 DOM 元素的順序，而是**直接重用原本索引位置的元素渲染更新**，因此若元素有依賴子組件或為有狀態的 DOM 元素 (表單輸入值) 則會使元素渲染發生錯誤。可以參考[解釋說明](https://www.zhihu.com/question/61064119)。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const items = ref([
+  { id: 1, message: 'Hello!' },
+  { id: 2, message: 'Welcome~' },
+]);
+</script>
+
+<template>
+  <div>
+    <ul>
+      <li v-for="item in items" :key="item.id">
+        {{ item.id }} : {{ item.message }}
+      </li>
+    </ul>
+    <!-- 支持使用解構 -->
+    <ul>
+      <li v-for="({ id, message }, index) in items" :key="id">
+        {{ index }} : {{ message }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+![圖片22](./images/22.PNG)
+
+### 渲染多個元素
+
+與 `v-if` 類似，也可以使用 `<template>` 來重複生成多個元素。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const items = ref([
+  { id: 1, message: 'Hello!' },
+  { id: 2, message: 'Welcome~' },
+]);
+</script>
+
+<template>
+  <div>
+    <ul>
+      <template v-for="item in items" :key="item.id">
+        <li>{{ item.message }}</li>
+        <hr />
+      </template>
+    </ul>
+  </div>
+</template>
+```
+
+![圖片23](./images/23.PNG)
+
+### v-for 使用物件
+
+可以遍歷物件的所有屬性，順序依照 `Object.keys()` 的返回值決定。
+
+語法：`v-for="(屬性值, 屬性key, 索引) in 物件"`
+
+=> `v-for="(value, key, index) in myObject"`
+
+```vue
+<script setup>
+import { reactive } from 'vue';
+const myObject = reactive({
+  title: 'How to do lists in Vue',
+  author: 'Jane Doe',
+  publishedAt: '2016-04-10',
+});
+</script>
+
+<template>
+  <div>
+    <p>Object.keys(myObject) :{{ Object.keys(myObject) }}</p>
+    <ul>
+      <li v-for="(value, key, index) in myObject" :key="key">
+        {{ index }}. {{ key }}: {{ value }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+![圖片24](./images/24.PNG)
+
+### v-for 使用整數值
+
+會基於 1...n 的範圍重複生成元素。
+
+語法：`v-for="值 in 整數"`
+
+=> `v-for="n in 5"`
+
+```vue
+<template>
+  <div>
+    <p v-for="n in 5" :key="n">{{ n }}</p>
+  </div>
+</template>
+```
+
+![圖片25](./images/25.PNG)
+
+### v-if 不可與 v-for 同時使用
+
+因 `v-if` 優先級較高，會導致 `v-if` 先執行時會無法讀取到 `v-for` 提供的變數。
+
+```vue
+<template>
+  <!-- 錯誤用法 ❌ v-if 無法取得 todo -->
+  <div>
+    <ul>
+      <li v-for="todo in todos" :key="todo.id" v-if="!todo.isComplete">
+        {{ todo.message }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+可以多包裝一層 `<template>` 來解決。
+
+```vue
+<script setup>
+import { reactive } from 'vue';
+const todos = ref([
+  { id: 1, message: 'Todo1', isComplete: false },
+  { id: 2, message: 'Todo2', isComplete: true },
+]);
+</script>
+
+<template>
+  <!-- 正確用法 ✔️ 包裝一層 <template> -->
+  <div>
+    <ul>
+      <template v-for="todo in todos" :key="todo.id">
+        <li v-if="!todo.isComplete">
+          {{ todo.message }}
+        </li>
+      </template>
+    </ul>
+  </div>
+</template>
+```
+
+### 組件上使用 v-for
+
+可以直接使用跟一般元素沒有區別，但是**數據不會自動傳遞到組件中**，需要傳遞 `props`給組件。
+
+父組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo14Child1 from './Demo14Child1.vue';
+const items = ref([
+  { id: 1, message: 'Hello!' },
+  { id: 2, message: 'Welcome~' },
+]);
+</script>
+
+<template>
+  <div>
+    <ul>
+      <Demo14Child1
+        v-for="item in items"
+        :key="item.id"
+        :message="item.message"
+      />
+    </ul>
+  </div>
+</template>
+```
+
+子組件：
+
+```vue
+<script setup>
+const props = defineProps({
+  message: {
+    type: String,
+    required: true,
+  },
+});
+</script>
+
+<template>
+  <h2>hi! 我是子組件</h2>
+  <p>message : {{ message }}</p>
+  <hr />
+</template>
+```
+
+![圖片26](./images/26.PNG)
+
+### 陣列的變化偵測
+
+能自動偵測以下的陣列的變更方法，會觸發相關的更新：
+
+- `push()`
+- `pop()`
+- `shift()`
+- `unshift()`
+- `splice()`
+- `sort()`
+- `reverse()`
+
+不會更改原陣列而是返回新陣列的方法則**需要將舊陣列替換才會進行更新**，例如：`filter()`、`concat()`、`slice()`。
+
+```vue
+items.value = items.value.filter((item) => item.message.match(/Foo/));
+```
+
+若希望展示過濾或排序過後的數據，而**不實際更改原始數據，則可以使用 `computed`**。
+
+> 注意：`computed` 中陣列使用 `reverse()` 及 `sort()` 時，由於**會變更原始數據陣列**，會導致循環觸發 `computed`，因此可以先創建一個原陣列的拷貝在執行 `reverse()` 及 `sort()`。參考[解釋說明](https://segmentfault.com/q/1010000044261491)。
+
+```vue
+<script setup>
+import { ref, computed } from 'vue';
+const numbers = ref([1, 2, 3, 4, 5]);
+const reverseNumbers = computed(() => {
+  return [...numbers.value].reverse();
+});
+const evenNumbers = computed(() => {
+  return numbers.value.filter((n) => n % 2 === 0);
+});
+</script>
+
+<template>
+  <div>
+    <p>numbers：{{ numbers }}</p>
+    <p>reverseNumbers：</p>
+    <ul>
+      <li v-for="n in reverseNumbers" :key="n">{{ n }}</li>
+    </ul>
+    <p>evenNumbers：</p>
+    <ul>
+      <li v-for="n in evenNumbers" :key="n">{{ n }}</li>
+    </ul>
+  </div>
+</template>
+```
+
+![圖片27](./images/27.PNG)

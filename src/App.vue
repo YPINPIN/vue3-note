@@ -1,19 +1,20 @@
 <script setup>
-import { ref } from 'vue'
-import Demo1 from './components/Demo1.vue'
-import Demo2 from './components/Demo2.vue'
-import Demo3 from './components/Demo3.vue'
-import Demo4 from './components/Demo4.vue'
-import Demo5 from './components/Demo5.vue'
-import Demo6 from './components/Demo6.vue'
-import Demo7 from './components/Demo7.vue'
-import Demo8 from './components/Demo8.vue'
-import Demo9 from './components/Demo9.vue'
-import Demo10 from './components/Demo10.vue'
-import Demo11 from './components/Demo11.vue'
-import Demo12 from './components/Demo12.vue'
-import Demo13 from './components/Demo13.vue'
-const currentTab = ref('Demo1')
+import { ref } from 'vue';
+import Demo1 from './components/Demo1.vue';
+import Demo2 from './components/Demo2.vue';
+import Demo3 from './components/Demo3.vue';
+import Demo4 from './components/Demo4.vue';
+import Demo5 from './components/Demo5.vue';
+import Demo6 from './components/Demo6.vue';
+import Demo7 from './components/Demo7.vue';
+import Demo8 from './components/Demo8.vue';
+import Demo9 from './components/Demo9.vue';
+import Demo10 from './components/Demo10.vue';
+import Demo11 from './components/Demo11.vue';
+import Demo12 from './components/Demo12.vue';
+import Demo13 from './components/Demo13.vue';
+import Demo14 from './components/Demo14.vue';
+const currentTab = ref('Demo1');
 
 const tabs = {
   Demo1,
@@ -29,7 +30,8 @@ const tabs = {
   Demo11,
   Demo12,
   Demo13,
-}
+  Demo14,
+};
 </script>
 
 <template>
