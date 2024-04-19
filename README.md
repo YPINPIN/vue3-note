@@ -23,6 +23,7 @@
 - [條件渲染 v-if & v-show](#條件渲染-v-if--v-show)
 - [列表渲染 v-for](#列表渲染-v-for)
 - [事件處理 v-on](#事件處理-v-on)
+- [雙向綁定 v-model](#雙向綁定-v-model)
 
 ## 初始化專案
 
@@ -1669,7 +1670,6 @@ function greet(event) {
 
 ```vue
 <script setup>
-import { ref } from 'vue';
 function say(message) {
   alert(message);
 }
@@ -1852,3 +1852,348 @@ function showText(message, submitEvent) {
 - `.left`
 - `.right`
 - `.middle`
+
+## 雙向綁定 v-model
+
+`v-model` 指令可以對表單元素 `<input>`、`<textarea>` 及 `<select>` 進行資料的雙向綁定(`data` 驅動 `view`，也能從 `view` 改變 `data`)。
+
+`v-model` 會根據使用的表單元素自動使用對應的屬性及事件組合，可以簡化手動綁定屬性值與設定事件監聽的操作。
+
+![圖片28](./images/28.PNG)
+
+設置 `v-model` 後，會忽略所有表單元素上初始的 `value`, `checked`, `selected`，始終根據綁定的響應式數據設定。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const text = ref('');
+</script>
+
+<template>
+  <div>
+    <p>text: {{ text }}</p>
+    <!-- 手動綁定 & 監聽事件 -->
+    <input
+      type="text"
+      :value="text"
+      @input="(event) => (text = event.target.value)"
+    />
+    <!-- 使用v-model簡化 -->
+    <input type="text" v-model="text" />
+    <hr />
+  </div>
+</template>
+```
+
+![v-model-1.gif](./images/gif/v-model-1.gif)
+
+### 各類型輸入基本用法：
+
+#### § text 文本
+
+綁定的是字串。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const message = ref('');
+</script>
+
+<template>
+  <div>
+    <p>Message is: {{ message }}</p>
+    <input v-model="message" placeholder="edit me" />
+  </div>
+</template>
+```
+
+![v-model-2.gif](./images/gif/v-model-2.gif)
+
+#### § textarea 多行文本
+
+綁定的是字串。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const message2 = ref('');
+</script>
+
+<template>
+  <div>
+    <span>Multiline message is:</span>
+    <p style="white-space: pre-line">{{ message2 }}</p>
+    <textarea v-model="message2" placeholder="add multiple lines" />
+  </div>
+</template>
+```
+
+![v-model-3.gif](./images/gif/v-model-3.gif)
+
+#### § checkbox
+
+單一 checkbox：
+
+綁定的是布林值，判斷這個選項是否有勾選。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const checked = ref(true);
+</script>
+
+<template>
+  <div>
+    <input type="checkbox" id="checkbox" v-model="checked" />
+    <label for="checkbox">{{ checked }}</label>
+  </div>
+</template>
+```
+
+![v-model-4.gif](./images/gif/v-model-4.gif)
+
+多個 checkbox：
+
+綁定的是陣列，綁定的陣列會包含所有被選中的 input 標籤的 value 屬性值(依照點選順序)。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const checkedNames = ref([]);
+</script>
+
+<template>
+  <div>
+    <div>Checked names: {{ checkedNames }}</div>
+    <input type="checkbox" id="A" value="A" v-model="checkedNames" />
+    <label for="A">A</label>
+    <input type="checkbox" id="B" value="B" v-model="checkedNames" />
+    <label for="B">B</label>
+    <input type="checkbox" id="C" value="C" v-model="checkedNames" />
+    <label for="C">C</label>
+  </div>
+</template>
+```
+
+![v-model-5.gif](./images/gif/v-model-5.gif)
+
+#### § radio
+
+綁定的是字串。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const picked = ref('One');
+</script>
+
+<template>
+  <div>
+    <div>Picked: {{ picked }}</div>
+    <input type="radio" id="one" value="One" v-model="picked" />
+    <label for="one">One</label>
+    <input type="radio" id="two" value="Two" v-model="picked" />
+    <label for="two">Two</label>
+  </div>
+</template>
+```
+
+![v-model-6.gif](./images/gif/v-model-6.gif)
+
+#### § select
+
+綁定的是字串。
+
+> 注意：如果初始值沒有符合任何的選項時， `select` 會處於未選擇的狀態，也就是選項框中沒有任何值，在 IOS 下會有問題，因此建議提通一個空值得禁用選項來解決此問題。
+
+`select` 可以用 `v-for` 渲染選項
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const selected = ref('');
+const options = ref([
+  { text: 'One - A', value: 'A' },
+  { text: 'Two - B', value: 'B' },
+  { text: 'Three - C', value: 'C' },
+]);
+</script>
+
+<template>
+  <div>
+    <div>Selected: {{ selected }}</div>
+    <select v-model="selected">
+      <option disabled value="">Please select one</option>
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+      >
+        {{ option.text }}
+      </option>
+    </select>
+  </div>
+</template>
+```
+
+![v-model-7.gif](./images/gif/v-model-7.gif)
+
+### 動態值綁定
+
+希望將值綁定為組件上的動態數據時可以使用 `v-bind`，並且可以綁定非字串的數據。
+
+#### § checkbox
+
+checkbox 可以使用 `true-value` 及 `false-value` 分別綁定勾選及未勾選時的資料。也可以通過 `v-bind` 綁定其他動態值。
+
+> 注意：
+>
+> - `true-value` 及 `false-value` 為 Vue 特有的 attribute，僅支持與 `v-model` 配套使用。
+> - `true-value` 及 `false-value` attribute 並不會影響輸入元素的 `value` attribute，因為瀏覽器在提交表單時不會包含未被選中的複選框。如果要確保表單中這兩個值中的一個能夠被提交，(即 'yes' 或 'no' )，請改用單選按鈕 `radio`。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const toggle = ref('yes');
+
+const dynamicTrueValue = ref('yes!!!!');
+const dynamicFalseValue = ref('false!!!!');
+const toggle2 = ref(dynamicFalseValue.value);
+</script>
+
+<template>
+  <div>
+    <!-- toggle 會在被選中時設定為'yes'，取消時設為'no' -->
+    <input
+      type="checkbox"
+      id="toggle"
+      v-model="toggle"
+      true-value="yes"
+      false-value="no"
+    />
+    <label for="toggle">{{ toggle }}</label>
+    <hr />
+    <!-- 其他動態值 -->
+    <input
+      type="checkbox"
+      id="toggle2"
+      v-model="toggle2"
+      :true-value="dynamicTrueValue"
+      :false-value="dynamicFalseValue"
+    />
+    <label for="toggle2">{{ toggle2 }}</label>
+  </div>
+</template>
+```
+
+![v-model-8.gif](./images/gif/v-model-8.gif)
+
+#### § radio
+
+使用 `v-bind` 綁定 `value`。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const first = ref('first radio');
+const second = ref('second radio');
+const picked = ref(first.value);
+</script>
+
+<template>
+  <div>
+    <!-- picked 會在第一個 radio 選中時被設為 first ，在第二個 radio 選中時被設為 second -->
+    <div>Picked: {{ picked }}</div>
+    <input type="radio" id="first" v-model="picked" :value="first" />
+    <label for="first">first</label>
+    <input type="radio" id="second" v-model="picked" :value="second" />
+    <label for="second">second</label>
+  </div>
+</template>
+```
+
+![v-model-9.gif](./images/gif/v-model-9.gif)
+
+#### § select
+
+也可以綁定非字串類型的值。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const selected = ref('');
+</script>
+
+<template>
+  <div>
+    <!-- 也可以綁定非字串類型的值 -->
+    <div>Selected: {{ selected }}</div>
+    <select v-model="selected">
+      <option disabled value="">Please select one</option>
+      <option :value="{ number: 123 }">123</option>
+      <option :value="{ number: 456 }">456</option>
+      <option :value="{ number: 789 }">789</option>
+    </select>
+  </div>
+</template>
+```
+
+![v-model-10.gif](./images/gif/v-model-10.gif)
+
+### 修飾符
+
+#### § .lazy
+
+`v-model` 默認在每次 `input` 之後更新數據，`.lazy` 可以設定為 `change` 事件之後更新數據。
+
+```vue
+<script setup>
+const message = ref('');
+</script>
+
+<template>
+  <div>Message: {{ message }}</div>
+  <input v-model.lazy="message" />
+</template>
+```
+
+![v-model-11.gif](./images/gif/v-model-11.gif)
+
+#### § .number
+
+讓使用者輸入自動轉換為數字，如果值無法被 `parseFloat()` 處理，則會返回原始值。
+
+`.number` 修飾符會在輸入框有 `type="number"` 時自動啟用。
+
+```vue
+<script setup>
+const age = ref(undefined);
+const age2 = ref(undefined);
+</script>
+
+<template>
+  <div>Age: {{ age }} type: {{ typeof age }}</div>
+  <input v-model="age" />
+  <div>Age (with .number): {{ age2 }} type: {{ typeof age2 }}</div>
+  <input v-model.number="age2" />
+</template>
+```
+
+![v-model-12.gif](./images/gif/v-model-12.gif)
+
+#### § .trim
+
+默認自動去除使用者輸入內容中兩端的空格。
+
+```vue
+<script setup>
+const trimMsg = ref('');
+</script>
+
+<template>
+  <div>trimMsg: {{ trimMsg }}</div>
+  <input v-model.trim="trimMsg" />
+</template>
+```
+
+![v-model-13.gif](./images/gif/v-model-13.gif)
