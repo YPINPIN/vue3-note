@@ -22,6 +22,7 @@
 - [Class 與 Style 綁定](#class-與-style-綁定)
 - [條件渲染 v-if & v-show](#條件渲染-v-if--v-show)
 - [列表渲染 v-for](#列表渲染-v-for)
+- [事件處理 v-on](#事件處理-v-on)
 
 ## 初始化專案
 
@@ -888,7 +889,7 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 </template>
 ```
 
-#### 總結
+#### § 總結
 
 ![圖片10](./images/10.PNG)
 
@@ -1571,7 +1572,7 @@ const props = defineProps({
 
 不會更改原陣列而是返回新陣列的方法則**需要將舊陣列替換才會進行更新**，例如：`filter()`、`concat()`、`slice()`。
 
-```vue
+```javascript
 items.value = items.value.filter((item) => item.message.match(/Foo/));
 ```
 
@@ -1607,3 +1608,247 @@ const evenNumbers = computed(() => {
 ```
 
 ![圖片27](./images/27.PNG)
+
+## 事件處理 v-on
+
+`v-on` 指令用於綁定 js 原生事件或自定義事件。
+
+語法：`v-on:事件名稱="事件處理器(handler)"`
+
+=> `v-on:click="handler"`
+
+可以簡寫為 `@事件名稱="事件處理器(handler)"`
+
+=> `@click="handler"`
+
+### 事件處理器(handler)的值可以是以下幾種：
+
+#### § 直接執行的 js 語句
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const count = ref(0);
+</script>
+
+<template>
+  <div>
+    <p>count is: {{ count }}</p>
+    <button v-on:click="count++">count + 1</button>
+  </div>
+</template>
+```
+
+![v-on-1.gif](./images/gif/v-on-1.gif)
+
+#### § 一個函數
+
+會自動接收原生的 DOM 事件 `event` 為參數並執行函數。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const name = ref('Vue.js');
+function greet(event) {
+  alert(`Hello ${event.target.innerHTML}`);
+}
+</script>
+
+<template>
+  <div>
+    <h1 @click="greet">{{ name }}</h1>
+  </div>
+</template>
+```
+
+![v-on-2.gif](./images/gif/v-on-2.gif)
+
+#### § 帶自定義參數的函數
+
+向函數傳入自訂義參數將會取代原生事件參數。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+function say(message) {
+  alert(message);
+}
+</script>
+
+<template>
+  <div>
+    <button @click="say('Hello~~')">Say Hello~~</button>
+  </div>
+</template>
+```
+
+![v-on-3.gif](./images/gif/v-on-3.gif)
+
+想要同時使用事件參數可以使用 `$event` 或是透過箭頭函數調用。
+
+```vue
+<script setup>
+function showText(message, submitEvent) {
+  submitEvent.preventDefault();
+  const textElement = submitEvent.target.elements.text;
+  alert(`${message}, ${textElement.value}`);
+  textElement.value = '';
+}
+</script>
+
+<template>
+  <div>
+    <!-- 傳遞事件參數 $event -->
+    <form @submit="showText('Welcome', $event)">
+      <div>
+        <label for="example">Let's submit some text</label>
+        <input id="example" type="text" name="text" />
+      </div>
+      <div>
+        <input type="submit" value="Submit text" />
+      </div>
+    </form>
+    <!-- 使用箭頭函數 -->
+    <form @submit="(event) => showText('Hello', event)">
+      <div>
+        <label for="example">Let's submit some text</label>
+        <input id="example" type="text" name="text" />
+      </div>
+      <div>
+        <input type="submit" value="Submit text" />
+      </div>
+    </form>
+  </div>
+</template>
+```
+
+![v-on-4.gif](./images/gif/v-on-4.gif)
+
+### 事件修飾符
+
+提供給 `v-on` 的指令後綴，方便直接設定 `event.preventDefault()` 或 `event.stopPropagation()` 等等。
+
+#### § .stop
+
+事件將停止傳遞，即 `event.stopPropagation()`。
+
+```html
+<a @click.stop="doThis">...</a>
+```
+
+#### § .prevent
+
+停止事件默認動作，例如表單 Submit 刷新，即 `event.preventDefault()`。
+
+```html
+<form @submit.prevent="onSubmit">...</form>
+```
+
+#### § .self
+
+僅當 `event.target` 是元素本身時才會觸發事件處理，例如：事件不來自子元素。
+
+```html
+<div @click.self="doThis">...</div>
+```
+
+#### § .capture
+
+添加事件監聽時使用 `capture` 模式(由外向內處理)。
+
+```html
+<div @click.capture="doThis">...</div>
+```
+
+#### § .once
+
+事件最多被觸發一次。
+
+```html
+<a @click.once="doThis">...</a>
+```
+
+#### § .passive
+
+無視 `event.preventDefault()`，禁止與 `.prevent` 同時使用。
+
+一般用於捲軸的 `onscroll` 事件上，提早通知瀏覽器不阻止默認行為(scrolling)發生，可以改善移動端上的使用效能。
+
+```html
+<div @scroll.passive="onScroll">...</dvi>
+```
+
+#### § 可以鏈式調用
+
+```html
+<a @click.stop.prevent="doThis">...</a>
+```
+
+但是需要注意調用順序。
+
+```html
+<!-- 點擊時會先阻止默認事件(不會開啟連結頁面)，再判斷觸發點擊的是否為自己 -->
+<a @click.prevent.self="doThis">...</a>
+
+<!-- 點擊時會先判斷觸發點擊的元素是否為自己，若不是自己會直接結束事件不會執行 prevent，因此還是會開啟連結頁面，是自己時才會執行 prevent(不開啟連結頁面) -->
+<a @click.self.prevent="doThis">...</a>
+```
+
+### 按鍵修飾符
+
+提供給 `v-on` 的按鍵修飾，方便設定觸發事件的按鍵。
+
+只要是在 [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values) 上的按鍵名稱都可以用 `kebab-case` 的方式設定在修飾符上。
+
+```html
+<!-- 只在key為 enter 時調用 -->
+<input @keyup.enter="submit" />
+
+<!-- 只在key為 Page Down 時調用 -->
+<input @keyup.page-down="onPageDown" />
+```
+
+常用的按鍵別名：
+
+- `.enter`
+- `.tab`
+- `.delete` ('Delete'和'Backspace'都會觸發)
+- `.esc`
+- `.space`
+- `.up`
+- `.down`
+- `.left`
+- `.right`
+
+系統按鍵修飾符：
+
+- `.ctrl`
+- `.alt`
+- `.shift`
+- `.meta`
+
+```html
+<!-- Alt + Enter -->
+<input @keyup.alt.enter="clear" />
+
+<!-- Ctrl + 點擊 -->
+<div @click.ctrl="doSomething">Do something</div>
+```
+
+`.exact` 修飾符
+
+一定要**完全符合**才會觸發，不能同時按住指定外的按鍵。
+
+```html
+<!-- 按下ctrl時，同時按下shift也會觸發 -->
+<button @click.ctrl="onClick">A</button>
+
+<!-- 僅當按下ctrl時，未按其他按鍵才會觸發 -->
+<button @click.ctrl.exact="onCtrlClick">A</button>
+```
+
+滑鼠按鍵修飾符：
+
+- `.left`
+- `.right`
+- `.middle`
