@@ -25,6 +25,7 @@
 - [事件處理 v-on](#事件處理-v-on)
 - [雙向綁定 v-model](#雙向綁定-v-model)
 - [生命週期鉤子](#生命週期鉤子)
+- [模板引用 ref 屬性](#模板引用-ref-屬性)
 
 ## 初始化專案
 
@@ -2288,3 +2289,127 @@ onUnmounted(() => {
 ```
 
 ![lifecycle.gif](./images/gif/lifecycle.gif)
+
+## 模板引用 ref 屬性
+
+只可以在組件掛載後才可以引用，組件掛載前為 `null`。
+
+語法：
+
+Script：`const 變數名稱 = ref(null);`
+
+模板中：`ref="變數名稱"`
+
+- 在普通的 DOM 標籤上設置 `ref` 屬性獲取的是 DOM 節點。
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const title1 = ref(null);
+
+  function showLog() {
+    console.log(title1.value);
+    console.log(title1.value.innerHTML);
+  }
+  </script>
+
+  <template>
+    <div>
+      <h1 ref="title1">Hello~~</h1>
+      <button @click="showLog">log</button>
+    </div>
+  </template>
+  ```
+
+  ![ref-1.gif](./images/gif/ref-1.gif)
+
+- 在組件標籤上設置，則獲取的是**組件實例物件**。
+
+  - 若組件是使用 Option API 或未使用 `<script setup>` 則獲取的組件實例與組件的 `this` 相同，**可直接訪問屬性及方法**。
+  - 而使用 `<script setup>` 的組件默認是**私有的**，無法直接訪問子組件的內容，因此**要使用 `defineExpose` 暴露內容**。
+
+  子組件 1： Option API
+
+  ```vue
+  <script>
+  export default {
+    data() {
+      return {
+        name: '小明',
+        age: 18,
+      };
+    },
+    methods: {
+      show() {
+        console.log('嗨~~~');
+      },
+    },
+  };
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <p>name : {{ name }}, age : {{ age }}</p>
+    </div>
+  </template>
+  ```
+
+  子組件 2： Composition API
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const name = ref('小美');
+  const age = ref(20);
+  function show() {
+    console.log('哈哈哈');
+  }
+  // 使用 defineExpose 將組件中的數據交給外部
+  defineExpose({ name, age, show });
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 2</h2>
+      <p>name : {{ name }}, age : {{ age }}</p>
+    </div>
+  </template>
+  ```
+
+  父組件：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  import Demo19Child1 from './Demo19Child1.vue';
+  import Demo19Child2 from './Demo19Child2.vue';
+
+  const child1 = ref(null);
+  function showChild1() {
+    console.log(child1.value);
+    console.log(child1.value.name);
+    console.log(child1.value.age);
+    child1.value.show();
+  }
+
+  const child2 = ref(null);
+  function showChild2() {
+    console.log(child2.value);
+    console.log(child2.value.name);
+    console.log(child2.value.age);
+    child2.value.show();
+  }
+  </script>
+
+  <template>
+    <div>
+      <Demo19Child1 ref="child1" />
+      <button @click="showChild1">log child1</button>
+      <Demo19Child2 ref="child2" />
+      <button @click="showChild2">log child2</button>
+    </div>
+  </template>
+  ```
+
+  ![ref-2.gif](./images/gif/ref-2.gif)
