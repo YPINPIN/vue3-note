@@ -24,6 +24,7 @@
 - [列表渲染 v-for](#列表渲染-v-for)
 - [事件處理 v-on](#事件處理-v-on)
 - [雙向綁定 v-model](#雙向綁定-v-model)
+- [生命週期鉤子](#生命週期鉤子)
 
 ## 初始化專案
 
@@ -2197,3 +2198,93 @@ const trimMsg = ref('');
 ```
 
 ![v-model-13.gif](./images/gif/v-model-13.gif)
+
+## 生命週期鉤子
+
+![圖片29](./images/29.PNG)
+
+- 1.渲染器遇到組件
+- 2.setup(組合式 API)
+- 3.beforeCreate
+- 4.初始化選項式 API
+- 5.created
+- 6.檢查是否存在預編譯模板，沒有則即時編譯模板
+- 7.beforeMount
+- 8.初始渲染，創建和插入 DOM 節點
+- 9.mounted
+- 10.掛載 -> 當數據有變化時執行 11，當組件被取消掛載時執行 14
+- 11.beforeUpdated
+- 12.重新渲染
+- 13.updated 更新完回到 10 等待
+- 14.beforeUnmounted
+- 15.unmounted 取消掛載
+
+### Composition API
+
+- onBeforeMount() -> 組件被掛載之前
+- onMounted() -> 組件掛載之後
+- onBeforeUpdate() -> 因響應式狀態變更而**更新 DOM 之前**
+- onUpdated() -> 因響應式狀態變更而**更新 DOM 之後**，父組件的 onUpdated 會在子組件的 onUpdated 之後調用
+- onBeforeUnmount() -> 組件卸載之前
+- onUnmounted() -> 組件卸載之後
+
+> 需要注意在 Option API 裡面有許多的生命週期鉤子可以用，但是到了 Composition API 裡面就有了一些變化。
+
+| Option API      | Composition API |
+| --------------- | --------------- |
+| beforeCreate    | **Not needed**  |
+| created         | **Not needed**  |
+| beforeMount     | onBeforeMount   |
+| mounted         | onMounted       |
+| beforeUpdated   | onBeforeUpdate  |
+| updated         | onUpdated       |
+| beforeUnmounted | onBeforeUnmount |
+| unmounted       | onUnmounted     |
+
+原本的 `beforeCreate`、`created` 沒有了， 現在的 `setup` 這個函式就等同於 `beforeCreate`、`created` 這兩個效果一樣。[參考資料](https://ithelp.ithome.com.tw/articles/10242633)。
+
+```vue
+<script setup>
+import {
+  ref,
+  onBeforeMount,
+  onMounted,
+  onBeforeUpdate,
+  onUpdated,
+  onBeforeUnmount,
+  onUnmounted,
+} from 'vue';
+
+const count = ref(0);
+const cc = ref(null);
+console.log('created---');
+
+onBeforeMount(() => {
+  console.log('onBeforeMount---', cc.value);
+});
+onMounted(() => {
+  console.log('onMounted---', cc.value);
+});
+onBeforeUpdate(() => {
+  console.log('onBeforeUpdate---', cc.value.innerHTML);
+});
+onUpdated(() => {
+  console.log('onUpdated---', cc.value.innerHTML);
+});
+onBeforeUnmount(() => {
+  console.log('onBeforeUnmount---', cc.value);
+});
+onUnmounted(() => {
+  console.log('onUnmounted---', cc.value);
+});
+</script>
+
+<template>
+  <div>
+    <div ref="cc">Count: {{ count }}</div>
+    <button @click="count++">count + 1</button>
+  </div>
+</template>
+```
+
+![lifecycle.gif](./images/gif/lifecycle.gif)
