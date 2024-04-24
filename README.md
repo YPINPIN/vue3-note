@@ -2413,3 +2413,184 @@ Script：`const 變數名稱 = ref(null);`
   ```
 
   ![ref-2.gif](./images/gif/ref-2.gif)
+
+## 組件
+
+將 UI 分為獨立的可重用的部分，可以在組件內封裝自定義內容及邏輯。
+
+### 定義一個組件
+
+#### § 單文件組件(SFC)
+
+使用構建步驟時，通常會使用單文件組件(SFC)，將組件定義在一個單獨的 `.vue` 文件中。
+
+```vue
+<!-- App.vue -->
+<script setup>
+import { ref } from 'vue';
+const count = ref(0);
+</script>
+
+<template>
+  <div>
+    <button @click="count++">You clicked me {{ count }} times.</button>
+  </div>
+</template>
+```
+
+#### § 包含 Vue 特定選項的物件
+
+不使用構建步驟時，使用一個包含 Vue 特定選項的 js 物件來定義。並在一個 `.js` 文件裡默認導出它自己。[Github](https://github.com/YPINPIN/vue3-cdn-test/blob/main/index.html) | [demo](https://ypinpin.github.io/vue3-cdn-test/)。
+
+```javascript
+// App.js
+const { ref } = Vue;
+export default {
+  setup() {
+    const count = ref(0);
+    return { count };
+  },
+  template: `
+    <div>
+     <button @click="count++">
+       You clicked me {{ count }} times.
+     </button>
+    </div>
+  `,
+};
+```
+
+### 組件註冊
+
+組件使用前需要先進行註冊，有兩種方式：全局註冊和局部註冊。
+
+#### § 全局註冊
+
+使用 Vue 應用實例的 `.component()` 方法，**使組件在當前 Vue 應用中全局可用**。
+
+語法：`app.component('註冊的組件名字', 組件的實現);`
+
+> 雖然方便，但是全局註冊時未使用的組件無法在生產打包時自動移除 (tree-shaking)，仍然會出現在打包後的 js 文件中。在大型項目中會使項目的依賴關係不明確，像使用過多的全局變量一樣，不好維護。
+
+```javascript
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+// 導入組件
+import HelloVue3 form './components/HelloVue3.vue'
+
+const app = createApp(App);
+
+// 組件全局註冊
+// app.component('註冊的組件名字', 組件的實現);
+app.component('HelloVue3', HelloVue3)
+
+app.mount('#app');
+```
+
+![圖片30](./images/30.PNG)
+
+`.component()` 也可以鏈式調用。
+
+```javascript
+app
+  .component('ComponentA', ComponentA)
+  .component('ComponentB', ComponentB)
+  .component('ComponentC', ComponentC);
+```
+
+#### § 局部註冊
+
+只可再導入的父組件中使用，使組件間的依賴關係更明確，對 tree-shaking 更友好。
+
+在使用 `<script setup>` 的單文件組件中可以**直接導入使用無需註冊**。
+
+```vue
+<script setup>
+import ComponentA from './components/ComponentA.vue';
+</script>
+
+<template>
+  <ComponentA />
+</template>
+```
+
+沒有使用 `<script setup>` 則需要使用 `components` 選項來註冊。
+
+```vue
+<script>
+import ComponentA from './components/ComponentA.vue';
+
+export default {
+  components: {
+    // 註冊的組件名:組件 -> ComponentA: ComponentA
+    // 使用 ES6 縮寫語法
+    ComponentA,
+  },
+  setup() {
+    //...
+  },
+};
+</script>
+
+<template>
+  <ComponentA />
+</template>
+```
+
+### 使用組件
+
+使用一個子組件需要在父組件中導入或是全局註冊。
+
+組件可以多次使用，但是**每個組件都有自己的實例來維護自己的狀態**。
+
+```vue
+<script setup>
+import Demo21Child1 from './Demo21Child1.vue';
+</script>
+
+<template>
+  <div>
+    <Demo21Child1 />
+    <Demo21Child1 />
+  </div>
+</template>
+```
+
+![component-1.gif](./images/gif/component-1.gif)
+
+### 動態組件
+
+需要在組件間來回切換時，例如 Tab 介面，可以使用動態組件 `<component :is="..."></component>`，被切換掉的組件會**被卸載**，可以另外透過 `<KeepAlive>` 內置組件緩存組件狀態。
+
+`:is` 的值為導入或註冊的組件名稱。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo22Child1 from './Demo22Child1.vue';
+import Demo22Child2 from './Demo22Child2.vue';
+
+const currentTab = ref('Demo22Child1');
+const tabs = {
+  Demo22Child1,
+  Demo22Child2,
+};
+</script>
+
+<template>
+  <div>
+    <button
+      v-for="(comp, tab) in tabs"
+      :key="tab"
+      :class="['tab-button', { active: currentTab === tab }]"
+      @click="currentTab = tab"
+    >
+      {{ tab }}
+    </button>
+    <component :is="tabs[currentTab]" class="tab"></component>
+  </div>
+</template>
+```
+
+![component-2.gif](./images/gif/component-2.gif)

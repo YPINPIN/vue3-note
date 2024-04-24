@@ -19,6 +19,9 @@ import Demo16 from './components/Demo16.vue';
 import Demo17 from './components/Demo17.vue';
 import Demo18 from './components/Demo18.vue';
 import Demo19 from './components/Demo19.vue';
+import Demo20 from './components/Demo20.vue';
+import Demo21 from './components/Demo21.vue';
+import Demo22 from './components/Demo22.vue';
 const currentTab = ref('Demo1');
 
 const tabs = {
@@ -41,25 +44,28 @@ const tabs = {
   Demo17,
   Demo18,
   Demo19,
+  Demo20,
+  Demo21,
+  Demo22,
 };
 </script>
 
 <template>
-  <h1>Hello Vue3!</h1>
+  <HelloVue3 />
   <hr />
   <button
-    v-for="(_, tab) in tabs"
+    v-for="(comp, tab) in tabs"
     :key="tab"
     :class="['tab-button', { active: currentTab === tab }]"
     @click="currentTab = tab"
   >
     {{ tab }}
   </button>
-  <Component :is="tabs[currentTab]" class="tab"></Component>
+  <component :is="tabs[currentTab]" class="tab"></component>
 </template>
 
 <style>
-.demo {
+/* .demo {
   font-family: sans-serif;
   border: 1px solid #eee;
   border-radius: 2px;
@@ -68,7 +74,7 @@ const tabs = {
   margin-bottom: 40px;
   user-select: none;
   overflow-x: auto;
-}
+} */
 
 .tab-button {
   padding: 6px 10px;
