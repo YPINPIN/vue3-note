@@ -27,6 +27,7 @@
 - [生命週期鉤子](#生命週期鉤子)
 - [模板引用 ref 屬性](#模板引用-ref-屬性)
 - [組件](#組件)
+- [props 傳遞 (父傳子)](#props-傳遞-父傳子)
 
 ## 初始化專案
 
@@ -2595,3 +2596,238 @@ const tabs = {
 ```
 
 ![component-2.gif](./images/gif/component-2.gif)
+
+## props 傳遞 (父傳子)
+
+父組件在子組件上使用屬性綁定要傳遞的 `props`，子組件中則需要聲明接受的 `props`，才能知道傳入的那些是 `props`。
+
+### 基本用法
+
+#### § 父組件向子組件傳遞 props
+
+為了跟 HTML attribute 對齊建議使用 `kebab-case` 的命名形式。
+
+語法：`<子組件名稱 屬性名稱="值(字串)" />` or `<子組件名稱 :屬性名稱="變數值" />`
+
+- 靜態 props：
+
+  不使用 `v-bind` 的形式傳遞的 `props` 為字串。
+
+  ```vue
+  <script setup>
+  import Demo23Child1 from './Demo23Child1.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo23Child1 greeting-message="Hello Vue" />
+    </div>
+  </template>
+  ```
+
+- 動態 props：
+
+  使用 `v-bind` 動態綁定 `props`。
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  import Demo23Child1 from './Demo23Child1.vue';
+  const message = ref('Hello Vue');
+  </script>
+
+  <template>
+    <div>
+      <!-- 根據變數動態傳入 -->
+      <Demo23Child1 :greeting-message="message" />
+      <!-- 根據表達式動態傳入 -->
+      <Demo23Child1 :greeting-message="message + '!!!!!!'" />
+    </div>
+  </template>
+  ```
+
+#### § 子組件聲明接收 props
+
+聲明時推薦使用 `camelCase`，**可以直接在模板中使用**，也可以避免作為屬性 key 時必須加上引號。
+
+- 在 `<script setup>` 中使用：
+
+  使用 `defineProps()` 傳入字串陣列聲明接收的 `props`，且 `defineProps()` 會返回一個包含傳遞給組件的所有 `props` 的物件。
+
+  ```vue
+  <script setup>
+  const props = defineProps(['greetingMessage']);
+  console.log(props.greetingMessage);
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <p>{{ greetingMessage }}</p>
+    </div>
+  </template>
+  ```
+
+- 沒有使用 `<script setup>` 時：
+
+  使用 `props` 選項聲明，`setup()` 會接收 `props` 作為第一個參數。
+
+  ```vue
+  <script>
+  export default {
+    props: ['greetingMessage'],
+    setup(props) {
+      console.log(props.greetingMessage);
+    },
+  };
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <p>{{ greetingMessage }}</p>
+    </div>
+  </template>
+  ```
+
+- `defineProps()` 傳入物件的形式：
+
+  也可以傳入物件分別聲明 `props` 的類型及其他可選屬性。
+
+  ```vue
+  <script setup>
+  const props = defineProps({
+    greetingMessage: String,
+  });
+  </script>
+  ```
+
+  ```vue
+  <script>
+  export default {
+    props: {
+      greetingMessage: String,
+    },
+  };
+  </script>
+  ```
+
+![圖片31](./images/31.PNG)
+
+### 傳遞除了字串外的其他類型值
+
+#### § Number
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo23Child2 from './Demo23Child2.vue';
+const likes = ref(120);
+</script>
+
+<template>
+  <div>
+    <Demo23Child2 :likes="42" />
+    <Demo23Child2 :likes="likes" />
+  </div>
+</template>
+```
+
+![圖片32](./images/32.PNG)
+
+#### § Boolean
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo23Child3 from './Demo23Child3.vue';
+const isPublished = ref(false);
+</script>
+
+<template>
+  <div>
+    <!-- 僅寫上prop名字不傳值，會自動轉換為 true -->
+    <Demo23Child3 is-published />
+    <!-- 不傳，則會自動轉換為 false -->
+    <Demo23Child3 />
+    <!-- 動態綁定 -->
+    <Demo23Child3 :is-published="isPublished" />
+  </div>
+</template>
+```
+
+![圖片33](./images/33.PNG)
+
+#### § Array
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo23Child4 from './Demo23Child4.vue';
+const list = ref([111, 222, 654]);
+</script>
+
+<template>
+  <div>
+    <Demo23Child4 :list="[234, 266]" />
+    <Demo23Child4 :list="list" />
+  </div>
+</template>
+```
+
+![圖片34](./images/34.PNG)
+
+#### § Object
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo23Child5 from './Demo23Child5.vue';
+const author = ref({
+  name: 'Joy',
+  company: 'Alphabet',
+});
+</script>
+
+<template>
+  <div>
+    <Demo23Child5
+      :author="{
+        name: 'Peter',
+        company: 'Google',
+      }"
+    />
+    <Demo23Child5 :author="author" />
+  </div>
+</template>
+```
+
+![圖片35](./images/35.PNG)
+
+### 使用物件綁定多個 props
+
+要將一個物件中的所有屬性都當作 props 傳入，可以使用**沒有參數的 `v-bind`**。
+
+語法：`<子組件名稱 v-bind="變數值" />`
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo23Child6 from './Demo23Child6.vue';
+const post = {
+  id: 1,
+  title: 'My Journey with Vue',
+};
+</script>
+
+<template>
+  <div>
+    <!-- 等同於 
+      <Demo23Child6 :id="post.id" :title="post.title" />
+    -->
+    <Demo23Child6 v-bind="post" />
+  </div>
+</template>
+```
+
+![圖片36](./images/36.PNG)
