@@ -19,15 +19,42 @@
 - [toRefs & toRef](#torefs--toref)
 - [computed 計算屬性](#computed-計算屬性)
 - [響應式數據監聽 watch & watchEffect](#響應式數據監聽-watch--watcheffect)
+  - [watch](#watch)
+  - [watcheffect](#watcheffect)
 - [Class 與 Style 綁定](#class-與-style-綁定)
+  - [綁定 class](#綁定-class)
+  - [綁定 style](#綁定-style-內聯樣式)
 - [條件渲染 v-if & v-show](#條件渲染-v-if--v-show)
 - [列表渲染 v-for](#列表渲染-v-for)
+  - [渲染多個元素](#渲染多個元素)
+  - [v-for 使用物件](#v-for-使用物件)
+  - [v-for 使用整數值](#v-for-使用整數值)
+  - [v-if 不可與 v-for 同時使用](#v-if-不可與-v-for-同時使用)
+  - [組件上使用 v-for](#組件上使用-v-for)
+  - [陣列的變化偵測](#陣列的變化偵測)
 - [事件處理 v-on](#事件處理-v-on)
+  - [事件修飾符](#事件修飾符)
+  - [按鍵修飾符](#按鍵修飾符)
 - [雙向綁定 v-model](#雙向綁定-v-model)
+  - [各類型輸入基本用法](#各類型輸入基本用法)
+  - [動態值綁定](#動態值綁定)
+  - [修飾符](#修飾符)
 - [生命週期鉤子](#生命週期鉤子)
 - [模板引用 ref 屬性](#模板引用-ref-屬性)
 - [組件](#組件)
+  - [定義一個組件](#定義一個組件)
+  - [組件註冊](#組件註冊)
+  - [使用組件](#使用組件)
+  - [動態組件](#動態組件)
 - [props 傳遞 (父傳子)](#props-傳遞-父傳子)
+  - [基本用法](#基本用法)
+  - [傳遞其他類型值](#傳遞除了字串外的其他類型值)
+  - [使用物件綁定多個 props](#使用物件綁定多個-props)
+  - [單向數據流](#單向數據流)
+    - [props 為物件或陣列](#§-props-為物件或陣列)
+    - [props 只用於傳入初始值](#§-props-只用於傳入初始值)
+    - [根據 props 轉換 (computed)](#§-根據-props-轉換-computed)
+  - [props 校驗](#props-校驗)
 
 ## 初始化專案
 
@@ -898,6 +925,8 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 
 ![圖片10](./images/10.PNG)
 
+---
+
 ### watchEffect
 
 與 `watch` 相同都可以監聽數據的變化，差別為 `watchEffect` 不用明確指出監視的數據(**自動追蹤響應式依賴**)，且會**立即執行一次回調**。
@@ -1158,6 +1187,8 @@ watchEffect(() => {
 
   ![圖片17](./images/17.PNG)
 
+---
+
 ### 綁定 style (內聯樣式)
 
 透過 `:style` 指令支持綁定物件類型，物件內屬性對應的是 HTML 的 `style` 屬性。
@@ -1394,6 +1425,8 @@ const items = ref([
 
 ![圖片22](./images/22.PNG)
 
+---
+
 ### 渲染多個元素
 
 與 `v-if` 類似，也可以使用 `<template>` 來重複生成多個元素。
@@ -1420,6 +1453,8 @@ const items = ref([
 ```
 
 ![圖片23](./images/23.PNG)
+
+---
 
 ### v-for 使用物件
 
@@ -1453,6 +1488,8 @@ const myObject = reactive({
 
 ![圖片24](./images/24.PNG)
 
+---
+
 ### v-for 使用整數值
 
 會基於 1...n 的範圍重複生成元素。
@@ -1470,6 +1507,8 @@ const myObject = reactive({
 ```
 
 ![圖片25](./images/25.PNG)
+
+---
 
 ### v-if 不可與 v-for 同時使用
 
@@ -1512,6 +1551,8 @@ const todos = ref([
   </div>
 </template>
 ```
+
+---
 
 ### 組件上使用 v-for
 
@@ -1562,6 +1603,8 @@ const props = defineProps({
 ```
 
 ![圖片26](./images/26.PNG)
+
+---
 
 ### 陣列的變化偵測
 
@@ -1728,6 +1771,8 @@ function showText(message, submitEvent) {
 
 ![v-on-4.gif](./images/gif/v-on-4.gif)
 
+---
+
 ### 事件修飾符
 
 提供給 `v-on` 的指令後綴，方便直接設定 `event.preventDefault()` 或 `event.stopPropagation()` 等等。
@@ -1797,6 +1842,8 @@ function showText(message, submitEvent) {
 <!-- 點擊時會先判斷觸發點擊的元素是否為自己，若不是自己會直接結束事件不會執行 prevent，因此還是會開啟連結頁面，是自己時才會執行 prevent(不開啟連結頁面) -->
 <a @click.self.prevent="doThis">...</a>
 ```
+
+---
 
 ### 按鍵修飾符
 
@@ -1890,6 +1937,8 @@ const text = ref('');
 ```
 
 ![v-model-1.gif](./images/gif/v-model-1.gif)
+
+---
 
 ### 各類型輸入基本用法：
 
@@ -2042,6 +2091,8 @@ const options = ref([
 
 ![v-model-7.gif](./images/gif/v-model-7.gif)
 
+---
+
 ### 動態值綁定
 
 希望將值綁定為組件上的動態數據時可以使用 `v-bind`，並且可以綁定非字串的數據。
@@ -2143,6 +2194,8 @@ const selected = ref('');
 ```
 
 ![v-model-10.gif](./images/gif/v-model-10.gif)
+
+---
 
 ### 修飾符
 
@@ -2462,6 +2515,8 @@ export default {
 };
 ```
 
+---
+
 ### 組件註冊
 
 組件使用前需要先進行註冊，有兩種方式：全局註冊和局部註冊。
@@ -2540,6 +2595,8 @@ export default {
 </template>
 ```
 
+---
+
 ### 使用組件
 
 使用一個子組件需要在父組件中導入或是全局註冊。
@@ -2560,6 +2617,8 @@ import Demo21Child1 from './Demo21Child1.vue';
 ```
 
 ![component-1.gif](./images/gif/component-1.gif)
+
+---
 
 ### 動態組件
 
@@ -2714,6 +2773,8 @@ const tabs = {
 
 ![圖片31](./images/31.PNG)
 
+---
+
 ### 傳遞除了字串外的其他類型值
 
 #### § Number
@@ -2804,6 +2865,8 @@ const author = ref({
 
 ![圖片35](./images/35.PNG)
 
+---
+
 ### 使用物件綁定多個 props
 
 要將一個物件中的所有屬性都當作 props 傳入，可以使用**沒有參數的 `v-bind`**。
@@ -2831,6 +2894,8 @@ const post = {
 ```
 
 ![圖片36](./images/36.PNG)
+
+---
 
 ### 單向數據流
 
@@ -3013,7 +3078,7 @@ function add() {
 
 ![props-3.gif](./images/gif/props-3.gif)
 
-#### § 根據 props 轉換
+#### § 根據 props 轉換 (computed)
 
 也可以定義一個計算屬性根據 `props` 做進一步的轉換。
 
@@ -3059,6 +3124,8 @@ const newTitle = computed(() => props.title.trim().toLowerCase());
 ```
 
 ![props-4.gif](./images/gif/props-4.gif)
+
+---
 
 ### props 校驗
 
