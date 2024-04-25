@@ -2831,3 +2831,344 @@ const post = {
 ```
 
 ![圖片36](./images/36.PNG)
+
+### 單向數據流
+
+`props` 遵循著單向數據綁定原則，`props` 會因父組件的更新而變化，但是禁止在子組件中去更改 `props`。
+
+父組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo24Child1 from './Demo24Child1.vue';
+
+const message = ref('Hello');
+</script>
+
+<template>
+  <div>
+    <p>父組件 message：{{ message }}</p>
+    <label>父組件的message：</label>
+    <input type="text" v-model="message" />
+    <hr />
+    <Demo24Child1 :message="message" />
+  </div>
+</template>
+```
+
+子組件：
+
+```vue
+<script setup>
+const props = defineProps({
+  message: String,
+});
+
+function edit() {
+  props.message += '!';
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 1： {{ props }}</p>
+    <button @click="edit">修改message</button>
+  </div>
+</template>
+```
+
+![props-1.gif](./images/gif/props-1.gif)
+
+#### § props 為物件或陣列
+
+當 `props` 傳入的為**物件**或**陣列**時，雖然不能直接更改 `props` 綁定，但是因為物件和陣列是按**引用傳遞**，直接更改物件或陣列內部的屬性值是可以成功的。
+
+> 但是這會造成子組件以不明顯的方式影響父組件的狀態，易使數據混亂，因此**應該避免這樣的更改，正常情況子組件應該透過拋出一個事件來通知父組件做出改變**。
+
+父組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo24Child2 from './Demo24Child2.vue';
+
+const data = ref({
+  msg: 'Hello2',
+});
+</script>
+
+<template>
+  <div>
+    <p>父組件 data：{{ data }}</p>
+    <label>父組件的data.msg：</label>
+    <input type="text" v-model="data.msg" />
+    <hr />
+    <Demo24Child2 :data="data" />
+  </div>
+</template>
+```
+
+子組件：
+
+```vue
+<script setup>
+const props = defineProps({
+  data: Object,
+});
+
+function edit() {
+  props.data.msg += '!';
+}
+function editData() {
+  props.data = { msg: 'Vue' };
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 2： {{ props }}</p>
+    <button @click="edit">修改data.msg</button>
+    <button @click="editData">修改data</button>
+  </div>
+</template>
+```
+
+![props-2.gif](./images/gif/props-2.gif)
+
+#### § props 只用於傳入初始值
+
+當我們有需要在子組件中修改 `props` 時，例如： `props` 用於傳入初始值，建議新聲明一個變數存放 `props` 給的初始值，後續只操作這個變數即可。
+
+> `props` 為物件時需要使用**深拷貝**複製，深層物件才不會修改到原始數據。[關於淺拷貝及深拷貝](https://medium.com/andy-blog/關於js中的淺拷貝-shallow-copy-以及深拷貝-deep-copy-5f5bbe96c122)。
+
+父組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo24Child3 from './Demo24Child3.vue';
+
+const initialCounter = ref(10);
+const data2 = ref({
+  name: 'Peter',
+  age: 18,
+  books: {
+    book1: 'Vue',
+    book2: 'Pinia',
+  },
+});
+</script>
+
+<template>
+  <div>
+    <p>父組件 initialCounter：{{ initialCounter }}</p>
+    <label>父組件的initialCounter：</label>
+    <input type="number" v-model="initialCounter" />
+    <p>父組件 data2：{{ data2 }}</p>
+    <label>父組件的data2.books.book1：</label>
+    <input type="text" v-model="data2.books.book1" />
+    <hr />
+    <Demo24Child3 :initialCounter="initialCounter" :data2="data2" />
+  </div>
+</template>
+```
+
+子組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const props = defineProps({
+  initialCounter: Number,
+  data2: Object,
+});
+
+// 只用作初始值，後續與 props 無關
+const counter = ref(props.initialCounter);
+// 淺拷貝
+// const user = ref({ ...props.data2 });
+// const user = ref(Object.assign({}, props.data2));
+// 深拷貝
+const user = ref(JSON.parse(JSON.stringify(props.data2)));
+
+function add() {
+  counter.value++;
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 3： {{ props }}</p>
+    <p>counter: {{ counter }}</p>
+    <button @click="add">counter + 1</button>
+    <p>user: {{ user }}</p>
+    <label>user.age：</label>
+    <input type="number" v-model="user.age" />
+    <label>user.books.book1：</label>
+    <input type="text" v-model="user.books.book1" />
+  </div>
+</template>
+```
+
+![props-3.gif](./images/gif/props-3.gif)
+
+#### § 根據 props 轉換
+
+也可以定義一個計算屬性根據 `props` 做進一步的轉換。
+
+父組件：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo24Child4 from './Demo24Child4.vue';
+
+const title = ref('Harry Potter');
+</script>
+
+<template>
+  <div>
+    <p>父組件 title：{{ title }}</p>
+    <label>父組件的title：</label>
+    <input type="text" v-model="title" />
+    <hr />
+    <Demo24Child4 :title="title" />
+  </div>
+</template>
+```
+
+子組件：
+
+```vue
+<script setup>
+import { computed } from 'vue';
+const props = defineProps({
+  title: String,
+});
+
+const newTitle = computed(() => props.title.trim().toLowerCase());
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 4： {{ props }}</p>
+    <p>newTitle: {{ newTitle }}</p>
+  </div>
+</template>
+```
+
+![props-4.gif](./images/gif/props-4.gif)
+
+### props 校驗
+
+可以對 `defineProps()` 提供一個帶有校驗選項的物件，若傳入的值不符合類型要求，會印出警告提醒。
+
+![圖片37](./images/37.PNG)
+
+> 注意：`defineProps()` 中的參數不可以訪問 `<script setup>` 中定義的其他變數，因為在編譯時整個表達式都會被移到外部的函數中。
+
+```vue
+<script setup>
+const props = defineProps({
+  // 基礎類型檢查
+  propA: Number,
+  // 多種可能的類型
+  propB: [String, Number],
+  // 必傳，且為String
+  propC: {
+    type: String,
+    required: true,
+  },
+  // Boolean類型，未傳遞預設將會為 false
+  // 可以設置 default 更改
+  propD: {
+    type: Boolean,
+    // default: undefined,
+  },
+  // Number類型的默認值
+  propE: {
+    type: Number,
+    default: 100,
+  },
+  // 物件類型的默認值
+  propF: {
+    type: Object,
+    // 物件或陣列的默認值必須從一個函數返回
+    // 該函數接收組件所接收到的原始 props 作為參數
+    default(rawProps) {
+      console.log('rawProps', rawProps);
+      return { message: 'hello' };
+    },
+  },
+  // 自定義校驗函數
+  // 在 3.4+ 中完整的 props 作為第二個參數傳入
+  propG: {
+    validator(value, props) {
+      console.log('value', value);
+      // value必須為其中一個字串
+      return ['success', 'warning', 'danger'].includes(value);
+    },
+  },
+  // 函數類型的默認值
+  propH: {
+    type: Function,
+    // 不像物件或陣列的默認，這是一個用來作為默認值的函數
+    default() {
+      return 'Default function';
+    },
+  },
+});
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 5：</p>
+    <p>propA : {{ propA }}</p>
+    <p>propB : {{ propB }}</p>
+    <p>propC : {{ propC }}</p>
+    <p>propD : {{ propD }}</p>
+    <p>propE : {{ propE }}</p>
+    <p>propF : {{ propF }}</p>
+    <p>propG : {{ propG }}</p>
+    <p>propH : {{ propH }}</p>
+  </div>
+</template>
+```
+
+![圖片38](./images/38.PNG)
+
+#### § 其他細節：
+
+- `prop` 默認是可選的，除非設定了 `required: true`
+
+- 除 `Boolean` 之外的可選 `prop` 會有默認值為 `undefined`
+
+- `Boolean` 類型的未傳遞 `prop` 將會轉換為 `false`，可以另外設定 `default` 來更改，例如：`default: undefined`，則可以與其他類型保持一致
+
+- 如果設定了 `default`，當 `prop` 的值被解析為 `undefined` 時，不論是否傳遞 `prop`，都會設為 `default` 值
+
+- `type` 選項可以設定為以下原生構造函數：
+
+  - String
+  - Number
+  - Boolean
+  - Array
+  - Object
+  - Date
+  - Function
+  - Symbol
+  - Error
+
+- `type` 也可以是自定義的類或構造函數，Vue 會通過 `instanceof` 來檢查類型是否匹配
+
+  ```vue
+  <script setup>
+  import Person from '../Class/Person.js';
+
+  //可以將其作為一個prop的類型
+  defineProps({
+    author: Person,
+  });
+  </script>
+  ```

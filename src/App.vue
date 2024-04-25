@@ -23,6 +23,8 @@ import Demo20 from './components/Demo20.vue';
 import Demo21 from './components/Demo21.vue';
 import Demo22 from './components/Demo22.vue';
 import Demo23 from './components/Demo23.vue';
+import Demo24 from './components/Demo24.vue';
+import Demo25 from './components/Demo25.vue';
 const currentTab = ref('Demo1');
 
 const tabs = {
@@ -49,6 +51,8 @@ const tabs = {
   Demo21,
   Demo22,
   Demo23,
+  Demo24,
+  Demo25,
 };
 </script>
 
@@ -67,17 +71,6 @@ const tabs = {
 </template>
 
 <style>
-/* .demo {
-  font-family: sans-serif;
-  border: 1px solid #eee;
-  border-radius: 2px;
-  padding: 20px 30px;
-  margin-top: 1em;
-  margin-bottom: 40px;
-  user-select: none;
-  overflow-x: auto;
-} */
-
 .tab-button {
   padding: 6px 10px;
   border-top-left-radius: 3px;
