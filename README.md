@@ -52,6 +52,7 @@
   - [使用物件綁定多個 props](#使用物件綁定多個-props)
   - [單向數據流](#單向數據流)
   - [props 校驗](#props-校驗)
+- [組件事件 (子傳父)](#組件事件-子傳父)
 
 ## 初始化專案
 
@@ -3126,7 +3127,7 @@ const newTitle = computed(() => props.title.trim().toLowerCase());
 
 ### props 校驗
 
-可以對 `defineProps()` 提供一個帶有校驗選項的物件，若傳入的值不符合類型要求，會印出警告提醒。
+可以對 `defineProps()` 提供一個帶有校驗選項的物件，若傳入的值不符合類型要求，會印出警告提醒(不影響運行)。
 
 ![圖片37](./images/37.PNG)
 
@@ -3236,3 +3237,208 @@ const props = defineProps({
   });
   </script>
   ```
+
+## 組件事件 (子傳父)
+
+子組件自定義事件並觸發，父組件進行事件的監聽，可以藉此獲得子組件傳遞的事件參數。
+
+> 原生 DOM 事件不同，**沒有冒泡機制**，只能監聽由子組件觸發的事件。平級或跨越多層的組件通信應另外使用依賴注入 (Provide/Inject) 或全局狀態管理方案(Pinia)。
+
+### 子組件聲明要觸發的事件
+
+- 在 `<script setup>` 中使用：
+
+  使用 `defineEmits()` 傳入字串陣列聲明自定義事件名稱，`defineEmits()` 會返回一個函數可以用來觸發自定義事件(在模板中則可以直接使用 `$emit` 方法)。
+
+  ```vue
+  <script setup>
+  const emit = defineEmits(['someEvent', 'btnClick']);
+
+  function onBtnClick() {
+    emit('btnClick');
+  }
+  </script>
+
+  <template>
+    <div>
+      <p>hi! 我是子組件 1：</p>
+      <button @click="$emit('someEvent')">someEvent send</button>
+      <button @click="onBtnClick">click me</button>
+    </div>
+  </template>
+  ```
+
+- 沒有使用 `<script setup>` 時：
+
+  使用 `emits` 選項聲明，`emit` 函數會暴露在 `setup()` 的上下文物件中。
+
+  ```vue
+  <script>
+  export default {
+    emits: ['someEvent', 'btnClick'],
+    setup(props, ctx) {
+      function onBtnClick() {
+        ctx.emit('btnClick');
+      }
+      return { onBtnClick };
+    },
+    // 也可以使用解構
+    // setup(props, { emit }) {
+    //   //...
+    // },
+  };
+  </script>
+
+  <template>
+    <div>
+      <p>hi! 我是子組件 1：</p>
+      <button @click="$emit('someEvent')">someEvent send</button>
+      <button @click="onBtnClick">click me</button>
+    </div>
+  </template>
+  ```
+
+### 父組件進行監聽事件
+
+可以通過 `v-on`(縮寫為 @)來監聽事件，跟 `props` 一樣子組件中聲明時推薦使用 `camelCase` 形式，父組件中則推薦使用 `kebab-case` 形式來監聽。
+
+```vue
+<script setup>
+import Demo26Child1 from './Demo26Child1.vue';
+
+function someEventHandler() {
+  console.log('someEventHandler');
+}
+function btnClickHandler() {
+  console.log('btnClickHandler');
+}
+</script>
+
+<template>
+  <div>
+    <p>父組件</p>
+    <hr />
+    <Demo26Child1 @some-event="someEventHandler" @btn-click="btnClickHandler" />
+  </div>
+</template>
+```
+
+![emit-1.gif](./images/gif/emit-1.gif)
+
+### 事件參數
+
+子組件觸發事件時，也可以附帶參數給父組件。
+
+- 子組件：
+
+  ```vue
+  <script setup>
+  const emit = defineEmits(['addCount']);
+
+  function onAddCountClick(count) {
+    emit('addCount', count);
+  }
+  </script>
+
+  <template>
+    <div>
+      <p>hi! 我是子組件 2：</p>
+      <button @click="$emit('addCount', 1)">add count 1</button>
+      <button @click="onAddCountClick(2)">add count 2</button>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  import Demo26Child2 from './Demo26Child2.vue';
+
+  const count = ref(0);
+  function addCountHandler(num) {
+    count.value += num;
+  }
+  </script>
+
+  <template>
+    <div>
+      <p>父組件 Count : {{ count }}</p>
+      <Demo26Child2 @add-count="addCountHandler" />
+    </div>
+  </template>
+  ```
+
+  ![emit-2.gif](./images/gif/emit-2.gif)
+
+### 事件校驗
+
+和 `props` 類似，事件聲明也可以使用**物件形式**為事件添加校驗。
+
+添加事件校驗時，事件被賦值為一個**校驗函數**，`emit` 觸發事件時會傳入附帶的參數給校驗函數，校驗函數會**返回一個布林值來表明事件是否正確**，驗證錯誤會印出警告提醒(不影響運行)。
+
+![圖片39](./images/39.PNG)
+
+- 子組件：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const emit = defineEmits({
+    submitEvent: (data) => {
+      console.log(data);
+      if (data.username && data.password) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  });
+
+  const username = ref(null);
+  const password = ref(null);
+
+  function onSubmitClick() {
+    emit('submitEvent', {
+      username: username.value,
+      password: password.value,
+    });
+  }
+  </script>
+
+  <template>
+    <div>
+      <p>hi! 我是子組件 3：</p>
+      <form action="" @submit.prevent="onSubmitClick">
+        <label for="username">Username : </label>
+        <input type="text" id="username" v-model="username" />
+        <br />
+        <label for="password">Password : </label>
+        <input type="password" id="password" v-model="password" />
+        <br />
+        <button>Submit</button>
+      </form>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo26Child3 from './Demo26Child3.vue';
+
+  function submitHandler(data) {
+    console.log('data: ', data);
+  }
+  </script>
+
+  <template>
+    <div>
+      <Demo26Child3 @submit-event="submitHandler" />
+    </div>
+  </template>
+  ```
+
+  ![emit-3.gif](./images/gif/emit-3.gif)
