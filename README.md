@@ -53,6 +53,11 @@
   - [單向數據流](#單向數據流)
   - [props 校驗](#props-校驗)
 - [組件事件 (子傳父)](#組件事件-子傳父)
+- [組件 v-model 雙向綁定](#組件-v-model-雙向綁定)
+  - [基本綁定用法](#基本綁定用法)
+  - [v-model 的參數](#v-model-的參數)
+  - [多個 v-model 綁定](#多個-v-model-綁定)
+  - [處理 v-model 自定義修飾符](#處理-v-model-自定義修飾符)
 
 ## 初始化專案
 
@@ -590,9 +595,9 @@ function changePersonGender() {
 
 與直接使用 function 定義返回的結果會相同，但是**使用計算屬性會對響應式資料進行緩存**，只有在內部響應式數據變動時才會重新計算，function 則每次皆會進行計算。
 
-> 注意：const now = computed(() => Date.now())，會讀取緩存，永遠不會更新，因為 `Date.now()` 不是一個響應式依賴
+> 注意：const now = computed(() => Date.now())，會讀取緩存，永遠不會更新，因為 `Date.now()` 不是一個響應式依賴。
 
-計算屬性默認是**只讀的**，如果要進行修改需要同時設定 `getter` 及 `setter`
+計算屬性默認是**只讀的**，如果要進行修改需要同時設定 `getter` 及 `setter`。
 
 ```vue
 <script setup>
@@ -1906,7 +1911,7 @@ function showText(message, submitEvent) {
 
 `v-model` 指令可以對表單元素 `<input>`、`<textarea>` 及 `<select>` 進行資料的雙向綁定(`data` 驅動 `view`，也能從 `view` 改變 `data`)。
 
-`v-model` 會根據使用的表單元素自動使用對應的屬性及事件組合，可以簡化手動綁定屬性值與設定事件監聽的操作。
+`v-model` 會根據使用的表單元素自動使用對應的屬性及事件組合，可以**簡化手動綁定屬性值與設定事件監聽的操作**。
 
 ![圖片28](./images/28.PNG)
 
@@ -3442,3 +3447,472 @@ function btnClickHandler() {
   ```
 
   ![emit-3.gif](./images/gif/emit-3.gif)
+
+## 組件 v-model 雙向綁定
+
+父子元件之間傳遞資料，一般是透過 `props` 與 `emit` 來完成。而 `v-model` 就是結合使用 `props` 和 `emit` 的語法糖。
+
+如同前面說明過的在表單元素上使用[雙向綁定 v-model](#雙向綁定-v-model)，也可以使用 ` v-model` 在父子組件之間實現雙向綁定。
+
+### 基本綁定用法
+
+#### § 在父組件中為子組件綁上 `v-model="綁定的資料"`
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo27Child1 from './Demo27Child1.vue';
+
+const count = ref(0);
+</script>
+
+<template>
+  <div>
+    <p>父組件</p>
+    <p>Count : {{ count }}</p>
+    <hr />
+    <Demo27Child1 v-model="count" />
+  </div>
+</template>
+```
+
+#### § 從 Vue 3.4+ 開始推薦在子組件中使用 `defineModel()`
+
+語法：`const 變數名 = defineModel();`
+
+`defineModel()` 返回一個 ref，可以起到在父組件及當前變數之間雙向綁定的作用(它的`.value` 和父組件的 `v-model` 的綁定值同步)。
+
+也可以用 `v-model` 將這個 ref 綁定到 input 元素上，包裝原生 input 元素。
+
+```vue
+<script setup>
+const count = defineModel();
+// 更改 .value值
+function addCount() {
+  count.value++;
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 1：</p>
+    <button @click="addCount">count + 1</button>
+    <!-- 也可以用 v-model 綁定到 input 元素上 -->
+    <input type="number" v-model="count" />
+  </div>
+</template>
+```
+
+![defineModel-1.gif](./images/gif/defineModel-1.gif)
+
+#### § defineModel 底層機制
+
+`defineModel()` 是一個 Vue 的巨集 (macro)，可以簡化以下操作。
+
+3.4 版本之前，會依照以下的方法實現：
+
+- 聲明一個名為 `modelValue` 的 `prop`。
+
+- 聲明一個名為 `update:modelValue` 的事件，當值發生變更時觸發(`emit`)。
+
+```vue
+<script setup>
+// 3.4 版本前用法
+const props = defineProps(['modelValue']);
+const emit = defineEmits(['update:modelValue']);
+
+// 更改 .value值
+function addCount() {
+  let newCount = props.modelValue + 1;
+  emit('update:modelValue', newCount);
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 2：</p>
+    <button @click="addCount">count + 1</button>
+    <!-- 因為不能直接修改 props，所以要監聽input事件 -->
+    <input
+      type="number"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+    />
+  </div>
+</template>
+```
+
+![defineModel-2.gif](./images/gif/defineModel-2.gif)
+
+#### § defineModel prop 選項
+
+因為 `defineModel()` 聲明了一個 `prop`，所以也可以傳遞選項來聲明底層 `prop` 的選項。
+
+```vue
+<script setup>
+// 使 v-model 為必填
+const model = defineModel({ required: true });
+// 提供一個默認值
+const model = defineModel({ default: 0 });
+</script>
+```
+
+> 注意：如果為 `defineModel()` 設置了一個 `default` 值，但是父組件沒有為該 `prop` 提供任何值，會導致父組件與子組件之間不同步。
+
+在下面的示例中，父組件的 myRef 是 `undefined`，而子組件的 model 是 1：
+
+```vue
+<!-- 子組件： -->
+<script setup>
+const model = defineModel({ default: 1 });
+</script>
+```
+
+```vue
+<!--父組件  -->
+<script setup>
+//...
+const myRef = ref();
+</script>
+
+<template>
+  <Child v-model="myRef"></Child>
+</template>
+```
+
+---
+
+### v-model 的參數
+
+子組件上的 `v-model` 也可以接收一個參數，作為 `prop` 名稱。
+
+語法：`<子組件名稱 v-model:prop名稱="綁定的資料" />`
+
+#### § 父組件設定
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo27Child3 from './Demo27Child3.vue';
+
+const title = ref('Hello Vue!');
+</script>
+
+<template>
+  <div>
+    <p>父組件 Title : {{ title }}</p>
+    <hr />
+    <Demo27Child3 v-model:title="title" />
+  </div>
+</template>
+```
+
+#### § Vue 3.4+ 用法 (子組件)
+
+通過將字串作為第一個參數給 `defineModel()` 可以支持對應的 `v-model` 參數，若需要額外的 `prop` 選項，則在名稱之後傳遞。
+
+語法：`const 變數名 = defineModel('指定的 prop 名稱', prop 選項);`
+
+```vue
+<script setup>
+const title = defineModel('title', { required: true });
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 3：</p>
+    <input type="text" v-model="title" />
+  </div>
+</template>
+```
+
+#### § 3.4 版本之前用法 (子組件)
+
+對應的 `modelValue` 改為 指定的 `prop` 名稱。
+
+```vue
+<script setup>
+// 3.4 版本前用法
+defineProps({
+  title: {
+    required: true,
+  },
+});
+defineEmits(['update:title']);
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 4：</p>
+    <input
+      type="text"
+      :value="title"
+      @input="$emit('update:title', $event.target.value)"
+    />
+  </div>
+</template>
+```
+
+![defineModel-3.gif](./images/gif/defineModel-3.gif)
+
+---
+
+### 多個 v-model 綁定
+
+利用前面說明的 `v-model` 參數，我們可以在組件上創建多個 `v-model` 雙向綁定，組件上的每一個 `v-model` 都會同步不同的 `prop` 而無需額外的選項。
+
+#### § 父組件設定
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo27Child5 from './Demo27Child5.vue';
+
+const user = ref({
+  age: 0,
+  firstName: 'first',
+  lastName: 'last',
+});
+</script>
+
+<template>
+  <div>
+    <p>父組件 User : {{ user }}</p>
+    <hr />
+    <Demo27Child5
+      v-model="user.age"
+      v-model:first-name="user.firstName"
+      v-model:last-name="user.lastName"
+    />
+  </div>
+</template>
+```
+
+#### § Vue 3.4+ 用法 (子組件)
+
+```vue
+<script setup>
+const age = defineModel();
+const firstName = defineModel('firstName');
+const lastName = defineModel('lastName');
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 5：</p>
+    Age : <input type="number" v-model="age" /><br />
+    FirstName : <input type="text" v-model="firstName" /><br />
+    LastName : <input type="text" v-model="lastName" />
+  </div>
+</template>
+```
+
+#### § 3.4 版本之前用法 (子組件)
+
+```vue
+<script setup>
+defineProps(['modelValue', 'firstName', 'lastName']);
+defineEmits(['update:modelValue', 'update:firstName', 'update:lastName']);
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 6：</p>
+    Age :
+    <input
+      type="number"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+    /><br />
+    FirstName :
+    <input
+      type="text"
+      :value="firstName"
+      @input="$emit('update:firstName', $event.target.value)"
+    /><br />
+    LastName :
+    <input
+      type="text"
+      :value="lastName"
+      @input="$emit('update:lastName', $event.target.value)"
+    />
+  </div>
+</template>
+```
+
+![defineModel-4.gif](./images/gif/defineModel-4.gif)
+
+---
+
+### 處理 v-model 自定義修飾符
+
+除了前面介紹過的 [`v-model` 內置修飾符](#修飾符)之外，若想要對輸入的資料進行額外的處理，可以在自定義的組件上創建自定義的 `v-model` 修飾符。
+
+語法：`<子組件名稱 v-model.修飾符="綁定的資料" />`
+
+#### § 父組件設定修飾符
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo27Child7 from './Demo27Child7.vue';
+
+const text = ref('');
+</script>
+
+<template>
+  <div>
+    <p>父組件 Text : {{ text }}</p>
+    <Demo27Child7 v-model.capitalize="text" />
+    <hr />
+  </div>
+</template>
+```
+
+#### § Vue 3.4+ 用法 (子組件)
+
+通過解構 `defineModel()` 的返回值，可以訪問到父組件添加的 `v-model` 修飾符。
+
+語法：`const [model, modifiers] = defineModel();`
+
+```vue
+<script setup>
+const [modal, modifiers] = defineModel();
+
+console.log(modifiers); // { capitalize: true }
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 7：</p>
+    <input type="text" v-model="modal" />
+  </div>
+</template>
+```
+
+可以給 `defineModel()` 傳入 `get` 和 `set` 兩個選項，當讀取或設置值時兩個選項皆會**接收到當前的值**，並返回**處理過後的新值**。
+
+以下使用 `set` 選項實現 `capitalize` 修飾符將首字母轉大寫：
+
+```vue
+<script setup>
+const [modal, modifiers] = defineModel({
+  set(value) {
+    if (modifiers.capitalize) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    return value;
+  },
+});
+
+console.log(modifiers); // { capitalize: true }
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 7：</p>
+    <input type="text" v-model="modal" />
+  </div>
+</template>
+```
+
+#### § 3.4 版本之前用法 (子組件)
+
+```vue
+<script setup>
+const props = defineProps({
+  modelValue: String,
+  modelModifiers: { default: () => ({}) },
+});
+const emit = defineEmits(['update:modelValue']);
+
+function emitValue(e) {
+  let value = e.target.value;
+  if (props.modelModifiers.capitalize) {
+    value = value.charAt(0).toUpperCase() + value.slice(1);
+  }
+  emit('update:modelValue', value);
+}
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 8：</p>
+    <input type="text" :value="modelValue" @input="emitValue" />
+  </div>
+</template>
+```
+
+![defineModel-5.gif](./images/gif/defineModel-5.gif)
+
+---
+
+### 補充：帶參數的 v-model 自定義修飾符
+
+語法：`<子組件名稱 v-model:prop名稱.修飾符="綁定的資料" />`
+
+以下展示使用多個不同參數的 `v-model` 使用修飾符：
+
+#### § 父組件設定修飾符
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo27Child9 from './Demo27Child9.vue';
+
+const firstName = ref('first');
+const lastName = ref('last');
+</script>
+
+<template>
+  <div>
+    <p>父組件</p>
+    <hr />
+    <Demo27Child9
+      v-model:first-name.capitalize="firstName"
+      v-model:last-name.uppercase="lastName"
+    />
+  </div>
+</template>
+```
+
+#### § Vue 3.4+ 用法 (子組件)
+
+```vue
+<script setup>
+const [firstName, firstNameModifiers] = defineModel('firstName');
+const [lastName, lastNameModifiers] = defineModel('lastName');
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 9：</p>
+    <p>firstNameModifiers : {{ firstNameModifiers }}</p>
+    <p>lastNameModifiers : {{ lastNameModifiers }}</p>
+  </div>
+</template>
+```
+
+#### § 3.4 版本之前用法 (子組件)
+
+```vue
+<script setup>
+const props = defineProps({
+  firstName: String,
+  lastName: String,
+  firstNameModifiers: { default: () => ({}) },
+  lastNameModifiers: { default: () => ({}) },
+});
+defineEmits(['update:firstName', 'update:lastName']);
+</script>
+
+<template>
+  <div>
+    <p>hi! 我是子組件 10：</p>
+    <p>firstNameModifiers : {{ firstNameModifiers }}</p>
+    <p>lastNameModifiers : {{ lastNameModifiers }}</p>
+  </div>
+</template>
+```
+
+![圖片40](./images/40.PNG)
