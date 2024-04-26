@@ -1,4 +1,5 @@
 <script setup>
+// 3.4 版本前用法
 const props = defineProps({
   modelValue: String,
   modelModifiers: { default: () => ({}) },

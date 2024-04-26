@@ -26,6 +26,7 @@ const overridingStyles = reactive({
 
 <template>
   <div>
+    <MainTitle title="綁定 style" />
     <h1 :style="{ color: activeColor, fontSize: fontSize + 'px' }">
       直接綁定樣式(使用 camelCase)
     </h1>

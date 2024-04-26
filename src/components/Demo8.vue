@@ -161,13 +161,14 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 
 <template>
   <div>
+    <MainTitle title="watch" />
     <span>監視ref的基本類型數據：count: {{ count }}</span>
     <button @click="addCount">count+1</button>
-    <br />
+    <hr />
     <span>監視ref的物件類型數據：data: {{ data }}</span>
     <button @click="addData">addData</button>
     <button @click="changeData">changeData</button>
-    <br />
+    <hr />
     <span>監視reactive的物件類型數據：person: {{ person }}</span>
     <br />
     <button @click="changeName">changeName</button>
@@ -175,18 +176,18 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
     <button @click="changeBook1">changeBook1</button>
     <button @click="changeBookD">changeBookD</button>
     <button @click="changePerson">changePerson</button>
-    <br />
+    <hr />
     <span>使用 getter 函數監聽屬性變化：person2: {{ person2 }}</span>
     <br />
     <button @click="changeP2Name">changeP2Name</button>
     <button @click="changeP2Book1">changeP2Book1</button>
     <button @click="changeP2Book">changeP2Book</button>
-    <br />
+    <hr />
     <span>監聽多個數據：sum: {{ sum }} | fruit: {{ fruit }}</span>
     <br />
     <button @click="addSum">addSum</button>
     <button @click="addFruitPrice">addFruitPrice</button>
-    <br />
+    <hr />
     總結：
     <br />
     <table>

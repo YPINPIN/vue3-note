@@ -12,6 +12,7 @@ const tabs = {
 
 <template>
   <div>
+    <MainTitle title="動態組件" />
     <button
       v-for="(comp, tab) in tabs"
       :key="tab"

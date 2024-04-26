@@ -1,4 +1,5 @@
 <script setup>
+// 3.4 版本前用法
 defineProps(['modelValue', 'firstName', 'lastName']);
 defineEmits(['update:modelValue', 'update:firstName', 'update:lastName']);
 </script>

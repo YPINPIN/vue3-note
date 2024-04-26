@@ -17,6 +17,7 @@ function changeCopy() {
 
 <template>
   <div>
+    <MainTitle title="readonly" />
     <div>
       original:
       {{ original }}

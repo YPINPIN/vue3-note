@@ -21,6 +21,7 @@ function showText(message, submitEvent) {
 
 <template>
   <div>
+    <MainTitle title="事件處理 v-on" />
     <!-- 直接執行的 js 語句 -->
     <p>count is: {{ count }}</p>
     <button v-on:click="count++">count + 1</button>

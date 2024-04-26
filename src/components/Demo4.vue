@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, toRefs, toRef } from 'vue';
 const name = ref('小明');
 const obj = ref({ count: 0 });
 const fruit = reactive({
@@ -19,7 +19,7 @@ function addPrice() {
   fruit.price += 10;
 }
 
-import { toRefs, toRef } from 'vue';
+// toRefs & toRef
 
 const person = reactive({
   personName: '小明',
@@ -45,6 +45,7 @@ function changePersonGender() {
 
 <template>
   <div>
+    <MainTitle title="ref & reactive" />
     <div>
       name:
       {{ name }}
@@ -61,6 +62,7 @@ function changePersonGender() {
       <button @click="addPrice">add fruit price</button>
     </div>
     <hr />
+    <MainTitle title="使用 toRefs & toRef" />
     <div>
       person:
       {{ person }}

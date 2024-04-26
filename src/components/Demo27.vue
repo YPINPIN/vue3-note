@@ -29,8 +29,8 @@ const lastName = ref('last');
 
 <template>
   <div>
-    <p>父組件</p>
-    <p>Count : {{ count }}</p>
+    <MainTitle title="組件 v-model 雙向綁定" />
+    <p>父組件 Count : {{ count }}</p>
     <hr />
     <Demo27Child1 v-model="count" />
     <hr />

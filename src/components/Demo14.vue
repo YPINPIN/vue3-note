@@ -14,7 +14,7 @@ const myObject = reactive({
   publishedAt: '2016-04-10',
 });
 
-const todos = ref([
+const todos = reactive([
   { id: 1, message: 'Todo1', isComplete: false },
   { id: 2, message: 'Todo2', isComplete: true },
 ]);
@@ -31,6 +31,7 @@ const evenNumbers = computed(() => {
 
 <template>
   <div>
+    <MainTitle title="v-for" />
     <ul>
       <li v-for="item in items" :key="item.id">
         {{ item.id }} : {{ item.message }}
@@ -42,6 +43,7 @@ const evenNumbers = computed(() => {
         {{ index }} : {{ message }}
       </li>
     </ul>
+    <hr />
     <!-- 多個元素 -->
     <ul>
       <template v-for="item in items" :key="item.id">
@@ -49,6 +51,7 @@ const evenNumbers = computed(() => {
         <hr />
       </template>
     </ul>
+    <hr />
     <!-- v-for 物件 -->
     <p>Object.keys(myObject) :{{ Object.keys(myObject) }}</p>
     <ul>
@@ -56,8 +59,10 @@ const evenNumbers = computed(() => {
         {{ index }}. {{ key }}: {{ value }}
       </li>
     </ul>
+    <hr />
     <!-- v-for 整數值 -->
     <p v-for="n in 5" :key="n">{{ n }}</p>
+    <hr />
     <!-- v-if 與 v-for -->
     <ul>
       <template v-for="todo in todos" :key="todo.id">
@@ -66,6 +71,7 @@ const evenNumbers = computed(() => {
         </li>
       </template>
     </ul>
+    <hr />
     <!-- 組件上使用 v-for -->
     <ul>
       <Demo14Child1
@@ -74,6 +80,7 @@ const evenNumbers = computed(() => {
         :message="item.message"
       />
     </ul>
+    <hr />
     <!-- 使用 computed -->
     <p>numbers：{{ numbers }}</p>
     <p>reverseNumbers：</p>

@@ -22,6 +22,7 @@ const trimMsg = ref('');
 
 <template>
   <div>
+    <MainTitle title="v-model (動態值綁定 & 修飾符)" />
     <!-- toggle 會在被選中時設定為'yes'，取消時設為'no' -->
     <input
       type="checkbox"

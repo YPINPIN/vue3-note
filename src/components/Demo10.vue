@@ -22,6 +22,7 @@ const classObject2 = computed(() => ({
 
 <template>
   <div>
+    <MainTitle title="綁定 class" />
     <h1 class="static" :class="{ active: isActive, 'text-danger': hasError }">
       內聯形式
     </h1>

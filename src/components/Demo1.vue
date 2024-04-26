@@ -6,6 +6,7 @@ const html = '<span>元素會轉為純字串</span>';
 
 <template>
   <div>
+    <MainTitle title="文本插值" />
     <h1>{{ 'Vue 文本插值' }}</h1>
     <h1>{{ 8 > 5 ? 'true' : 'false' }}</h1>
     <h1>{{ username }}</h1>

@@ -26,6 +26,7 @@ const title = ref('Harry Potter');
 
 <template>
   <div>
+    <MainTitle title="props 單向數據流" />
     <p>父組件 message：{{ message }}</p>
     <label>父組件的message：</label>
     <input type="text" v-model="message" />

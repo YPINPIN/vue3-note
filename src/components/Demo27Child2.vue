@@ -3,7 +3,6 @@
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue']);
 
-// 更改 .value值
 function addCount() {
   let newCount = props.modelValue + 1;
   emit('update:modelValue', newCount);

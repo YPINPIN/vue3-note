@@ -10,6 +10,7 @@ const objectOfAttrs = {
 
 <template>
   <div>
+    <MainTitle title="v-bind 綁定" />
     <h1><a v-bind:href="vue_url">Vue</a></h1>
     <h1><a :href="google_url">Google</a></h1>
     <button :disabled="isButtonDisabled">Button</button>

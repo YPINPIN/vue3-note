@@ -23,13 +23,15 @@ function submitHandler(data) {
 
 <template>
   <div>
+    <MainTitle title="組件事件 (子傳父) & 校驗" />
     <p>父組件</p>
-    <hr />
     <Demo26Child1 @some-event="someEventHandler" @btn-click="btnClickHandler" />
 
+    <hr />
     <p>父組件 Count : {{ count }}</p>
     <Demo26Child2 @add-count="addCountHandler" />
 
+    <hr />
     <Demo26Child3 @submit-event="submitHandler" />
   </div>
 </template>

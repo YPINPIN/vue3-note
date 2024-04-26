@@ -28,6 +28,7 @@ function showChild2() {
 
 <template>
   <div>
+    <MainTitle title="模板引用 ref 屬性" />
     <!-- 普通的DOM標籤上 -->
     <h1 ref="title1">Hello~~</h1>
     <button @click="showLog">log</button>

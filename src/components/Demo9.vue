@@ -30,6 +30,7 @@ watchEffect(() => {
 
 <template>
   <div>
+    <MainTitle title="watchEffect" />
     {{ data }}
     <br />
     photoId: {{ photoId }}

@@ -35,6 +35,7 @@ function changeNestedBar() {
 
 <template>
   <div>
+    <MainTitle title="shallowRef & shallowReactive" />
     <div>
       obj (shallowRef):
       {{ obj }}

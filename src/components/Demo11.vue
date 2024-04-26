@@ -12,6 +12,7 @@ const isActive = ref(true);
 
 <template>
   <div>
+    <MainTitle title="綁定 class (陣列 & 組件)" />
     <h1 :class="[activeClass, errorClass, 'text-ted']">一般陣列形式</h1>
     <h1 :class="[isActive ? activeClass : '', errorClass, 'text-ted']">
       條件渲染

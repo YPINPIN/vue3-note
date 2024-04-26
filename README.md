@@ -356,7 +356,7 @@ const objectOfAttrs = {
   - ref 的變數在 js 內必須使用 `.value` 取得值
 
 - reactive：物件類型數據 (物件、陣列)
-  - 屬性為基本數據類型被解構為本地變數或是傳遞給函數時會丟失響應性，可以使用 `toRefs` 及 `toRef` 解決。[原因說明](https://blog.csdn.net/qq_41370833/article/details/132565060)
+  - 屬性為基本數據類型被解構為本地變數或是傳遞給函數時會丟失響應性，可以使用 `toRefs` 及 `toRef` 解決。[原因說明](https://blog.csdn.net/qq_41370833/article/details/132565060)。
   - 重新指定新的物件會失去響應式 (可以使用 `Object.assign` 去整體替換)
 - 使用原則：
   - 基本類型數據使用 ref
@@ -406,6 +406,8 @@ function addPrice() {
   </div>
 </template>
 ```
+
+![ref&reactive.gif](./images/gif/ref&reactive.gif)
 
 ## 淺層響應式狀態 shallowRef & shallowReactive
 
@@ -479,6 +481,8 @@ function changeNestedBar() {
 </template>
 ```
 
+![shallow.gif](./images/gif/shallow.gif)
+
 ## readonly
 
 `readonly()` 接收一個物件(不論是普通的或響應式)或是一個 ref，返回一個原值的只讀代理(深層的，淺層的可以使用 [shallowReadonly](https://cn.vuejs.org/api/reactivity-advanced.html#shallowreadonly) )。
@@ -515,6 +519,8 @@ function changeCopy() {
   </div>
 </template>
 ```
+
+![readonly.gif](./images/gif/readonly.gif)
 
 ## DOM 更新時機
 
@@ -585,6 +591,8 @@ function changePersonGender() {
 </template>
 ```
 
+![toRefs&toRef.gif](./images/gif/toRefs&toRef.gif)
+
 ## computed 計算屬性
 
 語法：`computed(有返回值的函數)`
@@ -597,7 +605,7 @@ function changePersonGender() {
 
 > 注意：const now = computed(() => Date.now())，會讀取緩存，永遠不會更新，因為 `Date.now()` 不是一個響應式依賴。
 
-計算屬性默認是**只讀的**，如果要進行修改需要同時設定 `getter` 及 `setter`。
+計算屬性默認是**只讀的**，如果要進行修改需要同時設定 `getter` 及 `setter`。[補充說明 `getter` 及 `setter`](https://ithelp.ithome.com.tw/articles/10275281)。
 
 ```vue
 <script setup>
@@ -643,6 +651,8 @@ function changeFullName() {
   </div>
 </template>
 ```
+
+![computed.gif](./images/gif/computed.gif)
 
 ## 響應式數據監聽 watch & watchEffect
 
@@ -1535,7 +1545,7 @@ const myObject = reactive({
 ```vue
 <script setup>
 import { reactive } from 'vue';
-const todos = ref([
+const todos = reactive([
   { id: 1, message: 'Todo1', isComplete: false },
   { id: 2, message: 'Todo2', isComplete: true },
 ]);
@@ -2011,6 +2021,8 @@ const checked = ref(true);
 多個 checkbox：
 
 綁定的是陣列，綁定的陣列會包含所有被選中的 input 標籤的 value 屬性值(依照點選順序)。
+
+> 補充：[為何 v-model 多選綁定陣列不能用 reactive()？](https://ithelp.ithome.com.tw/articles/10303899)
 
 ```vue
 <script setup>
@@ -3452,7 +3464,7 @@ function btnClickHandler() {
 
 父子元件之間傳遞資料，一般是透過 `props` 與 `emit` 來完成。而 `v-model` 就是結合使用 `props` 和 `emit` 的語法糖。
 
-如同前面說明過的在表單元素上使用[雙向綁定 v-model](#雙向綁定-v-model)，也可以使用 ` v-model` 在父子組件之間實現雙向綁定。
+如同前面說明過的在表單元素上使用[雙向綁定 v-model](#雙向綁定-v-model)，也可以使用 `v-model` 在父子組件之間實現雙向綁定。
 
 ### 基本綁定用法
 
@@ -3521,7 +3533,6 @@ function addCount() {
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue']);
 
-// 更改 .value值
 function addCount() {
   let newCount = props.modelValue + 1;
   emit('update:modelValue', newCount);
@@ -3711,6 +3722,7 @@ const lastName = defineModel('lastName');
 
 ```vue
 <script setup>
+// 3.4 版本前用法
 defineProps(['modelValue', 'firstName', 'lastName']);
 defineEmits(['update:modelValue', 'update:firstName', 'update:lastName']);
 </script>
@@ -3746,7 +3758,7 @@ defineEmits(['update:modelValue', 'update:firstName', 'update:lastName']);
 
 ### 處理 v-model 自定義修飾符
 
-除了前面介紹過的 [`v-model` 內置修飾符](#修飾符)之外，若想要對輸入的資料進行額外的處理，可以在自定義的組件上創建自定義的 `v-model` 修飾符。
+除了前面介紹過的 [v-model 內置修飾符](#修飾符)之外，若想要對輸入的資料進行額外的處理，可以在自定義的組件上創建自定義的 `v-model` 修飾符。
 
 語法：`<子組件名稱 v-model.修飾符="綁定的資料" />`
 
@@ -3820,6 +3832,7 @@ console.log(modifiers); // { capitalize: true }
 
 ```vue
 <script setup>
+// 3.4 版本前用法
 const props = defineProps({
   modelValue: String,
   modelModifiers: { default: () => ({}) },
@@ -3897,6 +3910,7 @@ const [lastName, lastNameModifiers] = defineModel('lastName');
 
 ```vue
 <script setup>
+// 3.4 版本前用法
 const props = defineProps({
   firstName: String,
   lastName: String,

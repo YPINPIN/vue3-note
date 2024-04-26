@@ -5,6 +5,7 @@ const count = ref(0);
 
 <template>
   <div>
+    <MainTitle title="組件-單文件組件(SFC)" />
     <button @click="count++">You clicked me {{ count }} times.</button>
   </div>
 </template>

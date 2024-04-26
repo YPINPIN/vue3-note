@@ -35,6 +35,7 @@ onUnmounted(() => {
 
 <template>
   <div>
+    <MainTitle title="生命週期鉤子" />
     <div ref="cc">Count: {{ count }}</div>
     <button @click="count++">count + 1</button>
   </div>

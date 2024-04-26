@@ -15,9 +15,11 @@ function addCount() {
 // 讀取又修改
 const fullName = computed({
   get() {
+    console.log('get fullName');
     return firstName.value + '-' + lastName.value;
   },
   set(val) {
+    console.log('set fullName');
     firstName.value = val.split('-')[0];
     lastName.value = val.split('-')[1];
   },
@@ -29,6 +31,7 @@ function changeFullName() {
 
 <template>
   <div>
+    <MainTitle title="computed" />
     count : {{ count }}
     <br />
     doubleCount : {{ doubleCount }}
@@ -38,5 +41,6 @@ function changeFullName() {
     名：<input type="text" v-model="lastName" /> <br />
     全名：<span>{{ fullName }}</span> <br />
     <button @click="changeFullName">修改名字</button>
+    <input type="text" v-model="fullName" />
   </div>
 </template>

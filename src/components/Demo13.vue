@@ -19,10 +19,11 @@ function changeDisplay() {
 
 <template>
   <div>
+    <MainTitle title="v-if & v-show" />
     <!-- 切換單一元素 -->
     <button @click="awesome = !awesome">Toggle</button>
     <p v-if="awesome">Vue is awesome!</p>
-    <br />
+    <hr />
     <!-- 同時切換多個元素 -->
     <button @click="changeShow">Show : {{ show }}</button>
     <button @click="resetShow">resetShow</button>
@@ -38,6 +39,7 @@ function changeDisplay() {
     <template v-else>
       <h1>No More...</h1>
     </template>
+    <hr />
     <!-- v-show 切換 -->
     <button @click="changeDisplay">changeDisplay</button>
     <h1 v-show="isDisplay">v-show 只是控制 display 屬性</h1>

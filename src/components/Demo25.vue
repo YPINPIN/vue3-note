@@ -18,6 +18,7 @@ const data = ref({
 
 <template>
   <div>
+    <MainTitle title="props 校驗" />
     <p>父組件 data{{ data }}</p>
     <hr />
     <Demo25Child1 v-bind="data" />

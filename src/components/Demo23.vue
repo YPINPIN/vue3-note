@@ -28,6 +28,7 @@ const post = {
 
 <template>
   <div>
+    <MainTitle title="props 傳遞 (父傳子)" />
     <!-- 靜態 props -->
     <Demo23Child1 greeting-message="Hello Vue" />
     <hr />

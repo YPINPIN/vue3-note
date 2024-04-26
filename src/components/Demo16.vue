@@ -21,6 +21,7 @@ const options = ref([
 
 <template>
   <div>
+    <MainTitle title="雙向綁定 v-model" />
     <table>
       <tr>
         <th>輸入元素</th>
