@@ -59,6 +59,7 @@
   - [多個 v-model 綁定](#多個-v-model-綁定)
   - [處理 v-model 自定義修飾符](#處理-v-model-自定義修飾符)
 - [透傳 Attributes](#透傳-attributes)
+- [插槽 Slots](#插槽-slots)
 
 ## 初始化專案
 
@@ -4368,7 +4369,7 @@ const message = ref('Welcome~~~');
 
 在父組件中要為具名插槽傳入對應內容時，需要**使用一個含 `v-slot` 指令的 `<template>` 元素，並設定指定的插槽名稱**。`v-slot` 指令也可以簡寫為 `#`。
 
-父組件語法：`<template v-slot:插槽名稱>...</template>`
+父組件語法：`<template v-slot:插槽名稱>...</template>` or `<template #插槽名稱>...</template>`
 
 - 父組件：
 
@@ -4403,7 +4404,7 @@ const message = ref('Welcome~~~');
 
   ![圖片49](./images/49.PNG)
 
-- 當一個組件同時接收默認插槽及具名插槽時，**所有位於頂級的非 `<template>` 節點都會被視為默認插槽的內容**，因此上面的內容也可以寫成：
+- 當一個組件同時接收默認插槽及具名插槽時，**所有位於頂層的非 `<template>` 節點都會被視為默認插槽的內容**，因此上面的內容也可以寫成：
 
   ```vue
   <script setup>
@@ -4437,7 +4438,7 @@ const message = ref('Welcome~~~');
 
 有時我們會需要**根據插槽內容是否存在**，來決定是否渲染指定內容。可以結合使用 `$slots` 屬性與 `v-if` 來實現。
 
-以下子組件設置了兩個條件插槽 `header` 和`footer`，只有當 `header` 和`footer` 存在時，才包裝其渲染其他樣式。
+以下子組件設置了兩個條件插槽 `header` 和 `footer`，只有當 `header` 和 `footer` 存在時，才包裝其渲染其他樣式。
 
 - 子組件 4：
 
@@ -4596,6 +4597,10 @@ const message = ref('Welcome~~~');
 
   ![圖片52](./images/52.PNG)
 
+---
+
+### 作用域插槽範例
+
 #### § 列表組件範例
 
 列表組件封裝加載列表數據的邏輯，使用數據進行列表渲染，但是**將單個列表元素的內容及樣式控制權留給使用它的父組件**，保留靈活性。
@@ -4675,8 +4680,6 @@ const message = ref('Welcome~~~');
 - 渲染結果：
 
   ![圖片53](./images/53.PNG)
-
----
 
 #### § 無渲染組件範例
 
