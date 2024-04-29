@@ -3571,7 +3571,7 @@ const model = defineModel({ default: 0 });
 
 > 注意：如果為 `defineModel()` 設置了一個 `default` 值，但是父組件沒有為該 `prop` 提供任何值，會導致父組件與子組件之間不同步。
 
-在下面的示例中，父組件的 myRef 是 `undefined`，而子組件的 model 是 1：
+在下面的範例中，父組件的 myRef 是 `undefined`，而子組件的 model 是 1：
 
 ```vue
 <!-- 子組件： -->
@@ -4020,7 +4020,7 @@ defineEmits(['update:firstName', 'update:lastName']);
 
 - 父組件：
 
-  在子組件上多個 attribute。
+  在子組件上傳遞多個 attribute。
 
   ```vue
   <script setup>
@@ -4220,3 +4220,508 @@ defineOptions({
   ```
 
 > 注意：這裡的 `attrs` 物件並不是響應式的，如果需要響應性，可以使用 `props`，或是另外使用 `onUpdated()` 在每次更新時可以獲得最新的 `attrs`。
+
+## 插槽 Slots
+
+想要傳遞**模板內容**給子組件，讓子組件在它的組件中渲染這些模板片段，可以使用 `<slot>` 元素。**插槽內容不侷限於文本，也可傳入多個元素或組件**。
+
+- 子組件 1：
+
+  子組件可以在要渲染模板的位置設置 `<slot>` 元素。
+
+  ```vue
+  <template>
+    <h1>hi! 我是子組件 1</h1>
+    <p>
+      <!-- 插槽出口 -->
+      <slot></slot>
+    </p>
+  </template>
+  ```
+
+- 父組件：
+
+  父組件在子組件標籤中傳遞想要渲染的模板片段。
+
+  ```vue
+  <script setup>
+  import Demo29Child1 from './Demo29Child1.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child1>
+        <!-- 插槽內容 -->
+        Hello~~~我是<strong>插槽內容</strong>
+      </Demo29Child1>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片46](./images/46.PNG)
+
+### 渲染作用域
+
+插槽內容可以訪問到父組件的數據作用域，但**無法訪問子組件的數據**。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import Demo29Child1 from './Demo29Child1.vue';
+
+const message = ref('Welcome~~~');
+</script>
+
+<template>
+  <div>
+    <Demo29Child1>{{ message }}</Demo29Child1>
+  </div>
+</template>
+```
+
+---
+
+### 指定插槽默認內容
+
+子組件可以在 `<slot>` 標籤中間指定**默認內容**，當父組件沒有提供任何插槽內容的情況下會渲染默認內容。
+
+- 子組件 2：
+
+  子組件設定**默認內容**。
+
+  ```vue
+  <template>
+    <button>
+      <slot>Submit</slot>
+    </button>
+  </template>
+  ```
+
+- 父組件未設定插槽內容時：
+
+  ```vue
+  <script setup>
+  import Demo29Child2 from './Demo29Child2.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child2 />
+    </div>
+  </template>
+  ```
+
+  會渲染默認內容。
+
+  ![圖片47](./images/47.PNG)
+
+- 父組件設定插槽內容時：
+
+  ```vue
+  <script setup>
+  import Demo29Child2 from './Demo29Child2.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child2>Click me!!</Demo29Child2>
+    </div>
+  </template>
+  ```
+
+  插槽內容會取代默認內容。
+
+  ![圖片48](./images/48.PNG)
+
+---
+
+### 具名插槽
+
+當需要將多個插槽內容傳入到各自目標插槽的出口時，可以使用 `<slot>` 元素的 `name` 屬性，給插槽**分配唯一的 id**，用來確定每一部份要渲染的內容。
+
+子組件語法：`<slot name="插槽名稱"></slot>`
+
+> 未提供 `name` 的插槽會默認命名為 `"default"`。
+
+- 子組件 3：
+
+  子組件設定多個插槽出口。
+
+  ```vue
+  <template>
+    <div class="container">
+      <h1>hi! 我是子組件 3</h1>
+      <header>
+        <slot name="header"></slot>
+      </header>
+      <main>
+        <slot></slot>
+      </main>
+      <footer>
+        <slot name="footer"></slot>
+      </footer>
+    </div>
+  </template>
+  ```
+
+在父組件中要為具名插槽傳入對應內容時，需要**使用一個含 `v-slot` 指令的 `<template>` 元素，並設定指定的插槽名稱**。`v-slot` 指令也可以簡寫為 `#`。
+
+父組件語法：`<template v-slot:插槽名稱>...</template>`
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child3 from './Demo29Child3.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child3>
+        <template v-slot:header>
+          <!-- header 插槽的內容 -->
+          <h1>Here might be a header title</h1>
+        </template>
+        <!-- 簡寫v-slot -->
+        <template #default>
+          <!-- default 插槽的內容 -->
+          <p>A paragraph for the main content.</p>
+          <p>And another one.</p>
+        </template>
+        <template #footer>
+          <!-- footer 插槽的內容 -->
+          <p>Here is some contact info</p>
+        </template>
+      </Demo29Child3>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片49](./images/49.PNG)
+
+- 當一個組件同時接收默認插槽及具名插槽時，**所有位於頂級的非 `<template>` 節點都會被視為默認插槽的內容**，因此上面的內容也可以寫成：
+
+  ```vue
+  <script setup>
+  import Demo29Child3 from './Demo29Child3.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child3>
+        <template v-slot:header>
+          <!-- header 插槽的內容 -->
+          <h1>Here might be a header title</h1>
+        </template>
+
+        <!-- 頂層皆被視為 default 插槽的內容 -->
+        <p>A paragraph for the main content.</p>
+        <p>And another one.</p>
+
+        <template #footer>
+          <!-- footer 插槽的內容 -->
+          <p>Here is some contact info</p>
+        </template>
+      </Demo29Child3>
+    </div>
+  </template>
+  ```
+
+---
+
+### 條件插槽
+
+有時我們會需要**根據插槽內容是否存在**，來決定是否渲染指定內容。可以結合使用 `$slots` 屬性與 `v-if` 來實現。
+
+以下子組件設置了兩個條件插槽 `header` 和`footer`，只有當 `header` 和`footer` 存在時，才包裝其渲染其他樣式。
+
+- 子組件 4：
+
+  ```vue
+  <template>
+    <div class="card">
+      <div v-if="$slots.header" class="card-header">
+        <slot name="header" />
+      </div>
+
+      <div class="card-content">
+        <slot />
+      </div>
+
+      <div v-if="$slots.footer" class="card-footer">
+        <slot name="footer" />
+      </div>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child4 from './Demo29Child4.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child4>
+        <template #header>
+          <h1>This is the header</h1>
+        </template>
+
+        <template #default>
+          <p>This is the content</p>
+        </template>
+
+        <template #footer>
+          <em>This is the footer</em>
+        </template>
+      </Demo29Child4>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片50](./images/50.PNG)
+
+---
+
+### 作用域插槽
+
+前面的[渲染作用域](#渲染作用域)提過插槽內容是無法訪問到子組件的數據的，而當我們想要**使用子組件內的數據時，可以像對子組件傳遞 `props` 那樣，向 `<slot>` 傳遞 attributes**，把子組件的資料傳出去給父組件使用和處理，再塞回子組件的插槽裡。
+
+語法：`<slot :prop名稱="資料"></slot>`
+
+> 注意：使用具名插槽時，注意 `name` 屬性並不會一同傳遞。
+
+父組件要接收插槽 `props` 時有以下兩種情況：
+
+#### § 直接使用默認插槽
+
+直接使用**默認插槽**，需要通過**子組件上的 `v-slot` 指令接收 `props` 物件**，也可以對 `props` 物件進行解構。
+
+語法：`v-slot="slotProps"` or `v-slot="{ prop1, prop2 }"`
+
+- 子組件 5：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const greetingMessage = ref('Hello');
+  </script>
+
+  <template>
+    <div class="container">
+      <h1>hi! 我是子組件 5</h1>
+      <slot :text="greetingMessage" :count="0"></slot>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child5 from './Demo29Child5.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child5 v-slot="slotProps">
+        {{ slotProps.text }} {{ slotProps.count }}
+      </Demo29Child5>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片51](./images/51.PNG)
+
+#### § 使用具名插槽
+
+使用**具名插槽**時，一樣可以透過 `v-slot` 指令接收 `props` 物件。**但若同時使用了具名插槽及默認插槽時**，則需要使用 `<template>` 標籤來提供 `v-slot`，直接在子組件上添加 `v-slot` 指令將導致編譯錯誤。
+
+語法：`<template v-slot:插槽名稱="slotProps">...</template>` or `<template #插槽名稱="slotProps">...</template>`
+
+- 子組件 6：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const greetingMessage = ref('Hello');
+  </script>
+
+  <template>
+    <div class="container">
+      <h1>hi! 我是子組件 6</h1>
+      <header>
+        <slot name="header" :count="1"></slot>
+      </header>
+      <main>
+        <slot :text="greetingMessage" :count="2"></slot>
+      </main>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child6 from './Demo29Child6.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child6>
+        <template v-slot:header="{ count }">
+          <h1>Count: {{ count }}</h1>
+        </template>
+
+        <template #default="slotProps">
+          {{ slotProps.text }} {{ slotProps.count }}
+        </template>
+      </Demo29Child6>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片52](./images/52.PNG)
+
+#### § 列表組件範例
+
+列表組件封裝加載列表數據的邏輯，使用數據進行列表渲染，但是**將單個列表元素的內容及樣式控制權留給使用它的父組件**，保留靈活性。
+
+- 子組件 7：
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  // 父組件傳遞的props
+  const props = defineProps(['api-url']);
+  // 紀錄列表數據
+  const items = ref([]);
+  // 模擬遠端獲取列表數據
+  setTimeout(() => {
+    items.value = [
+      { id: 1, body: 'Scoped Slots Guide', username: 'Evan You', likes: 20 },
+      { id: 2, body: 'Vue Tutorial', username: 'Natalia', likes: 10 },
+    ];
+  }, 1500);
+  </script>
+
+  <template>
+    <h1>hi! 我是子組件 7 (列表範例)</h1>
+    <ul>
+      <li v-if="!items.length">Loading...</li>
+      <li v-for="item in items" :key="item.id">
+        <!-- 具名插槽，並使用 v-bind 綁定來傳遞所有item屬性 -->
+        <slot name="item" v-bind="item" />
+      </li>
+    </ul>
+  </template>
+
+  <style scoped>
+  ul {
+    list-style-type: none;
+    padding: 5px;
+    background: linear-gradient(315deg, #42d392 25%, #647eff);
+  }
+  li {
+    padding: 5px 20px;
+    margin: 10px;
+    background: #fff;
+  }
+  </style>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child7 from './Demo29Child7.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child7 api-url="url">
+        <!-- 具名插槽，v-slot的值解構獲得子組件插槽出口提供的props -->
+        <template #item="{ body, username, likes }">
+          <div class="item">
+            <p>{{ body }}</p>
+            <p class="meta">by {{ username }} | {{ likes }} likes</p>
+          </div>
+        </template>
+      </Demo29Child7>
+    </div>
+  </template>
+
+  <style scoped>
+  .meta {
+    font-size: 0.8em;
+    color: #42b883;
+  }
+  </style>
+  ```
+
+- 渲染結果：
+
+  ![圖片53](./images/53.PNG)
+
+---
+
+#### § 無渲染組件範例
+
+上面的列表組件範例同時封裝了邏輯(數據獲取)、視圖輸出(渲染列表)的功能，只將部分視圖輸出通過插槽交給父組件處理，若是一個組件**只包含了邏輯，而不需要自己處理視圖輸出，全部交由父組件處理**，這種類型稱為**無渲染組件**。
+
+> 但是大部分能用無渲染組件實現的功能都可以通過後面介紹的 **組合式函數 (Composables)** 以另一種更高效的方式實現，且不需要額外嵌套組件。
+
+以下範例為封裝追蹤當前滑鼠位置邏輯的組件：
+
+- 子組件 8：
+
+  ```vue
+  <script setup>
+  import { ref, onMounted, onUnmounted } from 'vue';
+  const x = ref(0);
+  const y = ref(0);
+
+  function update(e) {
+    x.value = e.pageX;
+    y.value = e.pageY;
+  }
+  onMounted(() => window.addEventListener('mousemove', update));
+  onUnmounted(() => window.removeEventListener('mousemove', update));
+  </script>
+  <template>
+    <slot :x="x" :y="y" />
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo29Child8 from './Demo29Child8.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo29Child8 v-slot="{ x, y }">
+        Mouse is at: {{ x }}, {{ y }}
+      </Demo29Child8>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![slot-1.gif](./images/gif/slot-1.gif)
