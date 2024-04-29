@@ -58,6 +58,7 @@
   - [v-model 的參數](#v-model-的參數)
   - [多個 v-model 綁定](#多個-v-model-綁定)
   - [處理 v-model 自定義修飾符](#處理-v-model-自定義修飾符)
+- [透傳 Attributes](#透傳-attributes)
 
 ## 初始化專案
 
@@ -3462,7 +3463,7 @@ function btnClickHandler() {
 
 ## 組件 v-model 雙向綁定
 
-父子元件之間傳遞資料，一般是透過 `props` 與 `emit` 來完成。而 `v-model` 就是結合使用 `props` 和 `emit` 的語法糖。
+父子元件之間傳遞資料，一般是透過 `props` 與 `emits` 來完成。而 `v-model` 就是結合使用 `props` 和 `emits` 的語法糖。
 
 如同前面說明過的在表單元素上使用[雙向綁定 v-model](#雙向綁定-v-model)，也可以使用 `v-model` 在父子組件之間實現雙向綁定。
 
@@ -3930,3 +3931,292 @@ defineEmits(['update:firstName', 'update:lastName']);
 ```
 
 ![圖片40](./images/40.PNG)
+
+## 透傳 Attributes
+
+指傳遞給一個組件，卻沒有被該組件聲明為 `props` 或 `emits` 的 attribute 或 `v-on` 事件監聽器，最常見的例子：`class`、`style`、`id`。
+
+### Attributes 繼承
+
+#### § 對 class 和 style 的合併
+
+當組件為**單一根元素**時，透傳的 attribute 會直接繼承添加到根元素上。如果子組件的根元素本身已經有 `class` 或 `style` attribute，**會和從父組件上繼承的值合併**。
+
+- 父組件：
+
+  子組件上設置 `class`。
+
+  ```vue
+  <script setup>
+  import Demo28Child1 from './Demo28Child1.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo28Child1 class="large" />
+    </div>
+  </template>
+  ```
+
+- 子組件 1 (單個根元素)：
+
+  ```vue
+  <template>
+    <h1 class="text-red">hi! 我是子組件 1</h1>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片41](./images/41.PNG)
+
+#### § v-on 監聽器繼承
+
+- 父組件：
+
+  在子組件上設置的 `click` 監聽器會被添加到子組件的根元素上。
+
+  ```vue
+  <script setup>
+  import Demo28Child2 from './Demo28Child2.vue';
+
+  function onClick() {
+    console.log('父組件的 onClick');
+  }
+  </script>
+
+  <template>
+    <div>
+      <Demo28Child2 @click="onClick" />
+    </div>
+  </template>
+  ```
+
+- 子組件 2：
+
+  當 `<button>` 被點擊，會觸發父組件的 `onClick` 方法，而當 `<button>` 本身也通過 `v-on` 綁定了事件監聽器，則**兩個監聽器都會被觸發**。
+
+  ```vue
+  <script setup>
+  function onBtnClick() {
+    console.log('子組件的 onBtnClick');
+  }
+  </script>
+
+  <template>
+    <button @click="onBtnClick">hi! 我是子組件 2 click me</button>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![attributes-1.gif](./images/gif/attributes-1.gif)
+
+#### § 深層組件繼承
+
+當子組件的根元素為渲染另一個組件時，子組件接收的透傳 attribute 會繼續傳給深層組件。
+
+> 注意：透傳的 attribute 不包含子組件上聲明過的 `props` 及 `emits`。而如果透傳的 attribute 符合聲明，也可以作為 `props` 傳入深層組件。
+
+- 父組件：
+
+  在子組件上多個 attribute。
+
+  ```vue
+  <script setup>
+  import Demo28Child3 from './Demo28Child3.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo28Child3 class="large" :count="0" title="123" name="Peter" />
+    </div>
+  </template>
+  ```
+
+- 子組件 3 (第一層子組件)：
+
+  渲染深層組件，聲明過的 `props` 不會繼續透傳給深層組件。
+
+  ```vue
+  <script setup>
+  import Demo28Child3_1 from './Demo28Child3_1.vue';
+  // 被聲明過的 props 不會繼續透傳給深層組件
+  const props = defineProps(['count']);
+  </script>
+
+  <template>
+    <Demo28Child3_1 />
+  </template>
+  ```
+
+- 深層組件：
+
+  透傳的 attribute 也可以聲明為 `props`。
+
+  ```vue
+  <script setup>
+  // 透傳的 attribute 符合聲明，也可以作為 `props` 傳入深層組件
+  const props = defineProps(['name']);
+  </script>
+  <template>
+    <h1>hi {{ name }}! 我是深層組件</h1>
+  </template>
+  ```
+
+- 渲染結果：
+
+  最後剩下 `class` 及 `title` 為透傳 attribute。
+
+  ![圖片42](./images/42.PNG)
+
+---
+
+### 禁用 Attributes 繼承
+
+若不想子組件自動繼承 attribute，可以在組件選項中設置 `inheritAttrs: false`。
+
+從 3.3 開始也可以直接在 `<script setup>` 中使用 `defineOptions`。
+
+```vue
+<script setup>
+defineOptions({
+  inheritAttrs: false,
+});
+// ...setup 邏輯
+</script>
+```
+
+通過設置 `inheritAttrs` 禁用繼承，可以**完全控制被透傳的 attribute 如何使用**，在模板中可以透過 `$attrs` 物件直接訪問。 `$attrs` 物件中包含除了組件聲明過的 `props` 及 `emits` 之外的所有 attribute，例如 `class`、`style`、`v-on` 監聽器等等。
+
+```vue
+<template>
+  <span>Fallthrough attribute: {{ $attrs }}</span>
+</template>
+```
+
+> 注意：
+>
+> 1.與 `props` 不同，透傳的 attribute 會保留原始的大小寫，所以像 `foo-bar` 這樣的 attribute 需要通過 `$attrs['foo-bar']` 訪問。
+>
+> 2.像 `@click` 這樣的 `v-on` 監聽器，則會被暴露為一個函數 `$attrs.onClick`。
+
+最常見的禁用繼承場景為 attribute 需要**應用在根元素之外的其他元素上**，可以通過設定 `inheritAttrs: false` 以及使用 `v-bind` 將所有透傳 attribute 應用在指定的元素上。
+
+> 不帶參數的 `v-bind`，可以一次綁定多個屬性。
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo28Child4 from './Demo28Child4.vue';
+
+  function onClick() {
+    console.log('父組件的 onClick');
+  }
+  </script>
+
+  <template>
+    <div>
+      <Demo28Child4 @click="onClick" class="large" />
+    </div>
+  </template>
+  ```
+
+- 子組件 4：
+
+  為了將透傳的 attribute 綁定在 `<button>` 元素上，設定禁用繼承 attribute，並使用 `v-bind="$attrs"` 綁定所有透傳 attribute。
+
+  ```vue
+  <script setup>
+  // 禁用繼承 attribute
+  defineOptions({
+    inheritAttrs: false,
+  });
+  </script>
+
+  <template>
+    <div class="btn-wrapper">
+      <!-- 綁定所有透傳 attribute -->
+      <button class="btn" v-bind="$attrs">hi! 我是子組件 4 click me</button>
+    </div>
+  </template>
+  ```
+
+- 渲染結果：
+
+  ![圖片43](./images/43.PNG)
+
+  ![attributes-2.gif](./images/gif/attributes-2.gif)
+
+---
+
+### 多個根元素
+
+當組件的根元素為多個的情況下，因為不知道要將 attribute 透傳到哪個根元素，所以將**不會自動透傳 attribute**，必須手動綁定 `$attrs`，否則會印出警告提醒(不影響運行)。
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo28Child5 from './Demo28Child5.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo28Child5 id="custom-layout" />
+    </div>
+  </template>
+  ```
+
+- 子組件 5：
+
+  必須指定元素綁定 `$attrs`。
+
+  ```vue
+  <template>
+    <header>hi! 我是子組件 5</header>
+    <main v-bind="$attrs">Hello</main>
+    <footer>----------------</footer>
+  </template>
+  ```
+
+  未綁定時會印出警告提醒。
+
+  ![圖片44](./images/44.PNG)
+
+- 渲染結果：
+
+  ![圖片45](./images/45.PNG)
+
+---
+
+### 在 js 中訪問透傳 attributes
+
+- 在 `<script setup>` 中使用：
+
+  可以使用 `useAttrs()` API 來訪問所有的透傳 attribute。
+
+  ```vue
+  <script setup>
+  import { useAttrs } from 'vue';
+
+  const attrs = useAttrs();
+  </script>
+  ```
+
+- 沒有使用 `<script setup>` 時：
+
+  `attrs` 會暴露在 `setup()` 的上下文物件中。
+
+  ```vue
+  <script>
+  export default {
+    setup(props, ctx) {
+      console.log(ctx.attrs);
+    },
+  };
+  </script>
+  ```
+
+> 注意：這裡的 `attrs` 物件並不是響應式的，如果需要響應性，可以使用 `props`，或是另外使用 `onUpdated()` 在每次更新時可以獲得最新的 `attrs`。
