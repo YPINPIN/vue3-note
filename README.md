@@ -4781,7 +4781,7 @@ const message = ref('Welcome~~~');
   import App from './App.vue';
   const app = createApp(App);
 
-  // 依賴注入
+  // 全局依賴注入
   app.provide('appMessage', 'Hello!!');
 
   app.mount('#app');
