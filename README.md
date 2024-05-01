@@ -60,6 +60,7 @@
   - [處理 v-model 自定義修飾符](#處理-v-model-自定義修飾符)
 - [透傳 Attributes](#透傳-attributes)
 - [插槽 Slots](#插槽-slots)
+- [依賴注入 (Provide/Inject)](#依賴注入-provideinject)
 
 ## 初始化專案
 
@@ -2641,7 +2642,7 @@ import Demo21Child1 from './Demo21Child1.vue';
 
 需要在組件間來回切換時，例如 Tab 介面，可以使用動態組件 `<component :is="..."></component>`，被切換掉的組件會**被卸載**，可以另外透過 `<KeepAlive>` 內置組件緩存組件狀態。
 
-`:is` 的值為導入或註冊的組件名稱。
+`:is` 的值為導入或全局註冊的組件名稱。
 
 ```vue
 <script setup>
@@ -4728,3 +4729,254 @@ const message = ref('Welcome~~~');
 - 渲染結果：
 
   ![slot-1.gif](./images/gif/slot-1.gif)
+
+## 依賴注入 (Provide/Inject)
+
+當某個深層的子組件**需要一個較遠的祖先組件中的部分數據時**，如果僅使用 `props` 則必須沿著組件逐級傳遞，**當層級越多時，影響的中間組件則會越多**，因此會非常麻煩。
+
+依賴注入 (Provide/Inject) 可以幫助我們解決這一問題，一個父組件會作為**依賴提供者**，其**所有的後代組件**，無論層級都可以**注入由父組件提供的依賴**。
+
+### Provide (提供)
+
+為後代組件提供數據使用 `provide()` 函數，第一個參數為**注入名**，可以為字串或是一個 `Symbol`，**後代組件會用注入名獲取注入的值**，第二個參數為**提供的值**，值可以是**任意類型包括響應式的狀態 (ref)**，提供的響應式狀態使後代組件可以與提供者建立響應式的關係。
+
+一個組件可以多次調用 `provide()`，使用不同的注入名，注入不同的依賴值。
+
+語法：`provide(注入名, 值)`
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo30Child1 from './Demo30Child1.vue';
+  import { ref, provide } from 'vue';
+
+  const count = ref(0);
+  provide('count', count);
+
+  function addCount() {
+    count.value++;
+  }
+  </script>
+
+  <template>
+    <div>
+      <h1>父組件 : {{ count }}</h1>
+      <div>
+        <button @click="addCount">Add count</button>
+      </div>
+      <Demo30Child1 />
+    </div>
+  </template>
+  ```
+
+除了在組件中提供依賴之外，也可以在整個應用層面提供依賴。**提供的數據在應用內的所有組件中都可以注入**。
+
+語法：`app.provide(注入名, 值)`
+
+- main.js：
+
+  ```javascript
+  import { createApp } from 'vue';
+  import App from './App.vue';
+  const app = createApp(App);
+
+  // 依賴注入
+  app.provide('appMessage', 'Hello!!');
+
+  app.mount('#app');
+  ```
+
+### Inject (注入)
+
+要注入上層組件提供的數據，要使用 `inject()` 函數。如果提供的值是一個 ref，注入進來的會是該 ref，會保持響應性。
+
+語法：`inject(注入名)`
+
+一般來說，`inject` 傳入的注入名皆必須由上層組件提供，若沒有對應的提供依賴則將返回 `undefined`。而若**不要求必須有提供者時**，則可以聲明一個默認值。
+
+語法：`inject(注入名, 默認值)`
+
+> 默認值的設置也可以調用一個函數或初始化一個類來返回較為複雜的值，這種情況下必須設定第三個參數為 `true`，表示默認值應該被當作一個工廠函數。
+
+- 子組件 1：
+
+  ```vue
+  <script setup>
+  import Demo30Child1_1 from './Demo30Child1_1.vue';
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <Demo30Child1_1 />
+    </div>
+  </template>
+  ```
+
+- 深層組件 1：
+
+  ```vue
+  <script setup>
+  import { inject } from 'vue';
+  // 注入依賴
+  const count = inject('count');
+  const appMessage = inject('appMessage');
+  // 設置默認值
+  const text = inject('text', 'default text');
+  const data = inject(
+    'data',
+    () => ({
+      key: 1,
+      text: 'Welcome~~~~~',
+    }),
+    true
+  );
+  </script>
+
+  <template>
+    <h3>hi! 我是深層組件 1</h3>
+    <p>count : {{ count }}</p>
+    <p>appMessage : {{ appMessage }}</p>
+    <p>text : {{ text }}</p>
+    <p>data : {{ data }}</p>
+  </template>
+  ```
+
+![provide-inject-1.gif](./images/gif/provide-inject-1.gif)
+
+---
+
+### 響應式數據的使用
+
+應該**盡可能的將任何對響應式狀態的變更都保持在供給方組件中**，使其更容易維護。若在注入方組件中需要更改數據，推薦在供給方組件中聲明並**提供一個更改數據的方法函數**。
+
+> 如果要確保提供的數據不能被注入方組件更改，可以使用 `readonly()` 來包裝提供的值。
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo30Child2 from './Demo30Child2.vue';
+  import { ref, provide, readonly } from 'vue';
+
+  const number = ref(Math.random());
+
+  function changeNumber() {
+    number.value = Math.random();
+  }
+
+  provide('number', {
+    number: readonly(number), // 設定只讀
+    changeNumber,
+  });
+  </script>
+
+  <template>
+    <div>
+      <h1>父組件 number : {{ number }}</h1>
+      <Demo30Child2 />
+    </div>
+  </template>
+  ```
+
+- 子組件 2：
+
+  ```vue
+  <script setup>
+  import Demo30Child2_1 from './Demo30Child2_1.vue';
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 2</h2>
+      <Demo30Child2_1 />
+    </div>
+  </template>
+  ```
+
+- 深層組件 2：
+
+  ```vue
+  <script setup>
+  import { inject } from 'vue';
+
+  const { number, changeNumber } = inject('number');
+  </script>
+
+  <template>
+    <h3>hi! 我是深層組件 2</h3>
+    <p>number : {{ number }}</p>
+    <button @click="changeNumber">change number</button>
+    <button @click="number = Math.random()">local change number</button>
+  </template>
+  ```
+
+![provide-inject-2.gif](./images/gif/provide-inject-2.gif)
+
+---
+
+### 使用 Symbol 做注入名
+
+若是在構建一個大型的應用，包含非常多的依賴提供，推薦使用 `Symbol` 作為注入名來避免衝突。通常推薦在一個單獨的文件中導出這些注入名 `Symbol`。
+
+- Symbol 文件 (provideKeys.js)：
+
+  ```javascript
+  export const myInjectionKey = Symbol();
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo30Child3 from './Demo30Child3.vue';
+  import { myInjectionKey } from '../utility/provideKeys.js';
+  import { provide } from 'vue';
+
+  provide(myInjectionKey, {
+    name: 'Apple',
+    price: 20,
+  });
+  </script>
+
+  <template>
+    <div>
+      <h1>父組件</h1>
+      <Demo30Child3 />
+    </div>
+  </template>
+  ```
+
+- 子組件 3：
+
+  ```vue
+  <script setup>
+  import Demo30Child3_1 from './Demo30Child3_1.vue';
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 3</h2>
+      <Demo30Child3_1 />
+    </div>
+  </template>
+  ```
+
+- 深層組件 3：
+
+  ```vue
+  <script setup>
+  import { myInjectionKey } from '../utility/provideKeys.js';
+  import { inject } from 'vue';
+
+  const data = inject(myInjectionKey);
+  </script>
+
+  <template>
+    <h3>hi! 我是深層組件 3</h3>
+    <p>data : {{ data }}</p>
+  </template>
+  ```
+
+![圖片54](./images/54.PNG)
