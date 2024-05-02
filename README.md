@@ -5051,7 +5051,7 @@ app.component(
 
 ---
 
-### 加載與錯誤狀態
+### 加載中與錯誤狀態
 
 `defineAsyncComponent` 支持在高級選項中設置處理加載中和錯誤的狀態。
 
