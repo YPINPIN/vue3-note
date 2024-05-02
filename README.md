@@ -62,6 +62,7 @@
 - [插槽 Slots](#插槽-slots)
 - [依賴注入 (Provide/Inject)](#依賴注入-provideinject)
 - [異步組件](#異步組件)
+- [組合式函數 (Composables)](#組合式函數-composables)
 
 ## 初始化專案
 
@@ -4687,7 +4688,7 @@ const message = ref('Welcome~~~');
 
 上面的列表組件範例同時封裝了邏輯(數據獲取)、視圖輸出(渲染列表)的功能，只將部分視圖輸出通過插槽交給父組件處理，若是一個組件**只包含了邏輯，而不需要自己處理視圖輸出，全部交由父組件處理**，這種類型稱為**無渲染組件**。
 
-> 但是大部分能用無渲染組件實現的功能都可以通過後面介紹的 **組合式函數 (Composables)** 以另一種更高效的方式實現，且不需要額外嵌套組件。
+> 但是大部分能用無渲染組件實現的功能都可以通過後面介紹的 [**組合式函數 (Composables)**](#組合式函數-composables) 以另一種更高效的方式實現，且不需要額外嵌套組件。
 
 以下範例為封裝追蹤當前滑鼠位置邏輯的組件：
 
@@ -5107,3 +5108,397 @@ const AsyncComponent3 = defineAsyncComponent({
 ```
 
 ![asyncComponent-3.gif](./images/gif/asyncComponent-3.gif)
+
+## 組合式函數 (Composables)
+
+組合式函數 (Composables) 是**利用 Vue 的組合式 API 來封裝和複用有狀態邏輯的函數**，例如跟蹤滑鼠在頁面中的位置、數據庫的連接狀態等等，每一個組合式函數調用時會**創建其獨有的狀態，因此不會互相影響**。
+
+### 滑鼠跟蹤器範例
+
+#### § 一般直接在組件中使用組合式 API
+
+```vue
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue';
+
+const x = ref(0);
+const y = ref(0);
+
+function update(event) {
+  x.value = event.pageX;
+  y.value = event.pageY;
+}
+
+onMounted(() => window.addEventListener('mousemove', update));
+onUnmounted(() => window.removeEventListener('mousemove', update));
+</script>
+
+<template>
+  <div>
+    <h3>Mouse position is at: {{ x }}, {{ y }}</h3>
+  </div>
+</template>
+```
+
+#### § 組合式函數
+
+想在多個組件中重複使用這個邏輯時，可以**用組合式函數的方式將邏輯提取到外部文件中**。可以在 src 資料夾下建立一個叫 composables 的資料夾，在資料夾內建立通用的方法。
+
+依照慣例，組合式函數名建議以 `use` 開頭。
+
+- src/composables/useMouse.js
+
+  ```javascript
+  import { onMounted, onUnmounted, ref } from 'vue';
+
+  // 組合式函數名建議以 use 開頭。
+  export function useMouse() {
+    // 封裝管理的狀態
+    const x = ref(0);
+    const y = ref(0);
+
+    // 更改狀態
+    function update(event) {
+      x.value = event.pageX;
+      y.value = event.pageY;
+    }
+
+    // 使用生命週期，啟動和卸載更新狀態
+    onMounted(() => window.addEventListener('mousemove', update));
+    onUnmounted(() => window.removeEventListener('mousemove', update));
+
+    // 通過返回值暴露管理的狀態
+    return { x, y };
+  }
+  ```
+
+- 現在 useMouse 可以在任何組件中使用
+
+  ```vue
+  <script setup>
+  import { useMouse } from '../composables/useMouse.js';
+
+  const { x, y } = useMouse();
+  </script>
+
+  <template>
+    <div>
+      <h3>Mouse position is at: {{ x }}, {{ y }}</h3>
+    </div>
+  </template>
+  ```
+
+#### § 嵌套多個組合式函數
+
+組合式函數也可以**調用一個或多個其他的組合式函數**，因此可以將邏輯分別獨立，並用此組合成複雜的邏輯。
+
+可以將前面的添加及卸載事件監聽另外封裝進一個組合式函數中。
+
+- src/composables/useEventListener.js
+
+  ```javascript
+  import { onMounted, onUnmounted } from 'vue';
+
+  // 組合式函數也可以傳入參數
+  export function useEventListener(target, event, callback) {
+    onMounted(() => target.addEventListener(event, callback));
+    onUnmounted(() => target.removeEventListener(event, callback));
+  }
+  ```
+
+修改 useMouse.js。
+
+- src/composables/useMouse.js
+
+  ```javascript
+  import { ref } from 'vue';
+  import { useEventListener } from './useEventListener.js';
+
+  // 組合式函數名建議以 use 開頭。
+  export function useMouse() {
+    // 封裝管理的狀態
+    const x = ref(0);
+    const y = ref(0);
+
+    // 更改狀態
+    function update(event) {
+      x.value = event.pageX;
+      y.value = event.pageY;
+    }
+
+    // 使用其他的組合式函數處理啟動和卸載時更新狀態
+    useEventListener(window, 'mousemove', update);
+
+    // 通過返回值暴露管理的狀態
+    return { x, y };
+  }
+  ```
+
+![composables-1.gif](./images/gif/composables-1.gif)
+
+---
+
+### 異步數據範例
+
+在做異步數據請求時，常常需要處理不同的狀態，加載中、加載成功、加載失敗，若在多個組件中都需要重複處理這些步驟會太繁瑣，所以可以把相關的邏輯抽取成一個組合式函數。
+
+#### § 原始方法
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const data = ref(null);
+const error = ref(null);
+// 處理異步數據
+fetch(`https://jsonplaceholder.typicode.com/photos/1`)
+  .then((res) => res.json())
+  .then((json) => (data.value = json))
+  .catch((err) => (error.value = err));
+</script>
+
+<template>
+  <div>
+    <div v-if="error">Oops! Error encountered: {{ error.message }}</div>
+    <div v-else-if="data">
+      Data loaded:
+      <pre>{{ data }}</pre>
+    </div>
+    <div v-else>Loading...</div>
+  </div>
+</template>
+```
+
+#### § 組合式函數
+
+可以改寫成帶參數的組合式函數。
+
+- src/composables/useFetch.js
+
+  ```javascript
+  import { ref } from 'vue';
+
+  export function useFetch(url) {
+    const data = ref(null);
+    const error = ref(null);
+    // 處理異步數據
+    fetch(url)
+      .then((res) => res.json())
+      .then((json) => (data.value = json))
+      .catch((err) => (error.value = err));
+
+    // 通過返回值暴露管理的狀態
+    return { data, error };
+  }
+  ```
+
+- 現在 useFetch 可以在任何組件中使用
+
+  ```vue
+  <script setup>
+  import { useFetch } from '../composables/useFetch.js';
+
+  const { data, error } = useFetch(
+    'https://jsonplaceholder.typicode.com/photos/1'
+  );
+  </script>
+
+  <template>
+    <div>
+      <div v-if="error">Oops! Error encountered: {{ error.message }}</div>
+      <div v-else-if="data">
+        Data loaded:
+        <pre>{{ data }}</pre>
+      </div>
+      <div v-else>Loading...</div>
+    </div>
+  </template>
+  ```
+
+#### § 接收響應式狀態
+
+前面的 `useFetch()` 接收的是一個靜態 `url` 字串，因此只會執行一次，若想在 `url` 改變時重新 `fetch` 數據，則需要**將響應式狀態傳入組合式函數，並基於傳入的狀態創建監聽器**。
+
+修改 useFetch.js，使用 `watchEffect()` 和 `toValue()` 來實現監聽。
+
+> 補充：[toValue](https://cn.vuejs.org/api/reactivity-utilities.html#tovalue) 是 3.3 新增的 API，目的是將 ref 或 `getter` 規範化為值。
+
+- src/composables/useFetch.js
+
+  ```javascript
+  import { ref, watchEffect, toValue } from 'vue';
+
+  export function useFetch(url) {
+    const data = ref(null);
+    const error = ref(null);
+
+    // 處理異步數據
+    const fetchData = async () => {
+      // reset state
+      data.value = null;
+      error.value = null;
+
+      // toValue -> 3.3新增的API，目的是將 ref 或 getter 規範化為值
+      const urlVal = toValue(url);
+
+      try {
+        const res = await fetch(urlVal);
+        data.value = await res.json();
+      } catch (err) {
+        error.value = err;
+      }
+    };
+
+    watchEffect(() => {
+      fetchData();
+    });
+
+    // 通過返回值暴露管理的狀態
+    return { data, error };
+  }
+  ```
+
+- 組件中傳入響應式數據
+
+  ```vue
+  <script setup>
+  import { useFetch } from '../composables/useFetch.js';
+  import { ref, computed } from 'vue';
+
+  const baseUrl = 'https://jsonplaceholder.typicode.com/photos/';
+  const id = ref(1);
+  const url = computed(() => {
+    return `${baseUrl}${id.value}`;
+  });
+
+  // 接收 ref，當 id 改變時重新fetch
+  const { data, error } = useFetch(url);
+
+  // 也可以接收一個 getter 函數
+  // const { data, error } = useFetch(() => `${baseUrl}${id.value}`);
+  </script>
+
+  <template>
+    <div>
+      <button @click="id++">next data</button>
+      <div v-if="error">Oops! Error encountered: {{ error.message }}</div>
+      <div v-else-if="data">
+        Data loaded:
+        <pre>{{ data }}</pre>
+      </div>
+      <div v-else>Loading...</div>
+    </div>
+  </template>
+  ```
+
+![composables-2.gif](./images/gif/composables-2.gif)
+
+#### § 模擬獲取數據失敗
+
+```javascript
+import { ref, watchEffect, toValue } from 'vue';
+
+export function useFetch(url) {
+  const data = ref(null);
+  const error = ref(null);
+
+  // 處理異步數據
+  const fetchData = async () => {
+    // reset state
+    data.value = null;
+    error.value = null;
+
+    // toValue -> 3.3新增的API，目的是將 ref 或 getter 規範化為值
+    const urlVal = toValue(url);
+
+    try {
+      await timeout();
+
+      const res = await fetch(urlVal);
+      data.value = await res.json();
+    } catch (err) {
+      error.value = err;
+    }
+  };
+
+  watchEffect(() => {
+    fetchData();
+  });
+
+  // 通過返回值暴露管理的狀態
+  return { data, error };
+}
+
+// 模擬獲取數據失敗
+function timeout() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.3) {
+        resolve();
+      } else {
+        reject(new Error('random error'));
+      }
+    }, 300);
+  });
+}
+```
+
+![composables-3.gif](./images/gif/composables-3.gif)
+
+---
+
+### 最佳實踐
+
+- 命名
+
+  組合式函數通常使用 `camelCase` 形式命名，並且以 `use` 做為開頭。
+
+- 輸入參數
+
+  如果正在編寫一個可能被其他開發者使用的組合式函數，最好利用 `toValue()` 函數來處理輸入參數可能為 ref 或 `getter` 而非原始值的情況。
+
+  ```javascript
+  import { toValue } from 'vue';
+
+  function useFeature(maybeRefOrGetter) {
+    //maybeRefOrGetter可以為ref、getter或原始值
+    const value = toValue(maybeRefOrGetter);
+  }
+  ```
+
+  而若需要對響應式參數進行監聽，確保使用 `watch()` 監聽 ref 或 `getter`，或是在 `watchEffect()` 調用 `toValue()`。
+
+- 返回值
+
+  組合式函數中推薦使用 `ref()` 而不是 `reactive()`，並且**返回值為一個包含多個 ref 的非響應式物件，這樣在組件中解構時仍可以保持響應性**。
+
+  ```javascript
+  // x 和 y 是兩個 ref
+  const { x, y } = useMouse();
+  ```
+
+  如果希望以物件屬性的形式來使用組合式函數返回的狀態，可以另外使用 `reactive()` 包裝返回的對象，這樣其中的 ref 會被自動解包。
+
+  ```vue
+  <script setup>
+  import { useMouse } from '../composables/useMouse.js';
+  import { reactive } from 'vue';
+
+  const mouse = reactive(useMouse());
+  // mouse.x, mouse.y 會自動解包
+  console.log('mouse.x:', mouse.x);
+  console.log('mouse.y:', mouse.y);
+  </script>
+
+  <template>
+    <div>
+      <h3>Mouse position is at: {{ mouse.x }}, {{ mouse.y }}</h3>
+    </div>
+  </template>
+  ```
+
+  ![圖片56](./images/56.PNG)
+
+- 與無渲染組件對比
+
+  組合式函數**不會產生額外的組件實例開銷，因此推薦在純邏輯複用時使用組合式函數**，需要同時複用邏輯和視圖布局時使用無渲染組件。
