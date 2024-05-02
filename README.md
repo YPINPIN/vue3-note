@@ -5055,7 +5055,7 @@ app.component(
 
 `defineAsyncComponent` 支持在高級選項中設置處理加載中和錯誤的狀態。
 
-如果提供了 `loadingComponent`，會在加載加載超過 `delay` 時間時顯示，`delay` 默認的 200ms 延遲是為了當加載快速完成時，避免 `loadingComponent` 與最終組件切換太快產生閃爍影響使用者感受。
+如果提供了 `loadingComponent`，會在加載超過 `delay` 時間時顯示，`delay` 默認的 200ms 延遲是為了當加載快速完成時，避免 `loadingComponent` 與最終組件切換太快產生閃爍影響使用者感受。
 
 如果提供 `errorComponent`，會在加載函數返回的 `Promise` 拋錯時被渲染，也可以指定超時時間，當請求超時時會渲染組件。
 
