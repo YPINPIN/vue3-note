@@ -61,6 +61,7 @@
 - [透傳 Attributes](#透傳-attributes)
 - [插槽 Slots](#插槽-slots)
 - [依賴注入 (Provide/Inject)](#依賴注入-provideinject)
+- [異步組件](#異步組件)
 
 ## 初始化專案
 
@@ -4980,3 +4981,129 @@ const message = ref('Welcome~~~');
   ```
 
 ![圖片54](./images/54.PNG)
+
+## 異步組件
+
+異步組件是一種延遲加載組件的方式，只有**在需要使用該組件時才會進行加載**，可以提高應用的性能和加載速度。
+
+透過使用 `defineAsyncComponent` 方法可以定義異步組件，**方法接收一個返回 `Promise` 的加載函數**，在獲得組件時調用 `resolve` 回調方法，加載失敗時則可以調用 `reject`。
+
+### 基本使用
+
+在大型項目中，我們可以在需要時再從伺服器加載相關組件。
+
+```vue
+<script setup>
+import { defineAsyncComponent, ref } from 'vue';
+
+const show = ref(false);
+// 異步組件
+const AsyncComponent1 = defineAsyncComponent(() => {
+  return new Promise((resolve, reject) => {
+    // 模擬從服務器獲取組件
+    setTimeout(() => {
+      // 返回獲取到的組件
+      resolve(import('./Demo31Child1.vue'));
+    }, 1000);
+  });
+});
+</script>
+
+<template>
+  <div>
+    <button @click="show = !show">點我取得異步組件</button>
+    <AsyncComponent1 v-if="show" />
+  </div>
+</template>
+```
+
+![asyncComponent-1.gif](./images/gif/asyncComponent-1.gif)
+
+多數情況下我們會將 ES 模組動態導入和 `defineAsyncComponent` 搭配使用，因為 ES 模組動態導入也會返回一個 `Promise`，因此我們也可以用它來導入 Vue 單文件組件，實現延遲加載。
+
+```vue
+<script setup>
+import { defineAsyncComponent } from 'vue';
+
+// ES 模組動態導入
+const AsyncComponent2 = defineAsyncComponent(() =>
+  import('./Demo31Child2.vue')
+);
+</script>
+
+<template>
+  <AsyncComponent2 />
+</template>
+```
+
+![asyncComponent-2.gif](./images/gif/asyncComponent-2.gif)
+
+![圖片55](./images/55.PNG)
+
+也可以使用 `app.component` 全局註冊。
+
+```javascript
+app.component(
+  'AsyncComp',
+  defineAsyncComponent(() => import('./components/Comp.vue'))
+);
+```
+
+---
+
+### 加載與錯誤狀態
+
+`defineAsyncComponent` 支持在高級選項中設置處理加載中和錯誤的狀態。
+
+如果提供了 `loadingComponent`，會在加載加載超過 `delay` 時間時顯示，`delay` 默認的 200ms 延遲是為了當加載快速完成時，避免 `loadingComponent` 與最終組件切換太快產生閃爍影響使用者感受。
+
+如果提供 `errorComponent`，會在加載函數返回的 `Promise` 拋錯時被渲染，也可以指定超時時間，當請求超時時會渲染組件。
+
+```vue
+<script setup>
+import { defineAsyncComponent } from 'vue';
+import LoadingComponent from './LoadingComponent.vue';
+import ErrorComponent from './ErrorComponent.vue';
+
+// 異步組件高級選項設置
+const AsyncComponent3 = defineAsyncComponent({
+  // 加載函數
+  loader: () => {
+    return new Promise((resolve, reject) => {
+      // 模擬加載各種狀態
+      let num = Math.random();
+      let state = num > 0.6 ? 'load' : num > 0.3 ? 'error' : 'timeout';
+      console.log('state', state);
+      setTimeout(() => {
+        switch (state) {
+          case 'load':
+            resolve(import('./Demo31Child3.vue'));
+            break;
+          case 'error':
+            reject(new Error('加載失敗'));
+            break;
+          case 'timeout':
+            break;
+        }
+      }, 1000);
+    });
+  },
+  // 若加載超過 delay 時間時顯示的組件
+  loadingComponent: LoadingComponent,
+  // 展示 loadingComponent 前的延遲時間，默認為 200ms
+  delay: 200,
+  // 加載失敗後展示的組件
+  errorComponent: ErrorComponent,
+  // 如果提供 timeout 時間限制，超時時也會顯示配置的加載失敗組件，默認值為 Infinity
+  timeout: 3000,
+});
+</script>
+
+<template>
+  <div>
+    <AsyncComponent3 />
+  </div>
+</template>
+```
+
+![asyncComponent-3.gif](./images/gif/asyncComponent-3.gif)
