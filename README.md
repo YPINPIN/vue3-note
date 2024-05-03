@@ -5529,7 +5529,6 @@ function timeout() {
 
   <template>
     <div>
-      <MainTitle title="自定義指令" />
       <!-- vFocus 可以用 v-focus 形式使用 -->
       自動 Foucs：<input type="text" v-focus />
     </div>
@@ -5623,8 +5622,7 @@ const vMyDirective = {
 
   - value -> 傳遞給指令的值，例如 `v-my-directive="1 + 1"`，值為 2。
 
-  - oldValue -> 之前的值，僅在 `
-beforeUpdate`
+  - oldValue -> 之前的值，僅在 `beforeUpdate`
     和 `updated` 中可以用 (無論值是否改變)。
 
   - arg -> 傳遞給指令的參數(如果有)，例如 `v-my-directive:foo`，參數是 'foo'。
@@ -5704,11 +5702,11 @@ const vMyDirective = {
 
 ### 簡化形式
 
-自定義指令常見的情況是僅需要在 `mounted` 和 `updated` 上實現相同的行為(如前面方的範例)，並不需要其他鉤子，這種情況可以**直接使用一個函數**來定義指令。
+自定義指令常見的情況是僅需要在 `mounted` 和 `updated` 上實現相同的行為(如前面的範例)，並不需要其他鉤子，這種情況可以**直接使用一個函數**來定義指令。
 
 - format 時間範例：
 
-  main.js 新增全局指令使用 [`dayjs`](https://day.js.org/en/) 處理時間格式。
+  main.js 新增全局指令使用 [dayjs](https://day.js.org/en/) 處理時間格式。
 
   ```javascript
   // 全局指令註冊
