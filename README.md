@@ -63,6 +63,7 @@
 - [依賴注入 (Provide/Inject)](#依賴注入-provideinject)
 - [異步組件](#異步組件)
 - [組合式函數 (Composables)](#組合式函數-composables)
+- [自定義指令](#自定義指令)
 
 ## 初始化專案
 
@@ -5502,3 +5503,315 @@ function timeout() {
 - 與無渲染組件對比
 
   組合式函數**不會產生額外的組件實例開銷，因此推薦在純邏輯複用時使用組合式函數**，需要同時複用邏輯和視圖布局時使用無渲染組件。
+
+## 自定義指令
+
+除了 Vue 內置的指令( `v-model`、 `v-show` 等等)，也可以自己註冊自定義指令 (Custom Directives)。
+
+自定義指令主要是為了**複用涉及普通元素的底層 DOM 訪問的邏輯**。
+
+一個自定義指令由一個**包含類似組件生命週期鉤子的物件**來定義，鉤子函數會接收到**指令綁定的元素**作為其參數。
+
+### 基本使用
+
+- 在 `<script setup>` 中使用：
+
+  任何以 `v` 開頭的 `camelCase` 命名的變量都可以被用作一個自定義指令。
+
+  以下範例的 `vFocus` 即可以在模板中以 `v-focus` 的形式使用。
+
+  ```vue
+  <script setup>
+  const vFocus = {
+    mounted: (el) => el.focus(),
+  };
+  </script>
+
+  <template>
+    <div>
+      <MainTitle title="自定義指令" />
+      <!-- vFocus 可以用 v-focus 形式使用 -->
+      自動 Foucs：<input type="text" v-focus />
+    </div>
+  </template>
+  ```
+
+- 沒有使用 `<script setup>` 時：
+
+  自定義指令需要通過 `directives` 選項註冊。
+
+  ```vue
+  <script>
+  export default {
+    setup() {
+      // ...
+    },
+    directives: {
+      // 模板中啟用 v-focus
+      focus: {
+        mounted: (el) => el.focus(),
+      },
+    },
+  };
+  </script>
+  ```
+
+- 也可以使用 `app.directive` 全局註冊：
+
+  ```javascript
+  app.directive('focus', {
+    mounted: (el) => el.focus(),
+  });
+  ```
+
+![directives-1.gif](./images/gif/directives-1.gif)
+
+### 指令鉤子
+
+定義的物件中可以使用的幾種鉤子函數(皆是可選的)。
+
+```vue
+<script setup>
+const vMyDirective = {
+  //在綁定元素的 attribute 前或事件監聽器應用前調用
+  created(el, binding, vnode, prevVnode) {
+    console.log('created');
+  },
+  //在元素被插入到 DOM 前調用
+  beforeMount(el, binding, vnode, prevVnode) {
+    console.log('beforeMount');
+  },
+  //在綁定元素的父組件及所有的子節點都掛載完成後調用
+  mounted(el, binding, vnode, prevVnode) {
+    console.log('mounted');
+  },
+  //綁定元素的父組件更新前調用
+  beforeUpdate(el, binding, vnode, prevVnode) {
+    console.log('beforeUpdate');
+  },
+  //在綁定元素的父組件及所有的子節點都更新後調用
+  updated(el, binding, vnode, prevVnode) {
+    console.log('updated');
+  },
+  //綁定元素的父組件卸載前調用
+  beforeUnmount(el, binding, vnode, prevVnode) {
+    console.log('beforeUnmount');
+  },
+  //綁定元素的父組件卸載後調用
+  unmounted(el, binding, vnode, prevVnode) {
+    console.log('unmounted');
+  },
+};
+</script>
+
+<template>
+  <div>
+    <h2 v-my-directive>vMyDirective</h2>
+  </div>
+</template>
+```
+
+### 鉤子參數
+
+- el
+
+  指令綁定到的 DOM 元素，可以用於直接操作 DOM。
+
+- binding
+
+  一個物件，包含以下屬性：
+
+  - value -> 傳遞給指令的值，例如 `v-my-directive="1 + 1"`，值為 2。
+
+  - oldValue -> 之前的值，僅在 `
+beforeUpdate`
+    和 `updated` 中可以用 (無論值是否改變)。
+
+  - arg -> 傳遞給指令的參數(如果有)，例如 `v-my-directive:foo`，參數是 'foo'。
+
+  - modifiers -> 一個包含修飾符的物件(如果有)，例如 `v-my-directive.foo.bar`，修飾符物件為 { foo: true, bar: true }
+
+  - instance -> 該指令所在的組件實例。
+
+  - dir -> 指令的定義物件。
+
+- vnode
+
+  代表綁定元素的底層 VNode。
+
+- pervVnode
+
+  代表之前渲染中的指令所綁定元素的 VNode，僅在 `beforeUpdate` 和 `updated` 中可用。
+
+> 需要注意**除了 `el` 外，其他參數皆為只讀的**，若需要在不同鉤子間共享訊息，推薦通過元素的 `dataset` attribute 實現。
+
+以下範例使用指令 `v-my-directive:foo.bar="count"`，並顯示 count 乘 2 的結果：
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const count = ref(0);
+
+const vMyDirective = {
+  //在綁定元素的 attribute 前或事件監聽器應用前調用
+  created(el, binding, vnode, prevVnode) {
+    console.log('created');
+  },
+  //在元素被插入到 DOM 前調用
+  beforeMount(el, binding, vnode, prevVnode) {
+    console.log('beforeMount');
+  },
+  //在綁定元素的父組件及所有的子節點都掛載完成後調用
+  mounted(el, binding, vnode, prevVnode) {
+    console.log('mounted');
+    console.log(binding);
+    el.textContent = `vMyDirective - Double Count: ${count.value * 2}`;
+  },
+  //綁定元素的父組件更新前調用
+  beforeUpdate(el, binding, vnode, prevVnode) {
+    console.log('beforeUpdate');
+  },
+  //在綁定元素的父組件及所有的子節點都更新後調用
+  updated(el, binding, vnode, prevVnode) {
+    console.log('updated');
+    console.log(binding);
+    el.textContent = `vMyDirective - Double Count: ${count.value * 2}`;
+  },
+  //綁定元素的父組件卸載前調用
+  beforeUnmount(el, binding, vnode, prevVnode) {
+    console.log('beforeUnmount');
+  },
+  //綁定元素的父組件卸載後調用
+  unmounted(el, binding, vnode, prevVnode) {
+    console.log('unmounted');
+  },
+};
+</script>
+
+<template>
+  <div>
+    <h2>Count: {{ count }}</h2>
+    <h2 v-my-directive:foo.bar="count"></h2>
+    <button @click="count++">add count</button>
+  </div>
+</template>
+```
+
+![directives-2.gif](./images/gif/directives-2.gif)
+
+---
+
+### 簡化形式
+
+自定義指令常見的情況是僅需要在 `mounted` 和 `updated` 上實現相同的行為(如前面方的範例)，並不需要其他鉤子，這種情況可以**直接使用一個函數**來定義指令。
+
+- format 時間範例：
+
+  main.js 新增全局指令使用 [`dayjs`](https://day.js.org/en/) 處理時間格式。
+
+  ```javascript
+  // 全局指令註冊
+  app.directive('timeformat', (el, binding) => {
+    // 會在 mounted 和 updated 時都調用
+    el.textContent = `format time: ${dayjs(binding.value).format(
+      'YYYY/MM/DD HH:mm:ss'
+    )}`;
+  });
+  ```
+
+  元素上使用 `v-timeformat="time"` 指令。
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+
+  const time = ref(new Date());
+  function getNewTime() {
+    time.value = new Date();
+  }
+  </script>
+
+  <template>
+    <div>
+      <h2>now time: {{ time }}</h2>
+      <h2 v-timeformat="time"></h2>
+      <button @click="getNewTime">get new time</button>
+    </div>
+  </template>
+  ```
+
+  ![directives-3.gif](./images/gif/directives-3.gif)
+
+如果指令需要多個值，則可以傳遞一個**物件**。
+
+- 設定文字顏色、大小範例：
+
+  main.js 新增全局指令使用設定 style 樣式。
+
+  ```javascript
+  app.directive('font', (el, binding) => {
+    // binding.value 為物件
+    el.style.color = binding.value.color;
+    el.style.fontSize = binding.value.fontSize + 'px';
+  });
+  ```
+
+  元素上使用 `v-font="{ color: 顏色, fontSize: 大小 }` 指令。
+
+  ```vue
+  <template>
+    <div>
+      <p v-font="{ color: 'blue', fontSize: 30 }">Hello~~ welcome!!!!!</p>
+      <p v-font="{ color: 'darkgreen', fontSize: 16 }">HA!HA!HA!HA!</p>
+    </div>
+  </template>
+  ```
+
+  ![圖片57](./images/57.PNG)
+
+---
+
+### 在組件上使用(不建議)
+
+當在組件上使用自定義指令時，會**始終應用於組件的根元素**，但需要注意的是和透傳 attribute 不同，當**應用到一個多根元素的組件時，指令將會被忽略且拋出一個警告，且不能使用 `$attrs` 指定根元素**，因此不推薦在組件上使用自定義指令。
+
+- 父組件：
+
+  ```vue
+  <script setup>
+  import Demo33Child1 from './Demo33Child1.vue';
+  import Demo33Child2 from './Demo33Child2.vue';
+  </script>
+
+  <template>
+    <div>
+      <!-- 組件上使用指令 -->
+      <Demo33Child1 v-font="{ color: 'blue', fontSize: 30 }" />
+      <Demo33Child2 v-font="{ color: 'blue', fontSize: 30 }" />
+    </div>
+  </template>
+  ```
+
+- 子組件 1 (單個根元素)：
+
+  ```vue
+  <template>
+    <!-- v-font指令會被應用在此處 -->
+    <h2>hi! 我是子組件 1</h2>
+  </template>
+  ```
+
+- 子組件 2 (多個根元素)：
+
+  ```vue
+  <template>
+    <!-- 指令將會被忽略且拋出一個警告 -->
+    <h2>hi! 我是子組件 2</h2>
+    <p>Hello~~~~~~</p>
+  </template>
+  ```
+
+  ![圖片58](./images/58.PNG)
+
+![圖片59](./images/59.PNG)
