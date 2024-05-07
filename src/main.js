@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import i18nPlugin from './plugins/i18n.js';
 import HelloVue3 from './components/HelloVue3.vue';
 import MainTitle from './components/MainTitle.vue';
 
@@ -24,5 +25,39 @@ app.directive('font', (el, binding) => {
 
 // 全局依賴注入
 app.provide('appMessage', 'Hello!!');
+
+// 插件
+const myPlugin = {
+  install(app, options) {
+    // 配置此應用
+    console.log('install');
+    console.log('app', app);
+    console.log('options', options);
+  },
+};
+// 安裝插件
+app.use(myPlugin, {
+  // 可選的選項
+  msg: 'hello',
+});
+
+// 安裝 i18n 插件，並傳入設定的語言及翻譯字典
+app.use(i18nPlugin, {
+  language: 'zh',
+  dictionary: {
+    en: {
+      greetings: {
+        welcome: 'Welcome',
+        hello: 'hello',
+      },
+    },
+    zh: {
+      greetings: {
+        welcome: '歡迎',
+        hello: '你好',
+      },
+    },
+  },
+});
 
 app.mount('#app');

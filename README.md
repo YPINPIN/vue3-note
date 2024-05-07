@@ -64,6 +64,7 @@
 - [異步組件](#異步組件)
 - [組合式函數 (Composables)](#組合式函數-composables)
 - [自定義指令](#自定義指令)
+- [插件 (Plugins)](#插件-plugins)
 
 ## 初始化專案
 
@@ -5813,3 +5814,179 @@ const vMyDirective = {
   ![圖片58](./images/58.PNG)
 
 ![圖片59](./images/59.PNG)
+
+## 插件 (Plugins)
+
+插件是一種可以為 Vue 添加全局功能的工具。
+
+語法：`app.use(插件, 可選的選項設置)`
+
+一個插件可以是一個擁有 `install()` 方法的物件，也可以是一個安裝函數本身，安裝函數會**接收到安裝它的應用實例和傳遞給 `app.use()` 的額外選項作為參數**。
+
+```javascript
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+const app = createApp(App);
+
+// 插件
+const myPlugin = {
+  install(app, options) {
+    // 配置此應用
+    console.log('install');
+    console.log('app', app);
+    console.log('options', options);
+  },
+};
+// 安裝插件
+app.use(myPlugin, {
+  // 可選的選項
+  msg: 'hello',
+});
+
+app.mount('#app');
+```
+
+![圖片60](./images/60.PNG)
+
+插件沒有嚴格定義的使用範圍，常見的主要包括以下幾種：
+
+- 通過 `app.component()` 和 `app.directive()` 註冊一到多個全局組件或自定義指令。
+
+- 通過 `app.provide()` 使一個資源可以被注入整個應用。
+
+- 向 `app.config.globalProperties` 中添加一些全局實例屬性或方法。
+
+- 包含以上三種的功能庫 (例如 vue-router)。
+
+---
+
+### 編寫一個插件 (i18n) 範例
+
+#### § 設置插件物件
+
+建議在一個單獨的文件創建並導出。
+
+```javascript
+// plugins/i18n.js
+export default {
+  install(app, options) {
+    // 這裡編寫插件功能
+  },
+};
+```
+
+#### § 編寫插件功能
+
+在插件中，可以通過 `provide` 來為插件使用者提供一些內容。
+
+提供一個 `$i18n` 物件，包含以下數據：
+
+- `lang` -> 目前的語言。
+
+- `setLang` -> 指定翻譯字典的語言，例如：`setLang('zh')`。
+
+- `dict` -> 當前語言的翻譯字典。
+
+```javascript
+// plugins/i18n.js
+import { ref, readonly } from 'vue';
+
+const lang = ref('en');
+const localDict = ref({});
+const dict = ref({});
+// 語言設置
+function setLang(language = 'en') {
+  console.log('setLang-- ', language);
+  lang.value = language;
+  dict.value = localDict.value[lang.value] || {};
+}
+
+export default {
+  install(
+    app,
+    { language = 'en', dictionary = {} } = { language: 'en', dictionary: {} }
+  ) {
+    // 初始設置
+    localDict.value = dictionary;
+    setLang(language);
+
+    // 提供全局設置
+    app.provide('$i18n', {
+      lang: readonly(lang),
+      setLang,
+      dict: readonly(dict),
+    });
+  },
+};
+```
+
+#### § 安裝插件
+
+在安裝插件時，將語言設置及翻譯字典作為 `app.use()` 的額外參數傳入。
+
+```javascript
+import i18nPlugin from './plugins/i18n.js';
+
+// 安裝 i18n 插件，並傳入設定的語言及翻譯字典
+app.use(i18nPlugin, {
+  language: 'zh',
+  dictionary: {
+    en: {
+      greetings: {
+        welcome: 'Welcome',
+        hello: 'hello',
+      },
+    },
+    zh: {
+      greetings: {
+        welcome: '歡迎',
+        hello: '你好',
+      },
+    },
+  },
+});
+```
+
+#### § 使用插件
+
+現在可以在應用中使用插件提供的數據及方法。
+
+```vue
+<script setup>
+import { computed, inject, ref, watch } from 'vue';
+const langList = ref(['en', 'zh']);
+// 注入插件提供的依賴
+const $i18n = inject('$i18n');
+const selectLang = ref($i18n.lang.value);
+const i18nDict = computed(() => $i18n.dict.value);
+// 監聽語言切換
+watch(selectLang, (newVal) => {
+  console.log('selectLang:', newVal);
+  $i18n.setLang(newVal);
+});
+</script>
+
+<template>
+  <div>
+    <MainTitle title="插件 (Plugins)" />
+    選擇語言 : {{ selectLang }} |
+    <template v-for="lang in langList" :key="lang">
+      <input
+        type="radio"
+        :id="lang"
+        name="selectLang"
+        :value="lang"
+        v-model="selectLang"
+      />
+      <label :for="lang"> {{ lang }} </label>
+    </template>
+    <h2>
+      {{ i18nDict.greetings.welcome }} ,
+      {{ i18nDict.greetings.hello }}
+    </h2>
+  </div>
+</template>
+```
+
+![plugins-1.gif](./images/gif/plugins-1.gif)
