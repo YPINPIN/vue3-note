@@ -67,6 +67,7 @@
 - [插件 (Plugins)](#插件-plugins)
 - [過渡動畫 (transition)](#過渡動畫-transition)
 - [過渡動畫 (transition-group)](#過渡動畫-transition-group)
+- [KeepAlive](#keepalive)
 
 ## 初始化專案
 
@@ -2646,7 +2647,7 @@ import Demo21Child1 from './Demo21Child1.vue';
 
 ### 動態組件
 
-需要在組件間來回切換時，例如 Tab 介面，可以使用動態組件 `<component :is="..."></component>`，被切換掉的組件會**被卸載**，可以另外透過 `<KeepAlive>` 內置組件緩存組件狀態。
+需要在組件間來回切換時，例如 Tab 介面，可以使用動態組件 `<component :is="..."></component>`，被切換掉的組件會**被卸載**，可以另外透過 [`<keep-alive>`](#keepalive) 內置組件緩存組件狀態。
 
 `:is` 的值為導入或全局註冊的組件名稱。
 
@@ -6803,3 +6804,122 @@ function change() {
 可以參考官方的範例：[Demo](https://reurl.cc/5v1r2n)
 
 ![transition-group-3.gif](./images/gif/transition-group-3.gif)
+
+## KeepAlive
+
+默認情況下，一個組件實例在被替換後會被銷毀，已變化的狀態將會丟失，當組件被再次顯示時，會創建一個只帶有初始狀態的新實例。
+
+而使用 `<keep-alive>` 組件將這些動態組件包裝起來，可以在多個組件間動態切換時，緩存被移除的組件實例。
+
+```vue
+<script setup>
+import { shallowRef } from 'vue';
+import Demo37Child1 from './Demo37Child1.vue';
+import Demo37Child2 from './Demo37Child2.vue';
+import Demo37Child3 from './Demo37Child3.vue';
+
+const activeComp = shallowRef(Demo37Child1);
+</script>
+
+<template>
+  <div>
+    <label>
+      <input type="radio" v-model="activeComp" :value="Demo37Child1" /> Child1
+    </label>
+    <label>
+      <input type="radio" v-model="activeComp" :value="Demo37Child2" /> Child2
+    </label>
+    <label>
+      <input type="radio" v-model="activeComp" :value="Demo37Child3" /> Child3
+    </label>
+    <keep-alive>
+      <component :is="activeComp"></component>
+    </keep-alive>
+  </div>
+</template>
+```
+
+![keepalive-1.gif](./images/gif/keepalive-1.gif)
+
+---
+
+### 包含/排除
+
+`<keep-alive>` 組件默認會緩存內部的所有組件實例，可以另外通過 `include` 和 `exclude` prop 來設定緩存的組件，它會根據組件的 `name` 選項進行匹配。
+
+這兩個 prop 值可以是一個以 `,` 分隔的字串、一個正則表達式，或是包含這兩種類型的陣列。
+
+> 在 3.2.34 或以上的版本中，使用 `<script setup>` 的單文件組件會自動根據文件名生成對應的 `name` 選項，不需要手動聲明。
+
+```vue
+<template>
+  <div>
+    <!-- 省略前面 -->
+    <!-- 以 , 分隔的字符串 -->
+    <h3>只緩存Child1, Child2 => include="Demo37Child1,Demo37Child2"</h3>
+    <keep-alive include="Demo37Child1,Demo37Child2">
+      <component :is="activeComp" />
+    </keep-alive>
+    <hr />
+
+    <!-- 正則表達式(必須使用v-bind) -->
+    <h3>只緩存Child2, Child3 => :include="/Demo37Child2|Demo37Child3/"</h3>
+    <keep-alive :include="/Demo37Child2|Demo37Child3/">
+      <component :is="activeComp" />
+    </keep-alive>
+    <hr />
+
+    <!-- 陣列(必須使用v-bind) -->
+    <h3>只緩存Child1, Child3 => :include="['Demo37Child1', 'Demo37Child3']"</h3>
+    <keep-alive :include="['Demo37Child1', 'Demo37Child3']">
+      <component :is="activeComp" />
+    </keep-alive>
+  </div>
+</template>
+```
+
+![keepalive-2.gif](./images/gif/keepalive-2.gif)
+
+![keepalive-3.gif](./images/gif/keepalive-3.gif)
+
+![keepalive-4.gif](./images/gif/keepalive-4.gif)
+
+---
+
+### 最大緩存實例數
+
+可以通過設置 `max` prop 來限制可以被緩存的最大組件實例數。
+
+當緩存的實例數即將超過指定的 `max` 數量，則最久未被訪問的緩存實例將先被銷毀。
+
+```vue
+<template>
+  <keep-alive :max="10">
+    <component :is="activeComp" />
+  </keep-alive>
+</template>
+```
+
+---
+
+### 緩存實例的生命週期
+
+當一個組件從 DOM 上被移除，但被 `<keep-alive>` 組件緩存時，**它將變為不活躍狀態而不是被卸載，而當緩存的組件實例被重新插入 DOM 中時，它將重新被激活**。
+
+可以使用 `onActivated()` 及 `onDeactivated()` 兩個生命週期鉤子。
+
+```vue
+<!-- 被緩存的動態組件 -->
+<script setup>
+import { onActivated, onDeactivated } from 'vue';
+
+onActivated(() => {
+  //首次掛載、每次從緩存中被重新插入時調用
+  console.log('onActivated');
+});
+onDeactivated(() => {
+  //組件卸載、從DOM上移除進入緩存時調用
+  console.log('onDeactivated');
+});
+</script>
+```
