@@ -68,6 +68,7 @@
 - [過渡動畫 (transition)](#過渡動畫-transition)
 - [過渡動畫 (transition-group)](#過渡動畫-transition-group)
 - [KeepAlive](#keepalive)
+- [Teleport](#teleport)
 
 ## 初始化專案
 
@@ -6923,3 +6924,222 @@ onDeactivated(() => {
 });
 </script>
 ```
+
+## Teleport
+
+使用 `<Teleport>` 組件可以將一個組件內部的**一部份模板傳送到組件的 DOM 結構外層的位置**。
+
+有時可能會遇到組件的一部分模板在邏輯上是屬於組件的，但視圖應該被渲染在整個 Vue 應用外部的其他地方，例如全屏的 Modal，這時候就可以使用 `<Teleport>` 組件來實現。
+
+### 原因說明
+
+理想情況下，觸發 Modal 的按鈕和 Modal 本身應是在同一個組件中，但這樣可能**會造成 Modal 跟按鈕一起渲染在 DOM 結構較深層的地方，導致 Modal 的 CSS 布局不好撰寫**，如以下範例：
+
+- MyModal.vue
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const open = ref(false);
+  </script>
+
+  <template>
+    <button @click="open = true">Open Modal</button>
+    <div v-if="open" class="modal">
+      <div class="modal_body">
+        <p>Hello from the modal!</p>
+        <button @click="open = false">Close</button>
+      </div>
+    </div>
+  </template>
+
+  <style scoped>
+  .modal {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal_body {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid black;
+    background-color: white;
+  }
+  </style>
+  ```
+
+- 父組件
+
+  ```vue
+  <script setup>
+  import MyModal from './MyModal.vue';
+  </script>
+
+  <template>
+    <div>
+      <MainTitle title="Teleport" />
+      <div class="outer">
+        <MyModal />
+      </div>
+    </div>
+  </template>
+
+  <style>
+  /* 如果有 transform MyModal樣式會出錯 */
+  .outer {
+    transform: translate(0px);
+  }
+  </style>
+  ```
+
+上面的範例 modal 的 CSS 可能導致一些問題：
+
+- 這個範例 modal 雖然設置了 `position: fixed` 會相對瀏覽器視窗放置，但是**前提是祖先元素不能有設置 `transform`、`perspective` 或 `filter` 的樣式屬性，不然 `fixed` 效果會變為根據祖先元素定位**，[詳細說明 1](https://stackoverflow.com/a/71722919)、[詳細說明 2](https://jsfiddle.net/daFalk/zremdore/1/)。
+
+  ![圖片62](./images/62.PNG)
+
+- 而 `z-index` 則是會受到容器元素是否有其他同層元素有更高的 `z-index` 而影響被覆蓋。
+
+### 使用 `<Teleport>` 解決
+
+使用 `<Teleport>` 組件可以簡單的解決此類問題，讓我們不用再顧慮 DOM 結構可能產生的問題。
+
+`<Teleport>` 組件接收一個 `to` prop 來指定傳送的目標，`to` 的值可以是一個 CSS 選擇器，也可以是一個 DOM 元素物件。
+
+需要注意的是 `<Teleport>` 組件掛載時，傳送的 `to` 目標必須已經存在於 DOM 中，一般是 Vue 應用 DOM 樹外部的一個元素，如果目標元素也是由 Vue 渲染的，則需要確保先掛載該元素。
+
+- 使用 `<Teleport>` 改寫的 MyModal2.vue
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const open = ref(false);
+  </script>
+
+  <template>
+    <button @click="open = true">Open Modal2</button>
+    <!-- 將模板片段傳送到 body 標籤下 -->
+    <Teleport to="body">
+      <div v-if="open" class="modal">
+        <div class="modal_body">
+          <p>Hello from the modal2!</p>
+          <button @click="open = false">Close</button>
+        </div>
+      </div>
+    </Teleport>
+  </template>
+
+  <style scoped>
+  .modal {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal_body {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid black;
+    background-color: white;
+  }
+  </style>
+  ```
+
+現在 modal 將會被傳送到指定的 `to` 目標位置下(body)，現在樣式不受外部結構影響了。
+
+![圖片63](./images/63.PNG)
+
+![圖片64](./images/64.PNG)
+
+---
+
+### 搭配組件使用
+
+`<Teleport>` 只是改變了渲染的 DOM 結構，不影響組件之間的邏輯關係，因此如果 `<Teleport>` 包含了一個組件，該組件一樣與使用 `<Teleport>` 的組件保持邏輯上的父子關係，傳入的 `props` 和觸發的事件也會正常運作。
+
+`<Teleport>`也可以搭配 `<transition>`使用來創建帶動畫的 Modal。
+
+---
+
+### 禁用 Teleport
+
+可以設定 `disabled` prop 來指定是否不啟用 Teleport。
+
+- true(預設) -> 元素不會被移動
+
+- false -> 元素會被移動到 `to` 指定的位置
+
+`disabled` 也可以根據不同情況動態切換禁用 Teleport：
+
+```vue
+<template>
+  <Teleport :disabled="isMobile">...</Teleport>
+</template>
+```
+
+---
+
+### 多個 Teleport 指定同一目標元素
+
+可以同時有多個元素使用 `<Teleport>` 指定相同的目標元素，**會依照順序添加到目標元素下**。
+
+- App.vue 新增一個 wrapper
+
+  ```vue
+  <template>
+    <div v-show="currentTab === 'Demo38'" id="wrapper">
+      <h2>這裡是 App.vue 的 wrapper</h2>
+    </div>
+  </template>
+  ```
+
+- 子組件 1
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const show = ref(false);
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <button @click="show = !show">toggle A & B</button>
+      <Teleport to="#wrapper">
+        <div v-if="show">我是子組件 1 的 A</div>
+      </Teleport>
+      <Teleport to="#wrapper">
+        <div v-if="show">我是子組件 1 的 B</div>
+      </Teleport>
+    </div>
+  </template>
+  ```
+
+- 父組件
+
+  ```vue
+  <script setup>
+  import Demo38Child1 from './Demo38Child1.vue';
+  </script>
+
+  <template>
+    <div>
+      <Demo38Child1 />
+    </div>
+  </template>
+  ```
+
+![teleport-1.gif](./images/gif/teleport-1.gif)

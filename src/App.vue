@@ -37,6 +37,7 @@ import Demo34 from './components/Demo34.vue';
 import Demo35 from './components/Demo35.vue';
 import Demo36 from './components/Demo36.vue';
 import Demo37 from './components/Demo37.vue';
+import Demo38 from './components/Demo38.vue';
 const currentTab = ref('Demo1');
 
 const tabs = {
@@ -77,6 +78,7 @@ const tabs = {
   Demo35,
   Demo36,
   Demo37,
+  Demo38,
 };
 </script>
 
@@ -92,6 +94,9 @@ const tabs = {
     {{ tab }}
   </button>
   <component :is="tabs[currentTab]" class="tab"></component>
+  <div v-show="currentTab === 'Demo38'" id="wrapper">
+    <h2>這裡是 App.vue 的 wrapper</h2>
+  </div>
 </template>
 
 <style>
