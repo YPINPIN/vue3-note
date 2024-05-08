@@ -65,6 +65,8 @@
 - [組合式函數 (Composables)](#組合式函數-composables)
 - [自定義指令](#自定義指令)
 - [插件 (Plugins)](#插件-plugins)
+- [過渡動畫 (transition)](#過渡動畫-transition)
+- [過渡動畫 (transition-group)](#過渡動畫-transition-group)
 
 ## 初始化專案
 
@@ -5990,3 +5992,814 @@ watch(selectLang, (newVal) => {
 ```
 
 ![plugins-1.gif](./images/gif/plugins-1.gif)
+
+## 過渡動畫 (transition)
+
+Vue 提供了兩個內置組件(`<transition>`、`<transition-group>`)，可以製作基於狀態變化的過渡及動畫
+。
+
+`<transition>` 組件會在一個元素或組件進入和離開 DOM 時應用動畫，**僅支持單個元素或組件作為內容，因此組件必須僅有一個根元素**。
+
+進入或離開可以透過以下任一條件觸發：
+
+- 由 `v-if` 或 `v-show` 觸發的切換
+
+- 由 `<component>` 切換的動態組件
+
+- 改變特殊的 key attribute
+
+---
+
+### 基於 CSS 的過渡效果
+
+![圖片61](./images/61.PNG)
+
+一共有 6 個應用於進入與離開過渡效果的 CSS class：
+
+- `v-enter-from`
+
+  進入動畫的起始狀態，在元素插入之前添加，插入完成後移除。
+
+- `v-enter-active`
+
+  進入動畫的生效狀態，**應用於整個進入動畫階段**。在元素插入之前添加，在過渡或動畫完成後移除。這個 class 可以用來定義進入動畫的持續時間、延遲或速度曲線等等。
+
+- `v-enter-to`
+
+  進入動畫的結束狀態，元素插入完成後添加( `v-enter-from` 移除的同時)，在過渡或動畫完成後移除。
+
+- `v-leave-from`
+
+  離開動畫的起始狀態，在離開過渡效果被觸發時立即添加，一幀之後被移除。
+
+- `v-leave-active`
+
+  離開動畫的生效狀態，**應用於整個離開動畫階段**。在離開過渡效果被觸發時立即添加，在過渡或動畫完成後移除。這個 class 可以用來定義離開動畫的持續時間、延遲或速度曲線等等。
+
+- `v-leave-to`
+
+  離開動畫的結束狀態，在一個離開動畫被觸發的下一幀被添加( `v-leave-from` 移除的同時)，在過渡或動畫完成後移除。
+
+#### § 基本用法
+
+未指定過渡效果名稱時，class 前綴皆為 `v`。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const show = ref(false);
+</script>
+
+<template>
+  <div>
+    <button @click="show = !show">Toggle</button>
+    <transition>
+      <p v-show="show">Hello~~~~</p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* 設置進入及離開時 opacity 為 0 */
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+/* 設置動畫過渡時間及速度曲線 */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-1.gif](./images/gif/transition-1.gif)
+
+#### § 為過渡效果命名
+
+可以給 `<transition>` 組件傳遞一個 `name` prop 來聲明過渡效果名，class 會以其名字做為前綴。
+
+語法：`<transition name="名稱">...</transition>`
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const fade = ref(false);
+</script>
+
+<template>
+  <div>
+    <button @click="fade = !fade">Toggle 2</button>
+    <transition name="slide-fade">
+      <p v-show="fade">Welcome~~~~</p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* 對於有名字的過渡效果，class會以其名字做為前綴 */
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+/* 也可以在進入及離開時分別使用不同的持續時間和速度曲線 */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+</style>
+```
+
+![transition-2.gif](./images/gif/transition-2.gif)
+
+#### § 搭配 CSS animation
+
+大多數的 CSS animation，可以簡單的在 `*-enter-active` 和 `*-leave-active` 下聲明。
+
+與 CSS transition 應用基本相同，差別為 `*-enter-from` 不是在元素插入後立刻移除，而是在一個 `animationend` 事件觸發時被移除。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen = ref(false);
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen = !isOpen">Toggle 3</button>
+    <transition name="bounce">
+      <p v-show="isOpen" style="text-align: center">Bounce~~~~</p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* 使用 animation */
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+</style>
+```
+
+![transition-3.gif](./images/gif/transition-3.gif)
+
+#### § 同時使用 transition 和 animation
+
+因為 Vue 需要添加事件監聽器以便知道過渡何時結束( `transitionend` 或 `animationend` )，當只使用其中一種時，Vue 可以自動判斷到正確的類型。
+
+因此當想要在同一個元素上同時使用兩者時，例如 Vue 觸發 CSS animation，而當滑鼠 hover 時會觸發另一個 CSS transition，這時需要傳入 `type` prop 來聲明告訴 Vue 使用的是哪一種類型( `transition` 或 `animation` )。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen2 = ref(true);
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen2 = !isOpen2">Toggle 4</button>
+    <transition name="bounce" type="animation">
+      <p class="p-text" v-show="isOpen2" style="text-align: center">
+        Hello here is some text!
+      </p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* 使用 animation */
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* 滑鼠 hover 時的 CSS transition */
+.p-text {
+  transition: color 1s;
+}
+.p-text:hover {
+  color: blue;
+}
+</style>
+```
+
+![transition-4.gif](./images/gif/transition-4.gif)
+
+#### § 使用自定義過渡 class
+
+也可以透過傳遞以下的 `props` 來指定自定義的過渡 class。
+
+- `enter-from-class`
+
+- `enter-active-class`
+
+- `enter-to-class`
+
+- `leave-from-class`
+
+- `leave-active-class`
+
+- `leave-to-class`
+
+傳入的 class 會覆蓋相對應階段的默認 class，此功能在想要集成其他的第三方 CSS 動畫庫時非常有用，例如 [Animate.css](https://animate.style/)。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen3 = ref(false);
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen3 = !isOpen3">Toggle 5</button>
+    <transition
+      enter-active-class="animate__animated animate__tada"
+      leave-active-class="animate__animated animate__bounceOutRight"
+    >
+      <p v-show="isOpen3" style="text-align: center">
+        Hello here is use Animate.css!
+      </p>
+    </transition>
+    <hr />
+  </div>
+</template>
+```
+
+![transition-5.gif](./images/gif/transition-5.gif)
+
+#### § 深層級過渡及過渡時長
+
+雖然過渡 class 僅能直接應用在 `<transition>` 的根元素上，但是**搭配 CSS 選擇器，可以在深層的子元素上觸發過渡效果**，並且可以在深層的子元素上**添加過渡延遲**來設計出一個帶漸進的動畫。
+
+但是默認情況下，`<transition>` 組件會通過監聽根元素上的`transitionend` 或 `animationend` 事件來判斷過渡何時結束，因此在有嵌套延遲過渡動畫的情況下，**需要向組件傳入一個 `duration` prop 來指定過渡動畫的總持續時間(毫秒)**。
+
+語法：`<transition name="名稱" :duration="毫秒">...</transition>`
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen4 = ref(false);
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen4 = !isOpen4">Toggle 6</button>
+    <transition name="nested" :duration="550">
+      <div v-show="isOpen4" class="outer">
+        <p class="inner">Hello here is inner text!</p>
+      </div>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* outer */
+.outer {
+  width: 500px;
+  height: 50px;
+  background-color: lightgray;
+  padding: 10px;
+}
+/* 應用於根元素的 transition */
+.nested-enter-from,
+.nested-leave-to {
+  transform: translateY(30px);
+  opacity: 0;
+}
+.nested-enter-active,
+.nested-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+.nested-leave-active {
+  transition-delay: 0.25s;
+}
+/* 應用於深層元素的設置 */
+.nested-enter-from .inner,
+.nested-leave-to .inner {
+  transform: translateX(30px);
+  opacity: 0;
+}
+.nested-enter-active .inner,
+.nested-leave-active .inner {
+  transition: all 0.3s ease-in-out;
+}
+.nested-enter-active .inner {
+  transition-delay: 0.25s;
+}
+</style>
+```
+
+![transition-6.gif](./images/gif/transition-6.gif)
+
+有需要的話也可以用物件的方式分別指定進入及離開所需的時間。
+
+語法：`<transition name="名稱" :duration="{ enter: 毫秒, leave: 毫秒}">...</transition>`
+
+---
+
+### JavaScript 鉤子
+
+可以通過監聽 `<transition>` 組件事件的方式，在過渡過程中使用 js。
+
+鉤子可以單獨使用也可以與 CSS transition 或 animation 結合使用。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen5 = ref(false);
+
+// Javascript 鉤子
+function onBeforeEnter(el) {
+  console.log('onBeforeEnter');
+}
+
+// 元素被插入到DOM後的下一幀被調用，開始進入動畫
+function onEnter(el, done) {
+  console.log('onEnter');
+  // 使用回調函數 done 表示過渡結束
+  setTimeout(() => {
+    done();
+  }, 500);
+}
+
+// 當進入過渡完成時調用
+function onAfterEnter(el) {
+  console.log('onAfterEnter');
+}
+
+// 當進入過渡在完成之前被取消時調用
+function onEnterCancelled(el) {
+  console.log('onEnterCancelled');
+}
+
+// 在leave鉤子之前調用，大多數時候只會用到leave鉤子
+function onBeforeLeave(el) {
+  console.log('onBeforeLeave');
+}
+
+// 在離開過渡開始時調用，開始離開動畫
+function onLeave(el, done) {
+  console.log('onLeave');
+  // 使用回調函數 done 表示過渡結束
+  setTimeout(() => {
+    done();
+  }, 500);
+}
+
+//在離開過渡完成且元素已從DOM中移除時調用
+function onAfterLeave(el) {
+  console.log('onAfterLeave');
+}
+
+//僅在 v-show 過渡中可用
+function onLeaveCancelled(el) {
+  console.log('onLeaveCancelled');
+}
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen5 = !isOpen5">Toggle 7</button>
+    <transition
+      @before-enter="onBeforeEnter"
+      @enter="onEnter"
+      @after-enter="onAfterEnter"
+      @enter-cancelled="onEnterCancelled"
+      @before-leave="onBeforeLeave"
+      @leave="onLeave"
+      @after-leave="onAfterLeave"
+      @leave-cancelled="onLeaveCancelled"
+    >
+      <p v-show="isOpen5">Hello here is text!</p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+/* 設置進入及離開時 opacity 為 0 */
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+/* 設置動畫過渡時間及速度曲線 */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-7.gif](./images/gif/transition-7.gif)
+
+當僅由 js 執行動畫時，可以添加一個 `:css="false"` prop，向 Vue 表明可以跳過針對 CSS 過渡的自動探測，除了性能好一點外，也可以防止 CSS 干擾過渡規則。
+
+當設置了 `:css="false"` 時，將由我們自己控制過渡結束時間，因此 `@enter` 及 `@leave` 必須使用回調函數 `done`，否則過渡將立即完成。
+
+語法：`<transition :css="false">...</transition>`
+
+可以參考官方的範例：[Demo](https://reurl.cc/ezDxzQ)
+
+---
+
+### 可複用的過渡效果
+
+可以將需要被重複使用的過渡效果**封裝為一個組件，並透過插槽向內傳入元素內容**。
+
+- MyTransition.vue
+
+  ```vue
+  <template>
+    <transition name="my-transition">
+      <slot></slot>
+    </transition>
+  </template>
+
+  <style>
+  .my-transition-enter-from,
+  .my-transition-leave-to {
+    opacity: 0;
+  }
+  .my-transition-enter-active,
+  .my-transition-leave-active {
+    transition: opacity 1s ease;
+  }
+  </style>
+  ```
+
+- 導入 MyTransition 使用
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  import MyTransition from './MyTransition.vue';
+  const isOpen6 = ref(false);
+  </script>
+
+  <template>
+    <div>
+      <button @click="isOpen6 = !isOpen6">Toggle 8</button>
+      <MyTransition>
+        <p v-show="isOpen6">Hello here is slot text</p>
+      </MyTransition>
+    </div>
+  </template>
+  ```
+
+![transition-8.gif](./images/gif/transition-8.gif)
+
+---
+
+### 出現時過渡
+
+當想在某個節點**初次渲染時就應用過渡效果**，可以添加 `appear` prop。
+
+語法：`<transition appear>...</transition>`
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const isOpen7 = ref(true);
+</script>
+
+<template>
+  <div>
+    <button @click="isOpen7 = !isOpen7">Toggle 9</button>
+    <transition appear>
+      <p v-show="isOpen7">Hello~~~~</p>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-9.gif](./images/gif/transition-9.gif)
+
+---
+
+### 元素間過渡
+
+除了通過 `v-if`/`v-show` 切換一個元素，也可以通過 `v-if`/`v-else-if`/`v-else` 在組件間進行切換，只需要確保**同一時間只會有一個元素被渲染即可**。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+const docState = ref('saved');
+</script>
+
+<template>
+  <div>
+    <span style="margin-right: 10px">Click to cycle through states:</span>
+    <transition>
+      <button v-if="docState === 'saved'" @click="docState = 'edited'">
+        Edit
+      </button>
+      <button v-else-if="docState === 'edited'" @click="docState = 'editing'">
+        Save
+      </button>
+      <button v-else-if="docState === 'editing'" @click="docState = 'saved'">
+        Cancel
+      </button>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-10.gif](./images/gif/transition-10.gif)
+
+---
+
+### 過渡模式
+
+上面的例子，進入和離開的元素會同時開始動畫，這時可能會出現布局問題。可以透過傳遞一個 `mode` prop 來實現先執行元素離開動畫，完成後在執行另一元素進入動畫。
+
+也支持 `mode="in-out"`，但是不常使用。
+
+語法：`<transition mode="out-in">...</transition>`
+
+![transition-11.gif](./images/gif/transition-11.gif)
+
+---
+
+### 組件間過渡
+
+`<transition>` 也可以作用於動態組件之間的切換。
+
+```vue
+<script setup>
+import { ref, shallowRef } from 'vue';
+import Demo35Child1 from './Demo35Child1.vue';
+import Demo35Child2 from './Demo35Child2.vue';
+
+const activeComp = shallowRef(Demo35Child1);
+</script>
+
+<template>
+  <div>
+    <label>
+      <input type="radio" v-model="activeComp" :value="Demo35Child1" /> Child1
+    </label>
+    <label>
+      <input type="radio" v-model="activeComp" :value="Demo35Child2" /> Child2
+    </label>
+    <transition mode="out-in">
+      <component :is="activeComp"></component>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-12.gif](./images/gif/transition-12.gif)
+
+---
+
+### 動態過渡
+
+`props` 也可以是動態的，可以根據狀態變化動態的應用不同的過渡效果。
+
+也可以搭配可複用的過渡組件，讓這些組件根據動態的 `props` 來改變過渡效果。
+
+```html
+<transition :name="transitionName">...</transition>
+```
+
+---
+
+### 透過 `key` attribute 過渡
+
+有時需要**透過強制重新渲染 DOM 元素**才能觸發過渡效果。當不包含 `key` attribute 時，當 count 更新時，只會更新內容，元素沒有變更因此不會觸發過渡效果。而當設置了 `key` attribute，Vue 知道**需要創建一個新的 `span` 元素進行切換，因此可以觸發過渡效果**。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const count = ref(0);
+</script>
+
+<template>
+  <div>
+    <button style="margin-right: 10px" @click="count++">add count</button>
+    <transition mode="out-in">
+      <span :key="count">{{ count }}</span>
+    </transition>
+  </div>
+</template>
+
+<style scoped>
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+</style>
+```
+
+![transition-13.gif](./images/gif/transition-13.gif)
+
+## 過渡動畫 (transition-group)
+
+`<transition-group>` 組件會在一個 `v-for` 列表中的元素或組件被插入、移動或移除時應用動畫效果。
+
+支持和 `<transition>` 組件一樣的 `props`、CSS 過渡 class 和 Javascript 鉤子。
+
+### 與 `<transition>` 組件的區別：
+
+- 默認情況不會渲染一個容器元素，但是可以透過設置 `tag` prop 來指定一個元素作為容器元素渲染。
+
+- [過渡模式](#過渡模式) ( `mode="out-in"` ) 不可使用，因為不再是在互斥的元素間進行切換。
+
+- 列表中的每一個元素都必須有獨一無二的 `key` attribute。
+
+- CSS 過渡 class 會被應用在列表內的元素上，而不是容器元素。
+
+---
+
+### 進入/離開動畫
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const items = ref([1, 2, 3, 4, 5, 6]);
+let num = 7;
+
+function addItem() {
+  let random = Math.round(Math.random() * items.value.length);
+  items.value.splice(random, 0, num);
+  num++;
+}
+function delItem() {
+  let random = Math.floor(Math.random() * items.value.length);
+  items.value.splice(random, 1);
+}
+</script>
+
+<template>
+  <div>
+    <button @click="addItem">在任意位置添加一個新 item</button>
+    <button @click="delItem">刪除任意位置上的一個 item</button>
+    <transition-group name="list" tag="ul">
+      <li v-for="item in items" :key="item">
+        {{ item }}
+      </li>
+    </transition-group>
+  </div>
+</template>
+
+<style scoped>
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+</style>
+```
+
+![transition-group-1.gif](./images/gif/transition-group-1.gif)
+
+---
+
+### 移動動畫
+
+前面的範例中當元素被插入及移除時，周圍的元素會立即移動至位置，而不是過渡的移動。可以添加 `*-move` 的 class 以及額外的 css 設定來對移動中的元素進行過渡控制。
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const items2 = ref([1, 2, 3, 4, 5, 6]);
+let num2 = 7;
+
+function addItem2() {
+  let random = Math.round(Math.random() * items2.value.length);
+  items2.value.splice(random, 0, num2);
+  num2++;
+}
+function delItem2() {
+  let random = Math.floor(Math.random() * items2.value.length);
+  items2.value.splice(random, 1);
+}
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+function change() {
+  let arr = shuffle([...items2.value]);
+  items2.value = arr;
+}
+</script>
+
+<template>
+  <div>
+    <button @click="addItem2">在任意位置添加一個新 item</button>
+    <button @click="delItem2">刪除任意位置上的一個 item</button>
+    <button @click="change">隨機調換 item</button>
+    <transition-group name="list2" tag="ul">
+      <li v-for="item in items2" :key="item">
+        {{ item }}
+      </li>
+    </transition-group>
+  </div>
+</template>
+
+<style scoped>
+/* 添加移動過渡動畫 */
+.list2-enter-from,
+.list2-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+/* .list2-move 為對移動中的元素應用的過渡 */
+.list2-move,
+.list2-enter-active,
+.list2-leave-active {
+  transition: all 0.5s ease;
+}
+/* 確保元素離開時從布局流中刪除，以便正確的計算移動動畫 */
+.list2-leave-active {
+  position: absolute;
+}
+</style>
+```
+
+![transition-group-2.gif](./images/gif/transition-group-2.gif)
+
+---
+
+### 漸進式列表動畫
+
+也可以將元素的索引設置到 `data` attribute 上，並通過在 Javascript 鉤子中讀取元素的 `data` attribute，來實現帶漸進式延遲的列表動畫。
+
+可以參考官方的範例：[Demo](https://reurl.cc/5v1r2n)
+
+![transition-group-3.gif](./images/gif/transition-group-3.gif)
