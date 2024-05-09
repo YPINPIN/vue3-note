@@ -7381,7 +7381,8 @@ function increment() {
   count.value++;
 }
 </script>
-//視圖
+
+<!-- 視圖 -->
 <template>
   <div>
     <button @click="increment">add count</button>
