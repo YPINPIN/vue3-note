@@ -70,6 +70,7 @@
 - [KeepAlive](#keepalive)
 - [Teleport](#teleport)
 - [Suspense (實驗性功能)](#suspense-實驗性功能)
+- [路由](#路由)
 
 ## 初始化專案
 
@@ -7293,3 +7294,65 @@ onErrorCaptured((err) => {
 ```
 
 額外參考資料：[參考 1](https://medium.com/p/428e02254030)、[參考 2](https://ithelp.ithome.com.tw/articles/10305003)。
+
+## 路由
+
+### 用戶端 vs 伺服器端路由
+
+- 伺服器端路由
+
+  伺服器根據使用者訪問的 URL 路徑返回不同的響應結果，然後**重新加載整個頁面**。
+
+- 用戶端路由
+
+  在單頁面應用 (SPA) 中，透過攔截頁面的跳轉請求，動態獲取新的數據，**在無需重新加載頁面的情況下更新頁面，在需要多次交互的頁面中使使用者體驗更好**。通常是利用 `History API` 或是 `hashchange` 事件這樣的瀏覽器 API 管理應用當前應該渲染的視圖。
+
+### 官方路由
+
+Vue 很適合用來建構單頁面應用，對於大多數的此類應用，都推薦使用官方支持的路由庫 [Vue Router](https://router.vuejs.org/)。
+
+### 實現一個簡單的路由
+
+如果只需要一個簡單使用，不想引入整個路由庫，可以通過動態組件方式，監聽 `hashchange` 事件來更新當前組件。
+
+```vue
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import Demo40Child1 from './Demo40Child1.vue';
+import Demo40Child2 from './Demo40Child2.vue';
+import NotFound from './NotFound.vue';
+
+const routes = {
+  '/': Demo40Child1,
+  '/page2': Demo40Child2,
+};
+
+const currentPath = ref(window.location.hash);
+
+function onHashChange() {
+  console.log(window.location.hash);
+  currentPath.value = window.location.hash;
+}
+
+onMounted(() => window.addEventListener('hashchange', onHashChange));
+onUnmounted(() => {
+  window.removeEventListener('hashchange', onHashChange);
+  window.location.hash = '';
+});
+
+const currentView = computed(() => {
+  return routes[currentPath.value.slice(1) || '/'] || NotFound;
+});
+</script>
+
+<template>
+  <div>
+    <p>通過動態組件方式，監聽 'hashchange' 事件來實現一個簡單的路由</p>
+    <a href="#/">Page1</a> | <a href="#/page2">Page2</a> |
+    <a href="#/non-existent-path">Broken Link</a>
+    <component :is="currentView" />
+  </div>
+</template>
+```
+
+![router-1.gif](./images/gif/router-1.gif)
