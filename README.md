@@ -71,6 +71,7 @@
 - [Teleport](#teleport)
 - [Suspense (實驗性功能)](#suspense-實驗性功能)
 - [路由](#路由)
+- [狀態管理](#狀態管理)
 
 ## 初始化專案
 
@@ -7356,3 +7357,145 @@ const currentView = computed(() => {
 ```
 
 ![router-1.gif](./images/gif/router-1.gif)
+
+## 狀態管理
+
+每一個組件實例都有著自己管理的響應式狀態，組件基本由以下幾個部分組成：
+
+- 狀態 -> 驅動應用的數據源
+
+- 視圖 -> 對狀態的映射顯示
+
+- 交互 -> 狀態根據使用者在視圖中的輸入而做出相應變更的方式
+
+![圖片65](./images/65.PNG)
+
+```vue
+<script setup>
+import { ref } from 'vue';
+//狀態
+const count = ref(0);
+
+//交互
+function increment() {
+  count.value++;
+}
+</script>
+//視圖
+<template>
+  <div>
+    <button @click="increment">add count</button>
+    <div>{{ count }}</div>
+  </div>
+</template>
+```
+
+---
+
+### 多個組件需要共享一個共同的狀態
+
+當有多個組件需要共享一個共同的狀態時，**可能會需要透過將狀態提升到共同的祖先組件在通過 `props` 傳遞以及觸發事件來改變狀態**，這可能會導致程式碼不好維護。
+
+更簡單的方式是**將共享狀態抽取出來放在一個全局單例中來管理**，讓任何位置上的組件都可以訪問其中的狀態或觸發動作。
+
+#### § 使用響應式 API 做簡單的狀態管理
+
+使用 `reactive()` 來創建一個響應式物件，並導入到多個組件中，這樣一來每當 store 物件被更改時，所有組件都會自動更新視圖。
+
+但是可以被任何組件任意改變的全局狀態並不好進行維護，因此建議改變邏輯的狀態像狀態本身一樣集中在 store 中。
+
+- utility/store.js
+
+  ```javascript
+  import { reactive } from 'vue';
+
+  export const store = reactive({
+    count: 0,
+    increment() {
+      this.count++;
+    },
+  });
+  ```
+
+- 組件中使用：
+
+  ```vue
+  <script setup>
+  import { store } from '../utility/store.js';
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1</h2>
+      <P>共用 count: {{ store.count }}</P>
+      <button @click="store.increment()">add count</button>
+    </div>
+  </template>
+  ```
+
+![store-1.gif](./images/gif/store-1.gif)
+
+#### § 使用其他響應式 API
+
+也可以使用其他響應式 API，例如 `ref()`、`computed()` 或是組合式函數。
+
+- composables/useCount.js
+
+  ```javascript
+  import { ref } from 'vue';
+
+  //全局狀態
+  const globalCount = ref(1);
+
+  function addGlobalCount() {
+    globalCount.value++;
+  }
+
+  export function useCount() {
+    //局部狀態，每個組件都會創建
+    const localCount = ref(1);
+
+    function addLocalCount() {
+      localCount.value++;
+    }
+
+    return {
+      globalCount,
+      localCount,
+      addGlobalCount,
+      addLocalCount,
+    };
+  }
+  ```
+
+- 組件中使用：
+
+  ```vue
+  <script setup>
+  import { useCount } from '../composables/useCount.js';
+
+  const { globalCount, localCount, addGlobalCount, addLocalCount } = useCount();
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 3</h2>
+      <p>共用 globalCount: {{ globalCount }}</p>
+      <button @click="addGlobalCount()">add globalCount</button>
+      <p>自己的 localCount: {{ localCount }}</p>
+      <button @click="addLocalCount()">add localCount</button>
+    </div>
+  </template>
+  ```
+
+![store-2.gif](./images/gif/store-2.gif)
+
+---
+
+### 狀態管理庫
+
+在大規模的應用中可以使用狀態管理庫來實現更全面的功能，推薦使用 Pinia 。
+
+- [Pinia](https://pinia.vuejs.org/) (Vue2, Vue3 皆可用)
+
+- [Vuex](https://vuex.vuejs.org/) (維護狀態)
