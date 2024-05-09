@@ -38,6 +38,7 @@ import Demo35 from './components/Demo35.vue';
 import Demo36 from './components/Demo36.vue';
 import Demo37 from './components/Demo37.vue';
 import Demo38 from './components/Demo38.vue';
+import Demo39 from './components/Demo39.vue';
 const currentTab = ref('Demo1');
 
 const tabs = {
@@ -79,6 +80,7 @@ const tabs = {
   Demo36,
   Demo37,
   Demo38,
+  Demo39,
 };
 </script>
 

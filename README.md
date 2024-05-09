@@ -69,6 +69,7 @@
 - [過渡動畫 (transition-group)](#過渡動畫-transition-group)
 - [KeepAlive](#keepalive)
 - [Teleport](#teleport)
+- [Suspense (實驗性功能)](#suspense-實驗性功能)
 
 ## 初始化專案
 
@@ -7143,3 +7144,152 @@ onDeactivated(() => {
   ```
 
 ![teleport-1.gif](./images/gif/teleport-1.gif)
+
+## Suspense (實驗性功能)
+
+用來在組件樹中協調異步依賴的處理，**可以在組件樹上層等待下層的多個嵌套異步依賴完成，並在等待各個異步依賴結果時渲染一個加載狀態**，避免各自處理顯示加載狀態(Loading)可能影響使用者體驗。
+
+`<Suspense>` 可以等待的異步依賴有幾種：
+
+- `async setup()`
+
+  組合式 API 的異步 `setup()` 鉤子。
+
+  ```vue
+  <script>
+  export default {
+    name: 'Demo39Child1',
+    async setup() {
+      const res = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+      const posts = await res.json();
+
+      return { posts };
+    },
+  };
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 1 - async setup()</h2>
+      <div>{{ posts }}</div>
+    </div>
+  </template>
+  ```
+
+- `<script setup>` 時有頂層 `await` 的組件
+
+  ```vue
+  <script setup>
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts/2');
+  const posts = await res.json();
+  </script>
+
+  <template>
+    <div>
+      <h2>hi! 我是子組件 2 - script setup 頂層 await</h2>
+      <div>{{ posts }}</div>
+    </div>
+  </template>
+  ```
+
+- [異步組件](#異步組件)
+
+  異步組件默認就是 **suspensible** 的，當組件上層有 `<Suspense>` 那麼這個異步組件將忽略自己的加載、加載失敗、延遲和超時等選項設定，加載狀態由 `<Suspense>` 控制。
+
+  異步組件也可以通過在選項中指定 `suspensible: false` 表明不用 `<Suspense>` 控制。
+
+---
+
+### 加載中狀態
+
+`<Suspense>` 組件有兩個插槽，`#default` 和 `#fallback`，兩個插槽**都只允許一個根元素**。
+
+- `#default`
+
+  所有異步依賴完成時，進入**完成狀態**，顯示的默認內容。
+
+  > 進入完成狀態後，只有當默認內容的根節點被替換時，才會回到掛起狀態。
+
+- `#fallback`
+
+  當遇到異步依賴時，**掛起狀態**，顯示的加載中內容。
+
+  > 如果已經顯示過默認內容，替換默認內容時將判斷異步等待時間是否超過 `timeout` prop，才會再切換顯示加載中內容。
+  >
+  > `timeout`若為 0 則將導致替換默認內容時會立即顯示加載中內容。
+
+```vue
+<script setup>
+import { defineAsyncComponent, ref } from 'vue';
+import Demo39Child1 from './Demo39Child1.vue';
+import Demo39Child2 from './Demo39Child2.vue';
+// 異步組件
+const Demo39Child3 = defineAsyncComponent(() => {
+  return new Promise((resolve, reject) => {
+    // 模擬從服務器獲取組件
+    setTimeout(() => {
+      // 返回獲取到的組件
+      resolve(import('./Demo39Child3.vue'));
+    }, 2000);
+  });
+});
+const Demo39Child4 = defineAsyncComponent(() => {
+  return new Promise((resolve, reject) => {
+    // 模擬從服務器獲取組件
+    setTimeout(() => {
+      // 返回獲取到的組件
+      resolve(import('./Demo39Child4.vue'));
+    }, 1000);
+  });
+});
+
+const show = ref(true);
+</script>
+
+<template>
+  <div>
+    <MainTitle title="Suspense (實驗性功能)" />
+    <button @click="show = !show">change</button>
+    <Suspense timeout="200">
+      <!-- #default插槽內容：具有深層異步依賴的組件 -->
+      <template #default>
+        <div v-if="show">
+          <Demo39Child1 />
+          <Demo39Child3 />
+        </div>
+        <div v-else>
+          <Demo39Child2 />
+          <Demo39Child4 />
+        </div>
+      </template>
+
+      <!-- #fallback插槽：加載中內容 -->
+      <template #fallback>
+        <div>
+          <span>Loading...</span>
+        </div>
+      </template>
+    </Suspense>
+  </div>
+</template>
+```
+
+![suspense-1.gif](./images/gif/suspense-1.gif)
+
+---
+
+### 錯誤處理
+
+`<Suspense>` 組件目前未提供錯誤處理，但是可以在使用 `<Suspense>` 的組件中使用`onErrorCapture()` 生命週期鉤子攔截錯誤。
+
+```vue
+<script setup>
+//...
+import { onErrorCaptured } from 'vue';
+onErrorCaptured((err) => {
+  console.log('onErrorCaptured: ', err);
+});
+</script>
+```
+
+額外參考資料：[參考 1](https://medium.com/p/428e02254030)、[參考 2](https://ithelp.ithome.com.tw/articles/10305003)。
