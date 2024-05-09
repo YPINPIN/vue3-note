@@ -7281,7 +7281,7 @@ const show = ref(true);
 
 ### 錯誤處理
 
-`<Suspense>` 組件目前未提供錯誤處理，但是可以在使用 `<Suspense>` 的組件中使用`onErrorCapture()` 生命週期鉤子攔截錯誤。
+`<Suspense>` 組件目前未提供錯誤處理，但是可以在使用 `<Suspense>` 的組件中使用 `onErrorCapture()` 生命週期鉤子攔截錯誤。
 
 ```vue
 <script setup>
@@ -7313,7 +7313,7 @@ Vue 很適合用來建構單頁面應用，對於大多數的此類應用，都�
 
 ### 實現一個簡單的路由
 
-如果只需要一個簡單使用，不想引入整個路由庫，可以通過動態組件方式，監聽 `hashchange` 事件來更新當前組件。
+如果只需要簡單使用，不想引入整個路由庫，可以通過動態組件方式，監聽 `hashchange` 事件來更新當前組件。
 
 ```vue
 <script setup>
