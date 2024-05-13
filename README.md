@@ -72,6 +72,7 @@
 - [Suspense (實驗性功能)](#suspense-實驗性功能)
 - [路由](#路由)
 - [狀態管理](#狀態管理)
+- [測試](#測試)
 
 ## 初始化專案
 
@@ -7500,3 +7501,229 @@ function increment() {
 - [Pinia](https://pinia.vuejs.org/) (Vue2, Vue3 皆可用)
 
 - [Vuex](https://vuex.vuejs.org/) (維護狀態)
+
+## 測試
+
+自動化測試能夠預防無意引入的 Bug，建議將應用分解為可測試、可維護的函數、模塊、類和組件。
+
+測試的檔案名稱規範：
+
+在 tests 資料下 `{檔案名稱}.test.{副檔名}` or `{檔案名稱}.spec.{副檔名}`。
+
+### 單元測試 (Unit testing)
+
+驗證小的、獨立的程式碼式是否按預期工作。通常為檢查函數、類或組合式函數的輸入是否產生預期的輸出或副作用。推薦使用 [Vitest](https://vitest.dev/)。
+
+#### § Vitest 安裝
+
+- 添加 Vitest 到項目中
+
+  在一個基於 Vite 的 Vue 項目中，運行以下指令：
+
+  ```bash
+  npm install -D vitest @vue/test-utils jsdom
+  ```
+
+  - vitest：單元測試框架(提供了執行測試的環境、斷言、隔離庫...等等功能與 API)。
+
+  - @vue/test-utils：測試 Vue 組件的工具。[官網](https://test-utils.vuejs.org/)。
+
+  - jsdom：可以在 Node 環境模擬出瀏覽器中的 DOM 環境(方便測試)。
+
+- 更新 Vite 配置(vite.config.js)
+
+  在最上方加入 `/// <reference types="vitest" />` 後，再添加 test 選項：
+
+  - globals：因為 Vitest 預設是需要自己引入對應的方法，`globals` 可以啟用類似 Jest 的全局測試 API。
+
+  - environment： Vitest 本身默認環境為 Node.js，可以指定使用 jsdom 模擬 DOM 環境。
+
+  ```js
+  /// <reference types="vitest" />
+  import { defineConfig } from 'vite';
+  export default defineConfig({
+    //...
+    test: {
+      globals: true,
+      environment: 'jsdom',
+    },
+  });
+  ```
+
+- package.json 新增執行單元測試的指令
+
+  ```json
+  "scripts": {
+    //...
+    "test:unit": "vitest"
+  },
+  ```
+
+- 之後要執行測試可以直接輸入指令：
+
+  ```bash
+  npm run test:unit
+  ```
+
+#### § 基本語法
+
+- `describe`
+
+  類似**群組**的概念，用來將一個或是多個相關的測試包在一起。
+
+- `test`
+
+  為測試的**項目單位**， 也可以使用 `test` 的別名 `it`，兩個是一樣的東西。
+
+- `expect`
+
+  要測試的**項目內容**。
+
+- `toBe`
+
+  **斷言**，主要是來檢查 `expect` 回傳的內容是否符合你的預期，有很多種形式的斷言。
+
+```javascript
+// helpers.js
+export function increment(current, max = 10) {
+  if (current < max) {
+    return current + 1;
+  }
+  return current;
+}
+```
+
+```javascript
+// tests/helpers.test.js
+import { increment } from '../src/utility/helpers.js';
+
+describe('increment', () => {
+  test('increments the current number by 1', () => {
+    expect(increment(0, 10)).toBe(1);
+  });
+
+  test('does not increment the current number over the max', () => {
+    expect(increment(10, 10)).toBe(10);
+  });
+
+  test('has a default max of 10', () => {
+    expect(increment(10)).toBe(10);
+  });
+});
+```
+
+![圖片66](./images/66.PNG)
+
+---
+
+#### § 組合式函數測試
+
+針對 Vue 的組合式函數進行測試，先根據是否依賴組件實例分為兩類：
+
+- 當組合式函數只使用了響應式 API 則可以通過直接調用並斷言其返回狀態或方法來進行測試。
+
+  ```javascript
+  // composables/useCounter.js
+  import { ref } from 'vue';
+
+  export function useCounter() {
+    const count = ref(0);
+    function increment() {
+      count.value++;
+    }
+
+    return {
+      count,
+      increment,
+    };
+  }
+  ```
+
+  測試檔案：
+
+  ```javascript
+  // tests/counter.test.js
+  import { useCounter } from '../src/composables/useCounter.js';
+
+  test('useCounter', () => {
+    const { count, increment } = useCounter();
+    expect(count.value).toBe(0);
+
+    increment();
+    expect(count.value).toBe(1);
+  });
+  ```
+
+  ![圖片67](./images/67.PNG)
+
+- 而當使用了生命週期鉤子或依賴注入則是依賴組件實例，需要**被包裝在一個組件中才可以測試**，可以使用**組件測試**會更容易。
+
+---
+
+### 組件測試
+
+檢查組件**是否正常掛載和渲染(視圖)、與之互動的表現(交互)是否符合預期**，比單元測試導入更多程式碼、更複雜，更像一種**整合測試 (Integration testing)**。
+
+可以使用 Vitest 搭配 Vue Test Utils (組件測試庫)、jsdom (模擬 DOM 環境)。
+
+- MyComponent.vue
+
+  ```vue
+  <script setup>
+  import { ref } from 'vue';
+  const props = defineProps(['initialCount']);
+  const count = ref(props.initialCount);
+  </script>
+
+  <template>
+    <div>
+      <h2 class="title">MyComponent</h2>
+      <p class="count">{{ count }}</p>
+      <button class="btnAdd" @click="count++">add count</button>
+    </div>
+  </template>
+  ```
+
+- my-component.test.js
+
+  ```javascript
+  import { mount } from '@vue/test-utils';
+  import MyComponent from '../src/components/MyComponent.vue';
+
+  describe('MyComponent', () => {
+    test('should be display correct content', () => {
+      const options = {
+        props: {
+          initialCount: 0,
+        },
+      };
+      const wrapper = mount(MyComponent, options);
+      expect(wrapper.find('.title').text()).toBe('MyComponent');
+      expect(wrapper.find('.count').text()).toBe('0');
+      expect(wrapper.find('.btnAdd').text()).toBe('add count');
+    });
+
+    test('btnAdd click can add count', async () => {
+      const options = {
+        props: {
+          initialCount: 0,
+        },
+      };
+      const wrapper = mount(MyComponent, options);
+      expect(wrapper.find('.count').text()).toBe('0');
+
+      await wrapper.find('.btnAdd').trigger('click');
+      expect(wrapper.find('.count').text()).toBe('1');
+    });
+  });
+  ```
+
+![圖片68](./images/68.PNG)
+
+更多資料：[Blog1](https://wayne-blog.com/2022-12-29/vitest-unit-test/#%E5%85%83%E4%BB%B6%E6%B8%AC%E8%A9%A6)、[Blog2](https://israynotarray.com/vitest/20230420/4055762937/)。
+
+---
+
+### 端對端測試 (E2E testing)
+
+端對端測試是只從使用者操作的這端到資料記錄的另一端，**去對整個應用程式完整的系統流程進行測試**，像是檢查跨越多個頁面的功能、對 Vue 應用進行實際的網路請求等等。這些測試通常涉及到建立一個數據庫或其他後端。推薦使用 [Cypress](https://www.cypress.io/)。
