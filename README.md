@@ -7532,7 +7532,7 @@ function increment() {
 
 - 更新 Vite 配置(vite.config.js)
 
-  在最上方加入 `/// <reference types="vitest" />` 後，再添加 test 選項：
+  在最上方加入 `/// <reference types="vitest" />` 後，再添加 `test 選項：
 
   - globals：因為 Vitest 預設是需要自己引入對應的方法，`globals` 可以啟用類似 Jest 的全局測試 API。
 
@@ -7554,7 +7554,6 @@ function increment() {
 
   ```json
   "scripts": {
-    //...
     "test:unit": "vitest"
   },
   ```
