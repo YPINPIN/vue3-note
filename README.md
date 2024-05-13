@@ -73,6 +73,7 @@
 - [路由](#路由)
 - [狀態管理](#狀態管理)
 - [測試](#測試)
+- [伺服器端渲染 (SSR)](#伺服器端渲染-ssr)
 
 ## 初始化專案
 
@@ -7726,3 +7727,224 @@ describe('increment', () => {
 ### 端對端測試 (E2E testing)
 
 端對端測試是只從使用者操作的這端到資料記錄的另一端，**去對整個應用程式完整的系統流程進行測試**，像是檢查跨越多個頁面的功能、對 Vue 應用進行實際的網路請求等等。這些測試通常涉及到建立一個數據庫或其他後端。推薦使用 [Cypress](https://www.cypress.io/)。
+
+## 伺服器端渲染 (SSR)
+
+Vue 是一個用於構建用戶端應用的框架，默認情況下，Vue 組件是負責在瀏覽器中生成和操作 DOM。
+
+但是 Vue 也支持將組件在伺服器端直接渲染成 HTML 字串，作為伺服器端的響應返回給瀏覽器，最後在瀏覽器端將靜態的 HTML **"激活"** 為能夠交互的用戶端使用。
+
+與單頁式應用程式 (SPA) 相比，SSR (Server-Side Rendering) 的優勢主要是**更快的首屏加載、更好的 SEO、低端設備上性能更好**，缺點則是因為每次請求都會重新生成頁面，需要較高的伺服器負載、運算和流量較大以及較低的互動性。
+
+### SSR vs SSG
+
+靜態頁面生成(Static Site Generation，縮寫為 SSG)，也被稱為預渲染，會提前在建構過程中將頁面生成，而不是每次請求都重新渲染頁面。**生成的頁面會作為靜態 HTML 文件被部署再伺服器端**。
+
+SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，f 且比 SSR 的伺服器負載更小，但是缺點為頁面是**靜態的**，因此每當資料變化時，都需要重新進行建構部署。
+
+因此 SSG 很適合用在資料變動較小的網頁中，例如文檔、部落格或是產品介紹頁等等。可以使用 [VitePress](https://vitepress.dev/) 來建構 SSG 網站。
+
+補充：[淺談 SPA、CSR、SSR、MPA、SSG 專有名詞](https://israynotarray.com/other/20210529/2519649612/)
+
+---
+
+### Vue SSR 基礎範例
+
+#### § 渲染一個應用
+
+- 1.創建一個新的文件夾，cd 進入。
+
+- 2.執行 `npm init -y`。
+
+- 3.在 package.json 中添加 `"type": "module"`使 Node.js 以 ES modules mode 運行。
+
+- 4.執行 `npm install vue`。
+
+- 5.創建一個 server.js 文件：
+
+  文件是運行在 Node.js 伺服器上。
+
+  ```javascript
+  import { createSSRApp } from 'vue';
+  // Vue的伺服器端渲染 API 位於 'vue/server-renderer' 路徑下
+  import { renderToString } from 'vue/server-renderer';
+
+  const app = createSSRApp({
+    data: () => ({ count: 1 }),
+    template: `<button @click="count++">{{ count }}</button>`,
+  });
+
+  renderToString(app).then((html) => {
+    console.log(html);
+  });
+  ```
+
+- 6.運行 `node server.js`
+
+  命令行中會印出 `<button>1</button>`，這是因為 `renderToString` 會接收一個 Vue 應用實例，返回一個 `Promise`，當 `resolve` 時會得到應用渲染的 HTML。
+
+  ![圖片69](./images/69.PNG)
+
+- 7.使用 express 建立起伺服器，並將以上的範例，放到一個伺服器請求函數裡，將獲得的 Vue 應用 HTML 片段包裝為完整的頁面 HTML 返回給用戶端：
+
+  - 先執行 `npm install express` 安裝 `express`
+
+  - 調整 server.js 文件：
+
+    ```javascript
+    import express from 'express';
+    import { createSSRApp } from 'vue';
+    // Vue的伺服器端渲染 API 位於 'vue/server-renderer' 路徑下
+    import { renderToString } from 'vue/server-renderer';
+
+    const server = express();
+    // 伺服器請求
+    server.get('/', (req, res) => {
+      const app = createSSRApp({
+        data: () => ({ count: 1 }),
+        template: `<button @click="count++">{{ count }}</button>`,
+      });
+      renderToString(app).then((html) => {
+        res.send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Vue SSR Example</title>
+            </head>
+            <body>
+              <div id="app">${html}</div>
+            </body>
+          </html>
+        `);
+      });
+    });
+
+    server.listen(3000, () => {
+      console.log('server ready');
+    });
+    ```
+
+- 8.最後運行 `node server.js`
+
+  現在訪問 http://localhost:3000，可以看到頁面中的按鈕了。
+
+  ![圖片70](./images/70.PNG)
+
+  [官方 Demo](https://stackblitz.com/fork/vue-ssr-example-basic?file=index.js)
+
+#### § 用戶端激活
+
+可以看到上方頁面中的按鈕因為是完全靜態的，因此點擊並不會有任何作用。
+
+為了使用戶端可以進行交互，Vue 需要執行一個 **"激活"** 步驟，激活的過程中，Vue 會**創建一個與伺服器端完全相同的應用實例，然後將每個組件與它應該控制的 DOM 節點匹配，並添加 DOM 事件監聽器**。
+
+為了在激活模式下掛載應用，應該使用 `createSSRApp()` 而不是 `createApp()`：
+
+- 1.創建一個 client.js 文件：
+
+  文件是運行在瀏覽器中。
+
+  ```javascript
+  import { createSSRApp } from 'vue';
+
+  const app = createSSRApp({
+    // ...和伺服器端完全一致的應用實例
+  });
+  // 用戶端掛載一個 SSR 應用時會默認 HTML是預先渲染的，並執行激活過程
+  // 而非掛載一個新的 DOM 節點
+  app.mount('#app');
+  ```
+
+- 2.這時為了在用戶端重用伺服器端的應用設定，可以**將應用的創建邏輯拆分到一個單獨的文件** app.js：
+
+  app.js 在伺服器端與用戶端之間共享。
+
+  ```javascript
+  import { createSSRApp } from 'vue';
+
+  export function createApp() {
+    return createSSRApp({
+      data: () => ({ count: 1 }),
+      template: `<button @click="count++">{{ count }}</button>`,
+    });
+  }
+  ```
+
+- 3.調整 client.js 文件：
+
+  ```javascript
+  import { createApp } from './app.js';
+
+  const app = createApp();
+  // 用戶端掛載一個 SSR 應用時會默認 HTML是預先渲染的，並執行激活過程
+  // 而非掛載一個新的 DOM 節點
+  app.mount('#app');
+  ```
+
+- 4.調整 server.js 文件以下幾點：
+
+  - 使用共用文件 app.js
+
+  - 為了在瀏覽器中加載用戶端文件則需要添加 `server.use(express.static('.'))`，並且在 HTML 中添加 `<script type="module" src="/client.js"></script>` 加載用戶端文件 client.js
+
+  - HTML 中添加 `Import Map`，用以支持在瀏覽器中使用 `import * from 'vue'`
+
+  ```javascript
+  import express from 'express';
+  // 使用共用文件 app.js
+  import { createApp } from './app.js';
+  // Vue的伺服器端渲染 API 位於 'vue/server-renderer' 路徑下
+  import { renderToString } from 'vue/server-renderer';
+
+  const server = express();
+  // 伺服器請求
+  server.get('/', (req, res) => {
+    const app = createApp();
+
+    renderToString(app).then((html) => {
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Vue SSR Example</title>
+            <script type="importmap">
+              {
+                "imports": {
+                  "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+                }
+              }
+            </script>
+          </head>
+          <body>
+            <div id="app">${html}</div>
+          </body>
+          <script type="module" src="/client.js"></script>
+        </html>
+      `);
+    });
+  });
+
+  server.use(express.static('.'));
+
+  server.listen(3000, () => {
+    console.log('server ready');
+  });
+  ```
+
+- 5.最後運行 `node server.js`
+
+  可以看到頁面中的按鈕可以交互了。
+
+  ![ssr-1.gif](./images/gif/ssr-1.gif)
+
+  [官方 Demo](https://stackblitz.com/fork/vue-ssr-example?file=index.js)
+
+---
+
+### 解決方案
+
+完整實現 SSR 應用的處理過程非常複雜，因此可以使用幾種 Vue 生態中的 SSR 解決方案：
+
+- [Nuxt](https://nuxt.com/)
+
+- [Quasar](https://quasar.dev/)
