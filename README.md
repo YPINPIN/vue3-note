@@ -7740,7 +7740,7 @@ Vue 是一個用於構建用戶端應用的框架，默認情況下，Vue 組件
 
 靜態頁面生成(Static Site Generation，縮寫為 SSG)，也被稱為預渲染，會提前在建構過程中將頁面生成，而不是每次請求都重新渲染頁面。**生成的頁面會作為靜態 HTML 文件被部署再伺服器端**。
 
-SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，f 且比 SSR 的伺服器負載更小，但是缺點為頁面是**靜態的**，因此每當資料變化時，都需要重新進行建構部署。
+SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 SSR 的伺服器負載更小，但是缺點為頁面是**靜態的**，因此**每當資料變化時，都需要重新進行建構部署**。
 
 因此 SSG 很適合用在資料變動較小的網頁中，例如文檔、部落格或是產品介紹頁等等。可以使用 [VitePress](https://vitepress.dev/) 來建構 SSG 網站。
 
@@ -7756,7 +7756,7 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，f 且�
 
 - 2.執行 `npm init -y`。
 
-- 3.在 package.json 中添加 `"type": "module"`使 Node.js 以 ES modules mode 運行。
+- 3.在 package.json 中添加 `"type": "module"` 使 Node.js 以 ES modules mode 運行。
 
 - 4.執行 `npm install vue`。
 
@@ -7785,7 +7785,7 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，f 且�
 
   ![圖片69](./images/69.PNG)
 
-- 7.使用 express 建立起伺服器，並將以上的範例，放到一個伺服器請求函數裡，將獲得的 Vue 應用 HTML 片段包裝為完整的頁面 HTML 返回給用戶端：
+- 7.使用 express 建立伺服器，並將以上的範例，放到一個伺服器請求函數裡，將獲得的 Vue 應用 HTML 片段包裝為完整的頁面 HTML 返回給用戶端：
 
   - 先執行 `npm install express` 安裝 `express`
 
@@ -7826,7 +7826,7 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，f 且�
 
 - 8.最後運行 `node server.js`
 
-  現在訪問 http://localhost:3000，可以看到頁面中的按鈕了。
+  現在訪問 `http://localhost:3000`，可以看到頁面中的按鈕了。
 
   ![圖片70](./images/70.PNG)
 
