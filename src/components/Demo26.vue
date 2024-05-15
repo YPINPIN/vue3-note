@@ -23,7 +23,10 @@ function submitHandler(data) {
 
 <template>
   <div>
-    <MainTitle title="組件事件 (子傳父) & 校驗" />
+    <MainTitle
+      title="組件事件 (子傳父) & 校驗"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%B5%84%E4%BB%B6%E4%BA%8B%E4%BB%B6-%E5%AD%90%E5%82%B3%E7%88%B6"
+    />
     <p>父組件</p>
     <Demo26Child1 @some-event="someEventHandler" @btn-click="btnClickHandler" />
 

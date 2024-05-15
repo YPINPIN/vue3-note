@@ -26,7 +26,10 @@ const title = ref('Harry Potter');
 
 <template>
   <div>
-    <MainTitle title="props 單向數據流" />
+    <MainTitle
+      title="props 單向數據流"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E5%96%AE%E5%90%91%E6%95%B8%E6%93%9A%E6%B5%81"
+    />
     <p>父組件 message：{{ message }}</p>
     <label>父組件的message：</label>
     <input type="text" v-model="message" />

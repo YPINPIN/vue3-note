@@ -31,7 +31,10 @@ onErrorCaptured((err) => {
 
 <template>
   <div>
-    <MainTitle title="Suspense (實驗性功能)" />
+    <MainTitle
+      title="Suspense (實驗性功能)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#suspense-%E5%AF%A6%E9%A9%97%E6%80%A7%E5%8A%9F%E8%83%BD"
+    />
     <button @click="show = !show">change</button>
     <Suspense timeout="200">
       <!-- #default插槽內容：具有深層異步依賴的組件 -->

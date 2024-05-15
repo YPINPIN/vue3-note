@@ -22,7 +22,10 @@ const trimMsg = ref('');
 
 <template>
   <div>
-    <MainTitle title="v-model (動態值綁定 & 修飾符)" />
+    <MainTitle
+      title="v-model (動態值綁定 & 修飾符)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E5%8B%95%E6%85%8B%E5%80%BC%E7%B6%81%E5%AE%9A"
+    />
     <!-- toggle 會在被選中時設定為'yes'，取消時設為'no' -->
     <input
       type="checkbox"

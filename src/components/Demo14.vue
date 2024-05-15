@@ -31,7 +31,10 @@ const evenNumbers = computed(() => {
 
 <template>
   <div>
-    <MainTitle title="v-for" />
+    <MainTitle
+      title="v-for"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E5%88%97%E8%A1%A8%E6%B8%B2%E6%9F%93-v-for"
+    />
     <ul>
       <li v-for="item in items" :key="item.id">
         {{ item.id }} : {{ item.message }}

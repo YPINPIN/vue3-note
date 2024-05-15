@@ -2512,7 +2512,6 @@ Script：`const 變數名稱 = ref(null);`
 使用構建步驟時，通常會使用單文件組件(SFC)，將組件定義在一個單獨的 `.vue` 文件中。
 
 ```vue
-<!-- App.vue -->
 <script setup>
 import { ref } from 'vue';
 const count = ref(0);
@@ -2666,22 +2665,24 @@ import Demo22Child2 from './Demo22Child2.vue';
 
 const currentTab = ref('Demo22Child1');
 const tabs = {
-  Demo22Child1,
-  Demo22Child2,
+  Demo22Child1: { name: '子組件 1', comp: Demo22Child1 },
+  Demo22Child2: { name: '子組件 2', comp: Demo22Child2 },
 };
 </script>
 
 <template>
   <div>
-    <button
-      v-for="(comp, tab) in tabs"
-      :key="tab"
-      :class="['tab-button', { active: currentTab === tab }]"
-      @click="currentTab = tab"
-    >
-      {{ tab }}
-    </button>
-    <component :is="tabs[currentTab]" class="tab"></component>
+    <div class="tab-wrapper">
+      <button
+        v-for="(data, key) in tabs"
+        :key="key"
+        :class="['tab-button', { active: currentTab === key }]"
+        @click="currentTab = key"
+      >
+        {{ data.name }}
+      </button>
+    </div>
+    <component :is="tabs[currentTab].comp" class="tab"></component>
   </div>
 </template>
 ```
@@ -5979,7 +5980,6 @@ watch(selectLang, (newVal) => {
 
 <template>
   <div>
-    <MainTitle title="插件 (Plugins)" />
     選擇語言 : {{ selectLang }} |
     <template v-for="lang in langList" :key="lang">
       <input
@@ -6990,7 +6990,6 @@ onDeactivated(() => {
 
   <template>
     <div>
-      <MainTitle title="Teleport" />
       <div class="outer">
         <MyModal />
       </div>
@@ -7106,9 +7105,11 @@ onDeactivated(() => {
 
   ```vue
   <template>
-    <div v-show="currentTab === 'Demo38'" id="wrapper">
-      <h2>這裡是 App.vue 的 wrapper</h2>
-    </div>
+    <main>
+      <div v-show="currentTab === 'Demo38'" id="wrapper">
+        <h2>這裡是 App.vue 的 wrapper</h2>
+      </div>
+    </main>
   </template>
   ```
 
@@ -7253,7 +7254,6 @@ const show = ref(true);
 
 <template>
   <div>
-    <MainTitle title="Suspense (實驗性功能)" />
     <button @click="show = !show">change</button>
     <Suspense timeout="200">
       <!-- #default插槽內容：具有深層異步依賴的組件 -->
@@ -7339,21 +7339,18 @@ function onHashChange() {
 }
 
 onMounted(() => window.addEventListener('hashchange', onHashChange));
-onUnmounted(() => {
-  window.removeEventListener('hashchange', onHashChange);
-  window.location.hash = '';
-});
+onUnmounted(() => window.removeEventListener('hashchange', onHashChange));
 
 const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || '/'] || NotFound;
+  return routes[currentPath.value.slice(8) || '/'] || NotFound;
 });
 </script>
 
 <template>
   <div>
     <p>通過動態組件方式，監聽 'hashchange' 事件來實現一個簡單的路由</p>
-    <a href="#/">Page1</a> | <a href="#/page2">Page2</a> |
-    <a href="#/non-existent-path">Broken Link</a>
+    <a href="#/Demo40/">Page1</a> | <a href="#/Demo40/page2">Page2</a> |
+    <a href="#/Demo40/non-existent-path">Broken Link</a>
     <component :is="currentView" />
   </div>
 </template>

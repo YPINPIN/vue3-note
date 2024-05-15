@@ -6,7 +6,10 @@ import Demo38Child1 from './Demo38Child1.vue';
 
 <template>
   <div>
-    <MainTitle title="Teleport" />
+    <MainTitle
+      title="Teleport"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#teleport"
+    />
     <div class="outer">
       <MyModal />
       <hr />

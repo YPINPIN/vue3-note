@@ -69,7 +69,10 @@ function onLeaveCancelled(el) {
 
 <template>
   <div>
-    <MainTitle title="過渡動畫 (transition)" />
+    <MainTitle
+      title="過渡動畫 (transition)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E9%81%8E%E6%B8%A1%E5%8B%95%E7%95%AB-transition"
+    />
     <button @click="show = !show">Toggle</button>
     <transition>
       <p v-show="show">Hello~~~~</p>

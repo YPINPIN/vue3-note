@@ -26,7 +26,10 @@ const overridingStyles = reactive({
 
 <template>
   <div>
-    <MainTitle title="綁定 style" />
+    <MainTitle
+      title="綁定 style"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%B6%81%E5%AE%9A-style-%E5%85%A7%E8%81%AF%E6%A8%A3%E5%BC%8F"
+    />
     <h1 :style="{ color: activeColor, fontSize: fontSize + 'px' }">
       直接綁定樣式(使用 camelCase)
     </h1>

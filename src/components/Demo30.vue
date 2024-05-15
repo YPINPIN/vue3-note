@@ -31,7 +31,10 @@ provide(myInjectionKey, {
 
 <template>
   <div>
-    <MainTitle title="依賴注入 (Provide/Inject)" />
+    <MainTitle
+      title="依賴注入 (Provide/Inject)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E4%BE%9D%E8%B3%B4%E6%B3%A8%E5%85%A5-provideinject"
+    />
     <h1>父組件 count : {{ count }}</h1>
     <div>
       <button @click="addCount">Add count</button>

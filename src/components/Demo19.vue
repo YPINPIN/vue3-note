@@ -28,7 +28,10 @@ function showChild2() {
 
 <template>
   <div>
-    <MainTitle title="模板引用 ref 屬性" />
+    <MainTitle
+      title="模板引用 ref 屬性"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E6%A8%A1%E6%9D%BF%E5%BC%95%E7%94%A8-ref-%E5%B1%AC%E6%80%A7"
+    />
     <!-- 普通的DOM標籤上 -->
     <h1 ref="title1">Hello~~</h1>
     <button @click="showLog">log</button>

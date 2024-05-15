@@ -7,7 +7,10 @@ import Demo41Child4 from './Demo41Child4.vue';
 
 <template>
   <div>
-    <MainTitle title="狀態管理" />
+    <MainTitle
+      title="狀態管理"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%8B%80%E6%85%8B%E7%AE%A1%E7%90%86"
+    />
     <Demo41Child1 />
     <Demo41Child2 />
     <hr />

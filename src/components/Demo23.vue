@@ -28,7 +28,10 @@ const post = {
 
 <template>
   <div>
-    <MainTitle title="props 傳遞 (父傳子)" />
+    <MainTitle
+      title="props 傳遞 (父傳子)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#props-%E5%82%B3%E9%81%9E-%E7%88%B6%E5%82%B3%E5%AD%90"
+    />
     <!-- 靜態 props -->
     <Demo23Child1 greeting-message="Hello Vue" />
     <hr />

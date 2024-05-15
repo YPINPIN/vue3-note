@@ -51,7 +51,10 @@ function getNewTime() {
 
 <template>
   <div>
-    <MainTitle title="自定義指令" />
+    <MainTitle
+      title="自定義指令"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E8%87%AA%E5%AE%9A%E7%BE%A9%E6%8C%87%E4%BB%A4"
+    />
     <!-- vFocus 可以用 v-focus 形式使用 -->
     自動 Foucs：<input type="text" v-focus />
     <hr />

@@ -31,7 +31,10 @@ function changeFullName() {
 
 <template>
   <div>
-    <MainTitle title="computed" />
+    <MainTitle
+      title="computed"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#computed-%E8%A8%88%E7%AE%97%E5%B1%AC%E6%80%A7"
+    />
     count : {{ count }}
     <br />
     doubleCount : {{ doubleCount }}

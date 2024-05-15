@@ -29,7 +29,10 @@ const lastName = ref('last');
 
 <template>
   <div>
-    <MainTitle title="組件 v-model 雙向綁定" />
+    <MainTitle
+      title="組件 v-model 雙向綁定"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%B5%84%E4%BB%B6-v-model-%E9%9B%99%E5%90%91%E7%B6%81%E5%AE%9A"
+    />
     <p>父組件 Count : {{ count }}</p>
     <hr />
     <Demo27Child1 v-model="count" />

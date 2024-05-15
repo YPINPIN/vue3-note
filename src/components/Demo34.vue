@@ -14,7 +14,10 @@ watch(selectLang, (newVal) => {
 
 <template>
   <div>
-    <MainTitle title="插件 (Plugins)" />
+    <MainTitle
+      title="插件 (Plugins)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E6%8F%92%E4%BB%B6-plugins"
+    />
     選擇語言 : {{ selectLang }} |
     <template v-for="lang in langList" :key="lang">
       <input

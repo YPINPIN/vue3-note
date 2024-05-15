@@ -55,7 +55,10 @@ const AsyncComponent3 = defineAsyncComponent({
 
 <template>
   <div>
-    <MainTitle title="異步組件" />
+    <MainTitle
+      title="異步組件"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%95%B0%E6%AD%A5%E7%B5%84%E4%BB%B6"
+    />
     <button @click="show = !show">點我取得異步組件</button>
     <AsyncComponent1 v-if="show" />
     <hr />

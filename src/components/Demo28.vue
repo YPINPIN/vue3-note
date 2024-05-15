@@ -12,7 +12,10 @@ function onClick() {
 
 <template>
   <div>
-    <MainTitle title="透傳 Attributes" />
+    <MainTitle
+      title="透傳 Attributes"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E9%80%8F%E5%82%B3-attributes"
+    />
     <Demo28Child1 class="large" />
     <hr />
     <Demo28Child2 @click="onClick" />

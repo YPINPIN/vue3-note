@@ -161,7 +161,10 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 
 <template>
   <div>
-    <MainTitle title="watch" />
+    <MainTitle
+      title="watch"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#watch"
+    />
     <span>監視ref的基本類型數據：count: {{ count }}</span>
     <button @click="addCount">count+1</button>
     <hr />
@@ -260,5 +263,6 @@ th,
 td {
   text-align: center;
   padding: 8px;
+  min-width: 100px;
 }
 </style>

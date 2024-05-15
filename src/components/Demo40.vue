@@ -17,22 +17,22 @@ function onHashChange() {
 }
 
 onMounted(() => window.addEventListener('hashchange', onHashChange));
-onUnmounted(() => {
-  window.removeEventListener('hashchange', onHashChange);
-  window.location.hash = '';
-});
+onUnmounted(() => window.removeEventListener('hashchange', onHashChange));
 
 const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || '/'] || NotFound;
+  return routes[currentPath.value.slice(8) || '/'] || NotFound;
 });
 </script>
 
 <template>
   <div>
-    <MainTitle title="路由" />
+    <MainTitle
+      title="路由"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E8%B7%AF%E7%94%B1"
+    />
     <p>通過動態組件方式，監聽 'hashchange' 事件來實現一個簡單的路由</p>
-    <a href="#/">Page1</a> | <a href="#/page2">Page2</a> |
-    <a href="#/non-existent-path">Broken Link</a>
+    <a href="#/Demo40/">Page1</a> | <a href="#/Demo40/page2">Page2</a> |
+    <a href="#/Demo40/non-existent-path">Broken Link</a>
     <component :is="currentView" />
   </div>
 </template>

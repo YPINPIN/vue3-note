@@ -21,7 +21,10 @@ function showText(message, submitEvent) {
 
 <template>
   <div>
-    <MainTitle title="事件處理 v-on" />
+    <MainTitle
+      title="事件處理 v-on"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E4%BA%8B%E4%BB%B6%E8%99%95%E7%90%86-v-on"
+    />
     <!-- 直接執行的 js 語句 -->
     <p>count is: {{ count }}</p>
     <button v-on:click="count++">count + 1</button>

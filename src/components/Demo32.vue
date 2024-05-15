@@ -20,7 +20,10 @@ const { data, error } = useFetch(url);
 
 <template>
   <div>
-    <MainTitle title="組合式函數 (Composables)" />
+    <MainTitle
+      title="組合式函數 (Composables)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%B5%84%E5%90%88%E5%BC%8F%E5%87%BD%E6%95%B8-composables"
+    />
     <h3>Mouse position is at: {{ x }}, {{ y }}</h3>
     <hr />
     <button @click="id++">next data</button>

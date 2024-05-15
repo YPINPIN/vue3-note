@@ -12,7 +12,10 @@ const isActive = ref(true);
 
 <template>
   <div>
-    <MainTitle title="綁定 class (陣列 & 組件)" />
+    <MainTitle
+      title="綁定 class (陣列 & 組件)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#-%E7%B6%81%E5%AE%9A%E9%99%A3%E5%88%97"
+    />
     <h1 :class="[activeClass, errorClass, 'text-ted']">一般陣列形式</h1>
     <h1 :class="[isActive ? activeClass : '', errorClass, 'text-ted']">
       條件渲染

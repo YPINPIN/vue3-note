@@ -41,7 +41,10 @@ function change() {
 
 <template>
   <div>
-    <MainTitle title="過渡動畫 (transition-group)" />
+    <MainTitle
+      title="過渡動畫 (transition-group)"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E9%81%8E%E6%B8%A1%E5%8B%95%E7%95%AB-transition-group"
+    />
     <button @click="addItem">在任意位置添加一個新 item</button>
     <button @click="delItem">刪除任意位置上的一個 item</button>
     <transition-group name="list" tag="ul">

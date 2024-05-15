@@ -35,7 +35,10 @@ function changeNestedBar() {
 
 <template>
   <div>
-    <MainTitle title="shallowRef & shallowReactive" />
+    <MainTitle
+      title="shallowRef & shallowReactive"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E6%B7%BA%E5%B1%A4%E9%9F%BF%E6%87%89%E5%BC%8F%E7%8B%80%E6%85%8B-shallowref--shallowreactive"
+    />
     <div>
       obj (shallowRef):
       {{ obj }}

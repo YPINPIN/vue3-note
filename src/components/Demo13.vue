@@ -19,7 +19,10 @@ function changeDisplay() {
 
 <template>
   <div>
-    <MainTitle title="v-if & v-show" />
+    <MainTitle
+      title="v-if & v-show"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E6%A2%9D%E4%BB%B6%E6%B8%B2%E6%9F%93-v-if--v-show"
+    />
     <!-- 切換單一元素 -->
     <button @click="awesome = !awesome">Toggle</button>
     <p v-if="awesome">Vue is awesome!</p>

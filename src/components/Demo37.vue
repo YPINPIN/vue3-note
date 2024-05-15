@@ -9,7 +9,10 @@ const activeComp = shallowRef(Demo37Child1);
 
 <template>
   <div>
-    <MainTitle title="KeepAlive" />
+    <MainTitle
+      title="KeepAlive"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#keepalive"
+    />
     <label>
       <input type="radio" v-model="activeComp" :value="Demo37Child1" /> Child1
     </label>

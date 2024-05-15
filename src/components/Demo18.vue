@@ -35,7 +35,10 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <MainTitle title="生命週期鉤子" />
+    <MainTitle
+      title="生命週期鉤子"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%94%9F%E5%91%BD%E9%80%B1%E6%9C%9F%E9%89%A4%E5%AD%90"
+    />
     <div ref="cc">Count: {{ count }}</div>
     <button @click="count++">count + 1</button>
   </div>

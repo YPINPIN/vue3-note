@@ -30,7 +30,10 @@ watchEffect(() => {
 
 <template>
   <div>
-    <MainTitle title="watchEffect" />
+    <MainTitle
+      title="watchEffect"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#watcheffect"
+    />
     {{ data }}
     <br />
     photoId: {{ photoId }}

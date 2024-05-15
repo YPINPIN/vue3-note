@@ -14,7 +14,10 @@ const message = ref('Welcome~~~');
 
 <template>
   <div>
-    <MainTitle title="插槽 Slots" />
+    <MainTitle
+      title="插槽 Slots"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E6%8F%92%E6%A7%BD-slots"
+    />
     <Demo29Child1>Hello~~~我是<strong>插槽內容</strong></Demo29Child1>
     <Demo29Child1>{{ message }}</Demo29Child1>
     <hr />

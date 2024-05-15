@@ -45,7 +45,10 @@ function changePersonGender() {
 
 <template>
   <div>
-    <MainTitle title="ref & reactive" />
+    <MainTitle
+      title="ref & reactive"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E9%9F%BF%E6%87%89%E5%BC%8F%E7%8B%80%E6%85%8B-ref--reactive"
+    />
     <div>
       name:
       {{ name }}
@@ -62,7 +65,10 @@ function changePersonGender() {
       <button @click="addPrice">add fruit price</button>
     </div>
     <hr />
-    <MainTitle title="使用 toRefs & toRef" />
+    <MainTitle
+      title="使用 toRefs & toRef"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#torefs--toref"
+    />
     <div>
       person:
       {{ person }}

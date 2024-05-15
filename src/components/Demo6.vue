@@ -17,7 +17,10 @@ function changeCopy() {
 
 <template>
   <div>
-    <MainTitle title="readonly" />
+    <MainTitle
+      title="readonly"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#readonly"
+    />
     <div>
       original:
       {{ original }}

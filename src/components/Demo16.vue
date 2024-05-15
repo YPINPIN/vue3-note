@@ -21,7 +21,10 @@ const options = ref([
 
 <template>
   <div>
-    <MainTitle title="雙向綁定 v-model" />
+    <MainTitle
+      title="雙向綁定 v-model"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E9%9B%99%E5%90%91%E7%B6%81%E5%AE%9A-v-model"
+    />
     <table>
       <tr>
         <th>輸入元素</th>
@@ -117,5 +120,6 @@ th,
 td {
   text-align: center;
   padding: 8px;
+  min-width: 100px;
 }
 </style>

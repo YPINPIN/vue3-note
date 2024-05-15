@@ -22,7 +22,10 @@ const classObject2 = computed(() => ({
 
 <template>
   <div>
-    <MainTitle title="綁定 class" />
+    <MainTitle
+      title="綁定 class"
+      link="https://github.com/YPINPIN/vue3-note?tab=readme-ov-file#%E7%B6%81%E5%AE%9A-class"
+    />
     <h1 class="static" :class="{ active: isActive, 'text-danger': hasError }">
       內聯形式
     </h1>
