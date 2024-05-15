@@ -74,6 +74,7 @@
 - [狀態管理](#狀態管理)
 - [測試](#測試)
 - [伺服器端渲染 (SSR)](#伺服器端渲染-ssr)
+- [TypeScript 與 組合式 API](#typescript-與-組合式-api)
 
 ## 初始化專案
 
@@ -2900,7 +2901,7 @@ const author = ref({
 
 ### 使用物件綁定多個 props
 
-要將一個物件中的所有屬性都當作 props 傳入，可以使用**沒有參數的 `v-bind`**。
+要將一個物件中的所有屬性都當作 `props` 傳入，可以使用**沒有參數的 `v-bind`**。
 
 語法：`<子組件名稱 v-bind="變數值" />`
 
@@ -7948,3 +7949,487 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 - [Nuxt](https://nuxt.com/)
 
 - [Quasar](https://quasar.dev/)
+
+## TypeScript 與 組合式 API
+
+要在單文件組件 (SFC) 中使用 TypeScript 時，需要在 `<script setup>` 標籤上加上 `lang="ts"` 的 attribute。這時所有的模板內表達式都將受到更嚴格的類型檢查，[Demo](https://reurl.cc/Ej4KMv)。
+
+![圖片71](./images/71.PNG)
+
+> 以下都將針對使用 `<script setup>` 的情況說明。
+> 更詳細的可以參考[官方文檔](https://cn.vuejs.org/guide/typescript/composition-api.html)。
+
+---
+
+### 為組件的 props 標註類型
+
+- `defineProps()` 本身支持從參數中推導類型，稱為**運行時聲明**。
+
+  ```vue
+  <script setup lang="ts">
+  const props = defineProps({
+    foo: {
+      type: String,
+      required: true,
+    },
+    bar: Number,
+  });
+
+  console.log(props.foo); // string
+  console.log(props.bar); // number | undefined
+  </script>
+  ```
+
+  ![圖片72](./images/72.PNG)
+
+  ![圖片73](./images/73.PNG)
+
+- 更直接的方式是通過**泛型參數**來定義 `props` 的類型，稱為**基於類型的聲明**。兩者可以擇一使用。
+
+  ```vue
+  <script setup lang="ts">
+  const props = defineProps<{
+    foo: string;
+    bar?: number;
+  }>();
+  </script>
+  ```
+
+  也可以將 `props` 的類型移入一個單獨的 `interface` 中：
+
+  ```vue
+  <script setup lang="ts">
+  interface Props {
+    foo: string;
+    bar?: number;
+  }
+  const props = defineProps<Props>();
+  </script>
+  ```
+
+  也可以從另一個文件中導入：
+
+  ```vue
+  <script setup lang="ts">
+  import type { Props } from './foo';
+
+  const props = defineProps<Props>();
+  </script>
+  ```
+
+- 默認值使用 withDefaults。
+
+  使用**基於類型的聲明**時，會失去為 `props` 聲明默認值的功能，因此需要通過 `withDefaults` 解決，等同於 `props` 設置 `default` 選項。
+
+  `withDefaults`也會為默認值提供類型檢查，並確保返回的 `props` 類型刪除了已聲明默認值的屬性的可選標誌。
+
+  ```vue
+  <script setup lang="ts">
+  interface Props {
+    msg?: string;
+    labels?: string[];
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    msg: 'hello',
+    labels: () => ['one', 'two'],
+  });
+  </script>
+  ```
+
+#### § 複雜的 prop 類型
+
+- 通過**基於類型的聲明**，一個 `prop` 可以像使用其他類型一樣使用一個複雜類型。
+
+  ```vue
+  <script setup lang="ts">
+  interface Book {
+    title: string;
+    author: string;
+    year: number;
+  }
+
+  const props = defineProps<{
+    book: Book;
+  }>();
+  </script>
+  ```
+
+- 而使用**運行時聲明**，則需要使用 `PropType` 工具類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { PropType } from 'vue';
+  interface Book {
+    title: string;
+    author: string;
+    year: number;
+  }
+
+  const props = defineProps({
+    book: Object as PropType<Book>,
+  });
+  </script>
+  ```
+
+---
+
+### 為組件的 emits 標註類型
+
+`emit` 函數的類型標註也可以通過運行時聲明或是類型聲明進行。
+
+- 運行時聲明。
+
+  ```vue
+  <script setup lang="ts">
+  // 無驗證
+  const emit = defineEmits(['change', 'update']);
+  </script>
+  ```
+
+  ```vue
+  <script setup lang="ts">
+  // 選項式驗證
+  const emit = defineEmits({
+    change: (id: number) => {
+      // ...
+      return true;
+    },
+    update: (value: string) => {
+      // ...
+      return true;
+    },
+  });
+  </script>
+  ```
+
+- 基於類型聲明。
+
+  ```vue
+  <script setup lang="ts">
+  // 基於類型聲明
+  // const emit = defineEmits<{
+  //   (e: 'change', id: number): void;
+  //   (e: 'update', value: string): void;
+  // }>();
+
+  // 3.3+ 可選的、更簡潔的語法
+  const emit = defineEmits<{
+    change: [id: number];
+    update: [value: string];
+  }>();
+  </script>
+  ```
+
+---
+
+### 為 ref() 標註類型
+
+- ref 會根據初始化時的值推導其類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+
+  // 推導出的類型: Ref<number>
+  const year = ref(2024);
+
+  // TS Error: Type 'string' is not assignable to type 'number'.
+  year.value = '2024';
+  </script>
+  ```
+
+  ![圖片74](./images/74.PNG)
+
+  ![圖片75](./images/75.PNG)
+
+- 使用 Ref 類型為 ref 的值指定一個更複雜的類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+  import type { Ref } from 'vue';
+
+  // 使用 Ref 類型
+  const year: Ref<string | number> = ref(2024);
+
+  // 成功
+  year.value = '2024';
+  </script>
+  ```
+
+  ![圖片76](./images/76.PNG)
+
+- 或是可以在調用 `ref()` 時傳入一個**泛型參數**，來覆蓋默認的推導行為。
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+
+  // 泛型參數
+  const year = ref<string | number>(2024);
+
+  // 成功
+  year.value = '2024';
+  </script>
+  ```
+
+  ![圖片77](./images/77.PNG)
+
+- 如果指定了一個泛型參數，但沒有給出初始值，則最後將會是一個包含 `undefined` 的聯合類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+
+  // 得到的類型為: Ref<string | number | undefined>
+  const year = ref<string | number>();
+  </script>
+  ```
+
+  ![圖片78](./images/78.PNG)
+
+---
+
+### 為 reactive() 標註類型
+
+- reactive 也會從參數中推導類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { reactive } from 'vue';
+
+  // 推導出的類型: { title: string }
+  const book = reactive({
+    title: 'Vue3 note',
+  });
+  </script>
+  ```
+
+  ![圖片79](./images/79.PNG)
+
+- 想要指定一個 reactive 變數的類型，可以使用 `interface` 直接定義。
+
+  ```vue
+  <script setup lang="ts">
+  import { reactive } from 'vue';
+  interface Book {
+    title: string;
+    year?: number;
+  }
+
+  const book: Book = reactive({
+    title: 'Vue3 note',
+  });
+  </script>
+  ```
+
+> reactive **不推薦使用泛型參數**，因為當有深層的 ref 時，因為**解包的返回值與泛型參數的類型會不同**，可能導致一些類型的疑惑，建議直接使用上方的兩種方式聲明類型即可。[詳細說明](https://juejin.cn/post/7164563909364416520) | [Demo](https://reurl.cc/z1lK3e)。
+
+![圖片80](./images/80.PNG)
+
+---
+
+### 為 computed() 標註類型
+
+- `computed()` 會自動從其**計算函數的返回值**上推導出類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { computed, ref } from 'vue';
+
+  const count = ref(0);
+  // 推導得到的類型為: ComputedRef<number>
+  const double = computed(() => count.value * 2);
+  </script>
+  ```
+
+  ![圖片81](./images/81.PNG)
+
+- 也可以通過**泛型參數**指定類型。
+
+  ```vue
+  <script setup lang="ts">
+  import { computed, ref } from 'vue';
+
+  const count = ref(0);
+  // 返回值若不是 number 類型，則會報錯
+  const double = computed<number>(() => count.value * 2);
+  </script>
+  ```
+
+---
+
+### 為事件處理函數標註類型
+
+在處理原生 DOM 事件時，**應該為傳遞給事件處理函數的參數正確的標註類型**。
+
+另外在訪問 `event` 上的屬性時可能需要使用**類型斷言**。
+
+[Demo](https://reurl.cc/Aj4pLE)
+
+```vue
+<script setup lang="ts">
+// event 會被標註為 any 類型，可能會出現 TS 報錯
+// function handleChange(event) {
+//   console.log(event.target.value);
+// }
+
+function handleChange(event: Event) {
+  console.log((event.target as HTMLInputElement).value);
+}
+</script>
+
+<template>
+  <input type="text" @change="handleChange" />
+</template>
+```
+
+---
+
+### 為 provide/inject 標註類型
+
+`provide` 和 `inject` 通常會在不同的組件中運行，因此 Vue 提供了一個 `InjectionKey` 接口(一個繼承自 `Symbol` 的泛型類型)，可以用來在提供者和注入者之間同步注入值的類型。
+
+> 建議將注入 `key` 的類型放在一個單獨的文件中，這樣就可以被多個組件導入。
+
+- 單獨設置 key (src/keys/index.ts)。
+
+  ```typescript
+  import type { InjectionKey, Ref } from 'vue';
+
+  // 限制 provide 的值類型必須是 string
+  export const fooKey: InjectionKey<string> = Symbol();
+
+  // 限制 provide 的值類型必須是 Ref<boolean>
+  export const showPopupKey = Symbol() as InjectionKey<Ref<boolean>>;
+  ```
+
+- 父組件中導入 key 並提供對應數據。
+
+  ```vue
+  <script setup lang="ts">
+  import { provide, ref } from 'vue';
+  import { fooKey, showPopupKey } from '../keys';
+
+  // 若提供的非 string 則會報錯
+  provide(fooKey, 'fooStr');
+
+  const showPopup = ref(false);
+  // 類型正確
+  provide(showPopupKey, showPopup);
+
+  // TS 報錯 Argument of type 'string' is not assignable to parameter of type 'Ref<boolean>'
+  // provide(showPopupKey, 'Hello');
+  </script>
+  ```
+
+- 子組件中注入相同的 key 取值。
+
+  ```vue
+  <script setup lang="ts">
+  import { fooKey } from '../keys';
+  import { inject } from 'vue';
+
+  // 因為無法保證一定會有提供(provide)這個 key 值，所以仍然可以是 undefined
+  // foo的類型為 string | undefined
+  const foo1 = inject(fooKey);
+
+  // 若提供了一個默認值，則類型為 string
+  const foo2 = inject(fooKey, 'Hello');
+  </script>
+  ```
+
+- 當直接使用字串去注入時：
+
+  當直接使用字串去注入時，注入值的類型為 `unknown`，需要另外通過**泛型參數**聲明。
+
+  ```vue
+  <script setup lang="ts">
+  import { inject } from 'vue';
+  // 當直接使用字串去注入時，注入值的類型為 unknown
+  const foo1 = inject('foo');
+
+  // 需要通過泛型參數聲明，類型為: string | undefined
+  const foo2 = inject<string>('foo');
+
+  // 若提供了一個默認值，則類型為 string
+  const foo3 = inject<string>('foo', 'Hello');
+
+  // 若確定值將始終被提供，還可以強制轉換該值，則類型為 string
+  const foo4 = inject('foo') as string;
+  </script>
+  ```
+
+---
+
+### 為模板引用標註類型
+
+模板引用需要通過 **一個指定的泛型參數和一個初始值 `null`** 來創建。
+
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+
+const el = ref<HTMLInputElement | null>(null);
+
+onMounted(() => {
+  el.value?.focus();
+});
+</script>
+
+<template>
+  <input ref="el" />
+</template>
+```
+
+> 為了嚴格的類型安全，有必要在訪問 `el.value` 時使用**可選串連運算子( `?.` )**，這是因為直到組件被掛載前，ref 的值都是初始的 `null`，也可能因為 `v-if` 的行為將引用的元素卸載導致值為 `null`。
+
+---
+
+### 為組件模板引用標註類型
+
+有時可能需要為一個子組件添加模板引用，以便調用其公開的方法。
+
+為了獲得 MyModal 子組件的類型，首先需要透過 `typeof` 得到其類型，再使用 TypeScript 內置的 `InstanceType` 工具類型來獲取其實例類型。
+
+[Demo](https://reurl.cc/RqWxMn)
+
+- MyModal.vue
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+
+  const isContentShow = ref(false);
+  function toggle() {
+    isContentShow.value = !isContentShow.value;
+  }
+
+  defineExpose({
+    toggle,
+  });
+  </script>
+
+  <template>
+    <div v-show="isContentShow">
+      <h1>Hello~</h1>
+    </div>
+  </template>
+  ```
+
+- 父組件：
+
+  ```vue
+  <script setup lang="ts">
+  import { ref } from 'vue';
+  import MyModal from './MyModal.vue';
+
+  const modal = ref<InstanceType<typeof MyModal> | null>(null);
+  </script>
+
+  <template>
+    <button @click="modal?.toggle()">toggle modal</button>
+    <MyModal ref="modal" />
+  </template>
+  ```
