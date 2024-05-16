@@ -133,10 +133,9 @@ function onHashChange() {
 // 滾動至對應tab
 function scrollToCenter() {
   let index = btns.value.findIndex((el) => el.dataset.key === currentTab.value);
-  let width = tab_wrapper.value.getBoundingClientRect().width;
-  let num = Math.round(width / 150 / 2);
+  let width = tab_wrapper.value.getBoundingClientRect().width / 2;
   tab_wrapper.value.scrollTo({
-    left: 154 * (index - num) + 75,
+    left: 154 * index - width + 75,
     behavior: 'smooth',
   });
 }
@@ -158,6 +157,7 @@ const currentView = computed(() => {
       target="_blank"
       >Vue3 筆記 📖</a
     >
+    <span> | 點擊標題旁的 📖 可以對應到相關筆記。</span>
     <hr />
     <div class="tab-wrapper" ref="tab_wrapper">
       <button
@@ -206,7 +206,7 @@ main {
   background-color: #f0f0f0;
   font-size: 16px;
   line-height: 16px;
-  margin: 2px 2px 0px;
+  margin: 2px 4px 0px 0px;
 }
 .tab-button:hover {
   background-color: #e0e0e0;
