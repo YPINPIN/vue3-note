@@ -2,7 +2,7 @@
 
 主要根據 Vue 3 官方文檔整理的學習筆記，方便查閱。
 
-對應的 [💻Demo](https://ypinpin.github.io/vue3-note/) 網站，標題旁的 📖 可以對應到相關筆記。
+對應的 <a href="https://ypinpin.github.io/vue3-note/" target="_blank">💻Demo</a> 網站，標題旁的 📖 可以對應到相關筆記。
 
 ## 官方文檔
 
@@ -230,7 +230,7 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
 
 ### 1. 文本插值
 
-[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo1) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo1.vue)
+<a href="https://ypinpin.github.io/vue3-note/#/Demo1" target="_blank">💻Demo</a> | <a href="https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo1.vue" target="_blank">📝code</a>
 
 最基本的數據綁定是文本插值，使用 Mustache 語法(雙大括號)，會將數據解析為**純文本**。
 
@@ -268,7 +268,7 @@ const html = '<span>元素會轉為純字串</span>';
 
 ### 2. 原始 HTML
 
-[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo2) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo2.vue)
+<a href="https://ypinpin.github.io/vue3-note/#/Demo2" target="_blank">💻Demo</a> | <a href="https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo2.vue" target="_blank">📝code</a>
 
 想插入 HTML，需要使用 `v-html` 指令
 
