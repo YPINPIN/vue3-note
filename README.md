@@ -2,6 +2,8 @@
 
 主要根據 Vue 3 官方文檔整理的學習筆記，方便查閱。
 
+對應的 [💻Demo](https://ypinpin.github.io/vue3-note/) 網站，標題旁的 📖 可以對應到相關筆記。
+
 ## 官方文檔
 
 > https://vuejs.org/ <br> https://cn.vuejs.org/
@@ -193,7 +195,7 @@ app.mount('#app');
 
 DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與伺服器端框架一起使用，其中根模板可能是由伺服器動態生成的。
 
-[Codepen demo](https://codepen.io/ypinpin/pen/bGJKzOL)
+[💻Codepen Demo](https://codepen.io/ypinpin/pen/bGJKzOL)
 
 ```html
 <!-- index.html -->
@@ -227,6 +229,8 @@ DOM 內模板通常用於**無構建步驟的 Vue 應用程序**，也可以與�
 ## 模版語法
 
 ### 1. 文本插值
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo1) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo1.vue)
 
 最基本的數據綁定是文本插值，使用 Mustache 語法(雙大括號)，會將數據解析為**純文本**。
 
@@ -264,6 +268,8 @@ const html = '<span>元素會轉為純字串</span>';
 
 ### 2. 原始 HTML
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo2) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo2.vue)
+
 想插入 HTML，需要使用 `v-html` 指令
 
 > 注意：小心使用，容易造成 [XSS 漏洞](https://zh.wikipedia.org/zh-tw/%E8%B7%A8%E7%B6%B2%E7%AB%99%E6%8C%87%E4%BB%A4%E7%A2%BC)，永遠不要使用使用者提供的 HTML 內容。
@@ -284,6 +290,8 @@ const rawHtml = '<i>html元素</i>';
 ![圖片06](./images/06.PNG)
 
 ## v-bind 屬性(Attribute)綁定
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo3) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo3.vue)
 
 HTML 屬性中不能使用雙大括號，因此想要響應式的綁定一個 HTML 屬性或自定義屬性應該使用 `v-bind` 指令。
 
@@ -366,6 +374,8 @@ const objectOfAttrs = {
 
 ## 響應式狀態 ref & reactive
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo4) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo4.vue#L3-L20)
+
 當響應式狀態發生變化時，`<template>` 中使用到的會自動重新渲染。
 
 - ref：基本類型數據、物件類型數據 (物件、陣列)
@@ -427,6 +437,8 @@ function addPrice() {
 ![ref&reactive.gif](./images/gif/ref&reactive.gif)
 
 ## 淺層響應式狀態 shallowRef & shallowReactive
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo5) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo5.vue)
 
 與前面的 ref & reactive 不同，只針對淺層數據具有響應式，對深層的數據不做處理，**可以避免大型數據的響應性造成的性能開銷**。
 
@@ -502,6 +514,8 @@ function changeNestedBar() {
 
 ## readonly
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo6) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo6.vue)
+
 `readonly()` 接收一個物件(不論是普通的或響應式)或是一個 ref，返回一個原值的只讀代理(深層的，淺層的可以使用 [shallowReadonly](https://cn.vuejs.org/api/reactivity-advanced.html#shallowreadonly) )。
 
 ```vue
@@ -558,6 +572,8 @@ async function increment() {
 
 ## toRefs & toRef
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo4) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo4.vue#L22-L43)
+
 將響應式物件中的每一個屬性轉換為 ref (響應式)
 
 `toRefs` 可以批量轉換多個屬性
@@ -611,6 +627,8 @@ function changePersonGender() {
 ![toRefs&toRef.gif](./images/gif/toRefs&toRef.gif)
 
 ## computed 計算屬性
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo7) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo7.vue)
 
 語法：`computed(有返回值的函數)`
 
@@ -676,6 +694,8 @@ function changeFullName() {
 當響應式數據發生改變時，可以執行指定的邏輯操作。
 
 ### watch
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo8) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo8.vue)
 
 預設為**懶執行**，即有變化才執行指定的回調函數，若想馬上執行一次可以加上 `{immediate: true}`。
 
@@ -959,6 +979,8 @@ watch([sum, () => fruit.price], (newVal, oldVal) => {
 
 ### watchEffect
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo9) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo9.vue)
+
 與 `watch` 相同都可以監聽數據的變化，差別為 `watchEffect` 不用明確指出監視的數據(**自動追蹤響應式依賴**)，且會**立即執行一次回調**。
 [官方文檔](https://cn.vuejs.org/guide/essentials/watchers.html#watcheffect)。
 
@@ -1014,6 +1036,8 @@ watchEffect(() => {
 透過 `:class` 指令可以綁定指定的 class 值。也可以和一般的 `class` 共存。
 
 #### § 綁定物件
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo10) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo10.vue)
 
 可以在物件中設定屬性來操作多個 class。屬性名即為 class 名稱(字串)，根據屬性值的真假值判斷 class 是否存在。
 
@@ -1089,6 +1113,8 @@ watchEffect(() => {
   ![圖片13](./images/13.PNG)
 
 #### § 綁定陣列
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo11) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo11.vue#L19-L25)
 
 可以在陣列中直接設定要顯示的 class 名稱。class 名稱可以為變數或直接設定字串。
 
@@ -1167,6 +1193,8 @@ watchEffect(() => {
 
 #### § 組件上綁定 class
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo11) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo11.vue#L26-L30)
+
 只有一個根元素的組件，class 會**自動被添加到根元素上並與該元素已有的 class 合併**。
 
 若組件有**多個根元素**，則必須指定由哪個根元素來接收 class，**可以通過 `$attrs` 屬性來指定**
@@ -1220,6 +1248,8 @@ watchEffect(() => {
 ---
 
 ### 綁定 style (內聯樣式)
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo12) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo12.vue)
 
 透過 `:style` 指令支持綁定物件類型，物件內屬性對應的是 HTML 的 `style` 屬性。
 
@@ -1334,6 +1364,8 @@ const overridingStyles = reactive({
 
 ## 條件渲染 v-if & v-show
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo13) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo13.vue)
+
 ### v-if 指令
 
 可以根據條件切換元素，切換時**會被銷毀及重建**。搭配 `v-else-if` 、 `v-else` 指令則可以設置多個條件切換。
@@ -1412,6 +1444,8 @@ function changeDisplay() {
 ![v-show.gif](./images/gif/v-show.gif)
 
 ## 列表渲染 v-for
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo14) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo14.vue)
 
 `v-for` 指令可以遍歷生成 HTML 結構，將 `v-for` 設置在需要重複生成的主元素上。
 
@@ -1689,6 +1723,8 @@ const evenNumbers = computed(() => {
 
 ## 事件處理 v-on
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo15) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo15.vue)
+
 `v-on` 指令用於綁定 js 原生事件或自定義事件。
 
 語法：`v-on:事件名稱="事件處理器(handler)"`
@@ -1936,6 +1972,8 @@ function showText(message, submitEvent) {
 
 ## 雙向綁定 v-model
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo16) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo16.vue)
+
 `v-model` 指令可以對表單元素 `<input>`、`<textarea>` 及 `<select>` 進行資料的雙向綁定(`data` 驅動 `view`，也能從 `view` 改變 `data`)。
 
 `v-model` 會根據使用的表單元素自動使用對應的屬性及事件組合，可以**簡化手動綁定屬性值與設定事件監聽的操作**。
@@ -2127,6 +2165,8 @@ const options = ref([
 
 ### 動態值綁定
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo17) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo17.vue#L29-L63)
+
 希望將值綁定為組件上的動態數據時可以使用 `v-bind`，並且可以綁定非字串的數據。
 
 #### § checkbox
@@ -2231,6 +2271,8 @@ const selected = ref('');
 
 ### 修飾符
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo17) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo17.vue#L65-L77)
+
 #### § .lazy
 
 `v-model` 默認在每次 `input` 之後更新數據，`.lazy` 可以設定為 `change` 事件之後更新數據。
@@ -2288,6 +2330,8 @@ const trimMsg = ref('');
 ![v-model-13.gif](./images/gif/v-model-13.gif)
 
 ## 生命週期鉤子
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo18) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo18.vue)
 
 ![圖片29](./images/29.PNG)
 
@@ -2378,6 +2422,8 @@ onUnmounted(() => {
 ![lifecycle.gif](./images/gif/lifecycle.gif)
 
 ## 模板引用 ref 屬性
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo19) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo19.vue)
 
 只可以在組件掛載後才可以引用，組件掛載前為 `null`。
 
@@ -2509,6 +2555,8 @@ Script：`const 變數名稱 = ref(null);`
 
 #### § 單文件組件(SFC)
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo20) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo20.vue)
+
 使用構建步驟時，通常會使用單文件組件(SFC)，將組件定義在一個單獨的 `.vue` 文件中。
 
 ```vue
@@ -2526,7 +2574,9 @@ const count = ref(0);
 
 #### § 包含 Vue 特定選項的物件
 
-不使用構建步驟時，使用一個包含 Vue 特定選項的 js 物件來定義。並在一個 `.js` 文件裡默認導出它自己。[Github](https://github.com/YPINPIN/vue3-cdn-test/blob/main/index.html) | [demo](https://ypinpin.github.io/vue3-cdn-test/)。
+[💻Demo](https://ypinpin.github.io/vue3-cdn-test/) | [📝code](https://github.com/YPINPIN/vue3-cdn-test/tree/main)
+
+不使用構建步驟時，使用一個包含 Vue 特定選項的 js 物件來定義。並在一個 `.js` 文件裡默認導出它自己。
 
 ```javascript
 // App.js
@@ -2630,6 +2680,8 @@ export default {
 
 ### 使用組件
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo21) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo21.vue)
+
 使用一個子組件需要在父組件中導入或是全局註冊。
 
 組件可以多次使用，但是**每個組件都有自己的實例來維護自己的狀態**。
@@ -2652,6 +2704,8 @@ import Demo21Child1 from './Demo21Child1.vue';
 ---
 
 ### 動態組件
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo22) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo22.vue)
 
 需要在組件間來回切換時，例如 Tab 介面，可以使用動態組件 `<component :is="..."></component>`，被切換掉的組件會**被卸載**，可以另外透過 [`<keep-alive>`](#keepalive) 內置組件緩存組件狀態。
 
@@ -2690,6 +2744,8 @@ const tabs = {
 ![component-2.gif](./images/gif/component-2.gif)
 
 ## props 傳遞 (父傳子)
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo23) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo23.vue)
 
 父組件在子組件上使用屬性綁定要傳遞的 `props`，子組件中則需要聲明接受的 `props`，才能知道傳入的那些是 `props`。
 
@@ -2932,6 +2988,8 @@ const post = {
 
 ### 單向數據流
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo24) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo24.vue)
+
 `props` 遵循著單向數據綁定原則，`props` 會因父組件的更新而變化，但是禁止在子組件中去更改 `props`。
 
 父組件：
@@ -3162,6 +3220,8 @@ const newTitle = computed(() => props.title.trim().toLowerCase());
 
 ### props 校驗
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo25) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo25.vue)
+
 可以對 `defineProps()` 提供一個帶有校驗選項的物件，若傳入的值不符合類型要求，會印出警告提醒(不影響運行)。
 
 ![圖片37](./images/37.PNG)
@@ -3274,6 +3334,8 @@ const props = defineProps({
   ```
 
 ## 組件事件 (子傳父)
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo26) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo26.vue)
 
 子組件自定義事件並觸發，父組件進行事件的監聽，可以藉此獲得子組件傳遞的事件參數。
 
@@ -3479,6 +3541,8 @@ function btnClickHandler() {
   ![emit-3.gif](./images/gif/emit-3.gif)
 
 ## 組件 v-model 雙向綁定
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo27) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo27.vue)
 
 父子元件之間傳遞資料，一般是透過 `props` 與 `emits` 來完成。而 `v-model` 就是結合使用 `props` 和 `emits` 的語法糖。
 
@@ -3951,6 +4015,8 @@ defineEmits(['update:firstName', 'update:lastName']);
 
 ## 透傳 Attributes
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo28) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo28.vue)
+
 指傳遞給一個組件，卻沒有被該組件聲明為 `props` 或 `emits` 的 attribute 或 `v-on` 事件監聽器，最常見的例子：`class`、`style`、`id`。
 
 ### Attributes 繼承
@@ -4239,6 +4305,8 @@ defineOptions({
 > 注意：這裡的 `attrs` 物件並不是響應式的，如果需要響應性，可以使用 `props`，或是另外使用 `onUpdated()` 在每次更新時可以獲得最新的 `attrs`。
 
 ## 插槽 Slots
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo29) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo29.vue)
 
 想要傳遞**模板內容**給子組件，讓子組件在它的組件中渲染這些模板片段，可以使用 `<slot>` 元素。**插槽內容不侷限於文本，也可傳入多個元素或組件**。
 
@@ -4747,6 +4815,8 @@ const message = ref('Welcome~~~');
 
 ## 依賴注入 (Provide/Inject)
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo30) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo30.vue)
+
 當某個深層的子組件**需要一個較遠的祖先組件中的部分數據時**，如果僅使用 `props` 則必須沿著組件逐級傳遞，**當層級越多時，影響的中間組件則會越多**，因此會非常麻煩。
 
 依賴注入 (Provide/Inject) 可以幫助我們解決這一問題，一個父組件會作為**依賴提供者**，其**所有的後代組件**，無論層級都可以**注入由父組件提供的依賴**。
@@ -4998,6 +5068,8 @@ const message = ref('Welcome~~~');
 
 ## 異步組件
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo31) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo31.vue)
+
 異步組件是一種延遲加載組件的方式，只有**在需要使用該組件時才會進行加載**，可以提高應用的性能和加載速度。
 
 透過使用 `defineAsyncComponent` 方法可以定義異步組件，**方法接收一個返回 `Promise` 的加載函數**，在獲得組件時調用 `resolve` 回調方法，加載失敗時則可以調用 `reject`。
@@ -5123,6 +5195,8 @@ const AsyncComponent3 = defineAsyncComponent({
 ![asyncComponent-3.gif](./images/gif/asyncComponent-3.gif)
 
 ## 組合式函數 (Composables)
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo32) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo32.vue)
 
 組合式函數 (Composables) 是**利用 Vue 的組合式 API 來封裝和複用有狀態邏輯的函數**，例如跟蹤滑鼠在頁面中的位置、數據庫的連接狀態等等，每一個組合式函數調用時會**創建其獨有的狀態，因此不會互相影響**。
 
@@ -5518,6 +5592,8 @@ function timeout() {
 
 ## 自定義指令
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo33) | [📝code1](https://github.com/YPINPIN/vue3-note/blob/main/src/main.js#L12-L24) & [📝code2](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo33.vue)
+
 除了 Vue 內置的指令( `v-model`、 `v-show` 等等)，也可以自己註冊自定義指令 (Custom Directives)。
 
 自定義指令主要是為了**複用涉及普通元素的底層 DOM 訪問的邏輯**。
@@ -5828,6 +5904,8 @@ const vMyDirective = {
 
 ## 插件 (Plugins)
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo34) | [📝code1](https://github.com/YPINPIN/vue3-note/blob/main/src/plugins/i18n.js) & [📝code2](https://github.com/YPINPIN/vue3-note/blob/main/src/main.js#L29-L61) & [📝code3](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo34.vue)
+
 插件是一種可以為 Vue 添加全局功能的工具。
 
 語法：`app.use(插件, 可選的選項設置)`
@@ -6002,6 +6080,8 @@ watch(selectLang, (newVal) => {
 ![plugins-1.gif](./images/gif/plugins-1.gif)
 
 ## 過渡動畫 (transition)
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo35) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo35.vue)
 
 Vue 提供了兩個內置組件(`<transition>`、`<transition-group>`)，可以製作基於狀態變化的過渡及動畫
 。
@@ -6434,7 +6514,7 @@ function onLeaveCancelled(el) {
 
 語法：`<transition :css="false">...</transition>`
 
-可以參考官方的範例：[Demo](https://reurl.cc/ezDxzQ)
+可以參考官方的範例：[💻Demo](https://reurl.cc/ezDxzQ)
 
 ---
 
@@ -6669,6 +6749,8 @@ const count = ref(0);
 
 ## 過渡動畫 (transition-group)
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo36) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo36.vue)
+
 `<transition-group>` 組件會在一個 `v-for` 列表中的元素或組件被插入、移動或移除時應用動畫效果。
 
 支持和 `<transition>` 組件一樣的 `props`、CSS 過渡 class 和 Javascript 鉤子。
@@ -6808,11 +6890,13 @@ function change() {
 
 也可以將元素的索引設置到 `data` attribute 上，並通過在 Javascript 鉤子中讀取元素的 `data` attribute，來實現帶漸進式延遲的列表動畫。
 
-可以參考官方的範例：[Demo](https://reurl.cc/5v1r2n)
+可以參考官方的範例：[💻Demo](https://reurl.cc/5v1r2n)
 
 ![transition-group-3.gif](./images/gif/transition-group-3.gif)
 
 ## KeepAlive
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo37) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo37.vue)
 
 默認情況下，一個組件實例在被替換後會被銷毀，已變化的狀態將會丟失，當組件被再次顯示時，會創建一個只帶有初始狀態的新實例。
 
@@ -6932,6 +7016,8 @@ onDeactivated(() => {
 ```
 
 ## Teleport
+
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo38) | [📝code1](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo38.vue) & [📝code2](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo38Child1.vue) & [📝code3](https://github.com/YPINPIN/vue3-note/blob/main/src/App.vue#L175-L177)
 
 使用 `<Teleport>` 組件可以將一個組件內部的**一部份模板傳送到組件的 DOM 結構外層的位置**。
 
@@ -7153,6 +7239,8 @@ onDeactivated(() => {
 
 ## Suspense (實驗性功能)
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo39) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo39.vue)
+
 用來在組件樹中協調異步依賴的處理，**可以在組件樹上層等待下層的多個嵌套異步依賴完成，並在等待各個異步依賴結果時渲染一個加載狀態**，避免各自處理顯示加載狀態(Loading)可能影響使用者體驗。
 
 `<Suspense>` 可以等待的異步依賴有幾種：
@@ -7317,6 +7405,8 @@ Vue 很適合用來建構單頁面應用，對於大多數的此類應用，都�
 
 ### 實現一個簡單的路由
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo40) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo40.vue)
+
 如果只需要簡單使用，不想引入整個路由庫，可以通過動態組件方式，監聽 `hashchange` 事件來更新當前組件。
 
 ```vue
@@ -7395,6 +7485,8 @@ function increment() {
 
 ### 多個組件需要共享一個共同的狀態
 
+[💻Demo](https://ypinpin.github.io/vue3-note/#/Demo41) | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo41.vue)
+
 當有多個組件需要共享一個共同的狀態時，**可能會需要透過將狀態提升到共同的祖先組件在通過 `props` 傳遞以及觸發事件來改變狀態**，這可能會導致程式碼不好維護。
 
 更簡單的方式是**將共享狀態抽取出來放在一個全局單例中來管理**，讓任何位置上的組件都可以訪問其中的狀態或觸發動作。
@@ -7405,7 +7497,7 @@ function increment() {
 
 但是可以被任何組件任意改變的全局狀態並不好進行維護，因此建議改變邏輯的狀態像狀態本身一樣集中在 store 中。
 
-- utility/store.js
+- utility/store.js | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/utility/store.js)
 
   ```javascript
   import { reactive } from 'vue';
@@ -7418,7 +7510,7 @@ function increment() {
   });
   ```
 
-- 組件中使用：
+- 組件中使用 | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo41Child1.vue)：
 
   ```vue
   <script setup>
@@ -7440,7 +7532,7 @@ function increment() {
 
 也可以使用其他響應式 API，例如 `ref()`、`computed()` 或是組合式函數。
 
-- composables/useCount.js
+- composables/useCount.js | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/composables/useCount.js)
 
   ```javascript
   import { ref } from 'vue';
@@ -7469,7 +7561,7 @@ function increment() {
   }
   ```
 
-- 組件中使用：
+- 組件中使用 | [📝code](https://github.com/YPINPIN/vue3-note/blob/main/src/components/Demo41Child3.vue)：
 
   ```vue
   <script setup>
@@ -7591,6 +7683,8 @@ export function increment(current, max = 10) {
 }
 ```
 
+[📝test code](https://github.com/YPINPIN/vue3-note/blob/main/tests/helpers.test.js)
+
 ```javascript
 // tests/helpers.test.js
 import { increment } from '../src/utility/helpers.js';
@@ -7639,6 +7733,8 @@ describe('increment', () => {
 
   測試檔案：
 
+  [📝test code](https://github.com/YPINPIN/vue3-note/blob/main/tests/counter.test.js)
+
   ```javascript
   // tests/counter.test.js
   import { useCounter } from '../src/composables/useCounter.js';
@@ -7683,6 +7779,8 @@ describe('increment', () => {
   ```
 
 - my-component.test.js
+
+  [📝test code](https://github.com/YPINPIN/vue3-note/blob/main/tests/my-component.test.js)
 
   ```javascript
   import { mount } from '@vue/test-utils';
@@ -7749,6 +7847,8 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 ### Vue SSR 基礎範例
 
 #### § 渲染一個應用
+
+[💻 官方 Demo](https://stackblitz.com/edit/vue-ssr-example-basic-pgbfp6?file=server.js)
 
 - 1.創建一個新的文件夾，cd 進入。
 
@@ -7828,13 +7928,13 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 
   ![圖片70](./images/70.PNG)
 
-  [官方 Demo](https://stackblitz.com/fork/vue-ssr-example-basic?file=index.js)
-
 #### § 用戶端激活
 
 可以看到上方頁面中的按鈕因為是完全靜態的，因此點擊並不會有任何作用。
 
 為了使用戶端可以進行交互，Vue 需要執行一個 **"激活"** 步驟，激活的過程中，Vue 會**創建一個與伺服器端完全相同的應用實例，然後將每個組件與它應該控制的 DOM 節點匹配，並添加 DOM 事件監聽器**。
+
+[💻 官方 Demo](https://stackblitz.com/fork/vue-ssr-example?file=index.js)
 
 為了在激活模式下掛載應用，應該使用 `createSSRApp()` 而不是 `createApp()`：
 
@@ -7935,8 +8035,6 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 
   ![ssr-1.gif](./images/gif/ssr-1.gif)
 
-  [官方 Demo](https://stackblitz.com/fork/vue-ssr-example?file=index.js)
-
 ---
 
 ### 解決方案
@@ -7949,7 +8047,9 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 
 ## TypeScript 與 組合式 API
 
-要在單文件組件 (SFC) 中使用 TypeScript 時，需要在 `<script setup>` 標籤上加上 `lang="ts"` 的 attribute。這時所有的模板內表達式都將受到更嚴格的類型檢查，[Demo](https://reurl.cc/Ej4KMv)。
+要在單文件組件 (SFC) 中使用 TypeScript 時，需要在 `<script setup>` 標籤上加上 `lang="ts"` 的 attribute。這時所有的模板內表達式都將受到更嚴格的類型檢查。
+
+[💻Demo](https://reurl.cc/Ej4KMv)
 
 ![圖片71](./images/71.PNG)
 
@@ -8221,7 +8321,7 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
   </script>
   ```
 
-> reactive **不推薦使用泛型參數**，因為當有深層的 ref 時，因為**解包的返回值與泛型參數的類型會不同**，可能導致一些類型的疑惑，建議直接使用上方的兩種方式聲明類型即可。[詳細說明](https://juejin.cn/post/7164563909364416520) | [Demo](https://reurl.cc/z1lK3e)。
+> reactive **不推薦使用泛型參數**，因為當有深層的 ref 時，因為**解包的返回值與泛型參數的類型會不同**，可能導致一些類型的疑惑，建議直接使用上方的兩種方式聲明類型即可。[詳細說明](https://juejin.cn/post/7164563909364416520) | [💻Demo](https://reurl.cc/z1lK3e)。
 
 ![圖片80](./images/80.PNG)
 
@@ -8263,7 +8363,7 @@ SSG 與 SSR 相同，具有優秀的首屏加載性能、更好的 SEO，且比 
 
 另外在訪問 `event` 上的屬性時可能需要使用**類型斷言**。
 
-[Demo](https://reurl.cc/Aj4pLE)
+[💻Demo](https://reurl.cc/Aj4pLE)
 
 ```vue
 <script setup lang="ts">
@@ -8390,7 +8490,7 @@ onMounted(() => {
 
 為了獲得 MyModal 子組件的類型，首先需要透過 `typeof` 得到其類型，再使用 TypeScript 內置的 `InstanceType` 工具類型來獲取其實例類型。
 
-[Demo](https://reurl.cc/RqWxMn)
+[💻Demo](https://reurl.cc/RqWxMn)
 
 - MyModal.vue
 
